@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ski Track Simulator</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      position: relative;
+      width: 90vw;
+      height: 75vh;
+      background-color: #ffffff;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    .info {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    /* Stile base per i bottoni */
+    button {
+      padding: 8px 15px;
+      font-size: 12px; 
+      border: none;
+      color: white;         /* testo bianco */
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      opacity: 0.9;         /* effetto hover generico */
+    }
+
+    /* Bottone "Same Run" in basso a sx -> diventa verde */
+    #sameTrack {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: #28a745; /* Verde */
+    }
+
+    /* Bottone "New Run" in basso a dx -> rimane blu come default? 
+       Se vuoi mantenerlo blu, lascia tutto invariato. 
+       Altrimenti specifica un colore. */
+    #differentTrack {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background-color: #007BFF; /* Blu (resta com'era) */
+    }
+
+    /* Bottone "Chrono" in alto a dx -> diventa grigio */
+    #chronoButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #6c757d; /* Grigio */
+    }
+
+    /* TESTO in alto a sinistra per SuperG / Gigante / Speciale -> font-size 14px */
+    #modeLabel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: blue;
+      font-size: 14px;   /* Aumentato da 12px a 14px */
+      font-weight: bold;
+    }
+
+    /* Overlay per Top 5 e Tempi */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hidden {
+      display: none;
+    }
+    .overlay-content {
+      position: relative;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 700px;
+      box-sizing: border-box;
+    }
+
+    #closeOverlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #dc3545;
+      font-size: 14px;
+      padding: 5px 10px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #closeOverlay:hover {
+      background-color: #c82333;
+    }
+
+    .leaderboard-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 10px;
+    }
+
+    .leaderboard-container h2 {
+      font-size: 16px;
+    }
+
+    .leaderboard, .chronology {
+      width: 45%;
+    }
+
+    .leaderboard h2, .chronology h2 {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    ol, ul {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      list-style: decimal inside;
+      min-height: 100px;
+      padding: 10px;
+      margin: 0;
+    }
+
+    li {
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas"></canvas>
+
+    <!-- Etichetta per SuperG / Gigante / Speciale -->
+    <p id="modeLabel"></p>
+
+    <!-- Bottoni di controllo "in gioco" -->
+    <button id="sameTrack">Same Run</button>
+    <button id="differentTrack">New Run</button>
+    <button id="chronoButton">Chrono</button>
+
+    <!-- Overlay nascosto di default -->
+    <div id="chronoOverlay" class="overlay hidden">
+      <div class="overlay-content">
+        <button id="closeOverlay">X</button>
+        <div class="leaderboard-container">
+          <div class="leaderboard">
+            <h2>Top 5</h2>
+            <ol id="leaderboardList"></ol>
+          </div>
+          <div class="chronology">
+            <h2>Tempi</h2>
+            <ul id="chronologyList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <p id="finalTimeOutput">Final Time: 1'00"000'''</p>
+    <p id="statusOutput" style="color: red; font-weight: bold;"></p>
+  </div>
+
+  <div class="controls"></div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const finalTimeOutput = document.getElementById('finalTimeOutput');
+    const statusOutput = document.getElementById('statusOutput');
+
+    const sameTrackButton = document.getElementById('sameTrack');
+    const differentTrackButton = document.getElementById('differentTrack');
+    const chronoButton = document.getElementById('chronoButton');
+    const chronoOverlay = document.getElementById('chronoOverlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+
+    const modeLabel = document.getElementById('modeLabel');
+
+    let bestTimes = [];
+    let allTimes = [];
+
+    let drawing = false;
+    let points = [];
+    let startTime = 0;
+    let gates = [];
+    let currentTrack = null;
+
+    let startPoint = { x: 0, y: 0 };
+    let finishLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
+    let finishRect = { x: 0, y: 0, width: 0, height: 10 };
+
+    let intersectedGates = new Set();
+
+    chronoButton.addEventListener('click', () => {
+      chronoOverlay.classList.remove('hidden');
+    });
+
+    closeOverlay.addEventListener('click', () => {
+      chronoOverlay.classList.add('hidden');
+    });
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      drawTrack(currentTrack);
+    });
+
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      startPoint = { x: canvas.width / 2, y: 20 };
+      finishLine = {
+        x1: canvas.width / 2 - 20,
+        y1: canvas.height - 30,
+        x2: canvas.width / 2 + 20,
+        y2: canvas.height - 30
+      };
+      finishRect = {
+        x: finishLine.x1,
+        y: finishLine.y1,
+        width: 40,
+        height: 10
+      };
+    }
+
+    function drawTrack(track = null) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // start point
+      ctx.fillStyle = 'red';
+      ctx.beginPath();
+      ctx.arc(startPoint.x, startPoint.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // finish area (rettangolo verde)
+      ctx.fillStyle = 'green';
+      ctx.fillRect(finishRect.x, finishRect.y, finishRect.width, finishRect.height);
+
+      if (!track) {
+        gates = [];
+        const gateCount = Math.floor(Math.random() * 5) + 6;
+
+        setModeLabel(gateCount);
+
+        let isRed = true;
+        for (let i = 0; i < gateCount; i++) {
+          const x = isRed
+            ? Math.random() * (canvas.width / 2 - 20) + canvas.width / 2
+            : Math.random() * (canvas.width / 2 - 20) + 20;
+          const y = 60 + i * ((canvas.height - 120) / gateCount);
+          const color = isRed ? 'red' : 'blue';
+          const direction = isRed ? 1 : -1;
+
+          gates.push({
+            x,
+            y,
+            color,
+            line: { x1: x, y1: y, x2: x + direction * 100, y2: y }
+          });
+
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          if (isRed) {
+            ctx.moveTo(x - 5, y - 5);
+            ctx.lineTo(x + 5, y);
+            ctx.lineTo(x - 5, y + 5);
+          } else {
+            ctx.moveTo(x + 5, y - 5);
+            ctx.lineTo(x - 5, y);
+            ctx.lineTo(x + 5, y + 5);
+          }
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = 'transparent';
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + direction * 100, y);
+          ctx.stroke();
+
+          isRed = !isRed;
+        }
+        currentTrack = gates;
+      } else {
+        gates = track;
+        setModeLabel(gates.length);
+
+        for (const gate of gates) {
+          const { x, y, color, line } = gate;
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          if (color === 'red') {
+            ctx.moveTo(x - 5, y - 5);
+            ctx.lineTo(x + 5, y);
+            ctx.lineTo(x - 5, y + 5);
+          } else {
+            ctx.moveTo(x + 5, y - 5);
+            ctx.lineTo(x - 5, y);
+            ctx.lineTo(x + 5, y + 5);
+          }
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = 'transparent';
+          ctx.beginPath();
+          ctx.moveTo(line.x1, line.y1);
+          ctx.lineTo(line.x2, line.y2);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function setModeLabel(gateCount) {
+      if (gateCount === 6 || gateCount === 7) {
+        modeLabel.textContent = 'SuperG';
+      } else if (gateCount === 8) {
+        modeLabel.textContent = 'Gigante';
+      } else if (gateCount === 9 || gateCount === 10) {
+        modeLabel.textContent = 'Speciale';
+      } else {
+        modeLabel.textContent = '';
+      }
+    }
+
+    function resetTrack(track = null, resetLeaderboards = false) {
+      drawing = false;
+      points = [];
+      intersectedGates.clear();
+      finalTimeOutput.textContent = "Final Time: 1'00\"000'''";
+      statusOutput.textContent = '';
+
+      if (resetLeaderboards) {
+        bestTimes = [];
+        allTimes = [];
+        updateLeaderboard();
+        updateChronology();
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawTrack(track);
+    }
+
+    function isNearStartPoint(x, y) {
+      const distance = Math.sqrt(
+        Math.pow(x - startPoint.x, 2) + Math.pow(y - startPoint.y, 2)
+      );
+      return distance <= 20;
+    }
+
+    function checkIntersections() {
+      for (let i = 1; i < points.length; i++) {
+        const p1 = points[i - 1];
+        const p2 = points[i];
+
+        for (const [index, gate] of gates.entries()) {
+          const { x1, y1, x2, y2 } = gate.line;
+          if (linesIntersect(p1.x, p1.y, p2.x, p2.y, x1, y1, x2, y2)) {
+            intersectedGates.add(index);
+          }
+        }
+
+        if (isSegmentInFinishArea(p1, p2, finishRect)) {
+          if (intersectedGates.size === gates.length) {
+            finishRun();
+          } else {
+            statusOutput.textContent = 'You missed a gate!';
+            drawing = false;
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function isSegmentInFinishArea(p1, p2, rect) {
+      if ((p1.y < rect.y && p2.y < rect.y) ||
+          (p1.y > rect.y + rect.height && p2.y > rect.y + rect.height)) {
+        return false;
+      }
+      if ((p1.x < rect.x && p2.x < rect.x) ||
+          (p1.x > rect.x + rect.width && p2.x > rect.x + rect.width)) {
+        return false;
+      }
+      return true;
+    }
+
+    function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+      const det = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
+      if (det === 0) return false;
+
+      const lambda = ((y4 - y3) * (x4 - x1) + (x3 - x4) * (y4 - y1)) / det;
+      const gamma = ((y1 - y2) * (x4 - x1) + (x2 - x1) * (y4 - y1)) / det;
+      return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+    }
+
+    function calculateFinalTime(actualTime, pathLength, scalingFactor, weight) {
+      const timeInSeconds = actualTime / 1000;
+      const penalty = weight * (pathLength / scalingFactor);
+      // Partenza "fissa" di 1 minuto => 60 secondi
+      const finalTime = 60 + timeInSeconds + penalty;
+      return finalTime;
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = (seconds % 60).toFixed(3);
+      return `${minutes}'${remainingSeconds.replace('.', '"')}'''`;
+    }
+
+    function finishRun() {
+      drawing = false;
+      const endTime = performance.now();
+      const elapsedTime = endTime - startTime;
+
+      let totalLength = 0;
+      for (let i = 1; i < points.length; i++) {
+        const dx = points[i].x - points[i - 1].x;
+        const dy = points[i].y - points[i - 1].y;
+        totalLength += Math.sqrt(dx * dx + dy * dy);
+      }
+
+      const scalingFactor = 500;
+      const weight = 0.5;
+      const finalTimeInSeconds = calculateFinalTime(
+        elapsedTime,
+        totalLength,
+        scalingFactor,
+        weight
+      );
+
+      finalTimeOutput.textContent = `Final Time: ${formatTime(finalTimeInSeconds)}`;
+      statusOutput.textContent = 'Finished!';
+
+      updateTimes(finalTimeInSeconds);
+    }
+
+    function updateTimes(timeInSeconds) {
+      allTimes.push(timeInSeconds);
+      updateChronology();
+
+      bestTimes.push(timeInSeconds);
+      bestTimes.sort((a, b) => a - b);
+      if (bestTimes.length > 5) {
+        bestTimes.length = 5;
+      }
+      updateLeaderboard();
+    }
+
+    function updateLeaderboard() {
+      const leaderboardList = document.getElementById('leaderboardList');
+      leaderboardList.innerHTML = '';
+      bestTimes.forEach((time) => {
+        const li = document.createElement('li');
+        li.textContent = formatTime(time);
+        leaderboardList.appendChild(li);
+      });
+    }
+
+    function updateChronology() {
+      const chronologyList = document.getElementById('chronologyList');
+      chronologyList.innerHTML = '';
+      allTimes.forEach((time) => {
+        const li = document.createElement('li');
+        li.textContent = formatTime(time);
+        chronologyList.appendChild(li);
+      });
+    }
+
+    function getCoordinates(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+      const y = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+      return { x, y };
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const { x, y } = getCoordinates(e);
+      if (!isNearStartPoint(x, y)) {
+        statusOutput.textContent = 'You must start from the start point!';
+        return;
+      }
+
+      drawing = true;
+      points = [];
+      startTime = performance.now();
+      statusOutput.textContent = '';
+
+      ctx.beginPath();
+      points.push({ x, y });
+      ctx.moveTo(x, y);
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const { x, y } = getCoordinates(e);
+      if (!isNearStartPoint(x, y)) {
+        statusOutput.textContent = 'You must start from the start point!';
+        return;
+      }
+
+      drawing = true;
+      points = [];
+      startTime = performance.now();
+      statusOutput.textContent = '';
+
+      ctx.beginPath();
+      points.push({ x, y });
+      ctx.moveTo(x, y);
+    });
+
+    function handleMove(e) {
+      if (!drawing) return;
+
+      const { x, y } = getCoordinates(e);
+      points.push({ x, y });
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      checkIntersections();
+    }
+
+    canvas.addEventListener('mousemove', handleMove);
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      handleMove(e);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      if (!drawing) return;
+      drawing = false;
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      if (!drawing) return;
+      drawing = false;
+    });
+
+    sameTrackButton.addEventListener('click', () => resetTrack(currentTrack));
+    differentTrackButton.addEventListener('click', () => resetTrack(null, true));
+
+    resizeCanvas();
+    drawTrack();
+  </script>
+</body>
+</html>
