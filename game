@@ -2,27 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ski Track Simulator</title>
+  <meta name="viewport" content="width=300, initial-scale=1.0"/> 
+  <!-- Nota: La viewport è impostata in modo da mantenere la larghezza fissa per il gioco -->
+  <title>Ski Track Simulator - Replay Feature</title>
   <style>
+    /* ==============================
+       CSS SECTION
+    ============================== */
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
     body {
       display: flex;
       flex-direction: column;
-      justify-content: start;
       align-items: center;
-      min-height: 100vh;
-      margin: 0;
       font-family: Arial, sans-serif;
+      background: #f0f0f0;
     }
 
+    /* Campo di gioco a dimensioni fisse (300px x 520px) */
     .container {
       position: relative;
-      width: 90vw;
-      height: 75vh;
+      width: 300px;
+      height: 520px;
       background-color: #ffffff;
       border: 2px solid #ccc;
       border-radius: 10px;
       margin-top: 20px;
+      box-sizing: border-box;
     }
 
     canvas {
@@ -34,61 +45,59 @@
       cursor: crosshair;
     }
 
-    .info {
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    /* Stile base per i bottoni */
-    button {
-      padding: 8px 15px;
-      font-size: 12px; 
-      border: none;
-      color: white;         /* testo bianco */
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      opacity: 0.9;         /* effetto hover generico */
-    }
-
-    /* Bottone "Same Run" in basso a sx -> diventa verde */
-    #sameTrack {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      background-color: #28a745; /* Verde */
-    }
-
-    /* Bottone "New Run" in basso a dx -> rimane blu come default? 
-       Se vuoi mantenerlo blu, lascia tutto invariato. 
-       Altrimenti specifica un colore. */
-    #differentTrack {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background-color: #007BFF; /* Blu (resta com'era) */
-    }
-
-    /* Bottone "Chrono" in alto a dx -> diventa grigio */
-    #chronoButton {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: #6c757d; /* Grigio */
-    }
-
-    /* TESTO in alto a sinistra per SuperG / Gigante / Speciale -> font-size 14px */
+    /* Etichetta in alto a sinistra per SuperG / Gigante / Speciale (cliccabile) */
     #modeLabel {
       position: absolute;
       top: 10px;
       left: 10px;
       color: blue;
-      font-size: 14px;   /* Aumentato da 12px a 14px */
+      font-size: 14px;
       font-weight: bold;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;  
     }
 
-    /* Overlay per Top 5 e Tempi */
+    /* Bottoni di controllo - tutti senza sfondo, solo emoji */
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+      color: black; 
+    }
+    button:hover {
+      opacity: 0.7; 
+    }
+
+    /* Posizioni specifiche per i bottoni icona */
+    #sameTrack {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+    }
+    #replayButton {
+      /* Bottone Replay: icona ⏯️
+         Posizionato accanto a Same Run */
+      position: absolute;
+      bottom: 10px;
+      left: 50px; /* leggermente a destra di sameTrack */
+    }
+    #differentTrack {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+    }
+    #chronoButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    /* Overlay (Chrono) -> solo la Top 5 */
     .overlay {
       position: absolute;
       top: 0;
@@ -104,13 +113,14 @@
     .hidden {
       display: none;
     }
+
     .overlay-content {
       position: relative;
       background-color: #fff;
       border-radius: 10px;
       padding: 20px;
       width: 90%;
-      max-width: 700px;
+      max-width: 700px; 
       box-sizing: border-box;
     }
 
@@ -130,29 +140,24 @@
       background-color: #c82333;
     }
 
+    /* Sfruttiamo più spazio per la leaderboard */
     .leaderboard-container {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
+      display: block; 
       width: 100%;
-      box-sizing: border-box;
       margin-top: 10px;
     }
 
-    .leaderboard-container h2 {
-      font-size: 16px;
+    .leaderboard {
+      width: 80%; 
+      margin: 0 auto;
     }
 
-    .leaderboard, .chronology {
-      width: 45%;
-    }
-
-    .leaderboard h2, .chronology h2 {
+    .leaderboard h2 {
       text-align: center;
       margin: 10px 0;
     }
 
-    ol, ul {
+    ol {
       border: 1px solid #ccc;
       border-radius: 5px;
       list-style: decimal inside;
@@ -164,21 +169,157 @@
     li {
       padding: 5px 0;
     }
+
+    /* Final Time, avvisi e controlli in basso */
+    .info-container {
+      margin-top: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #finalTimeOutput {
+      margin: -10px 0;
+      font-weight: bold;
+    }
+    #statusOutput {
+      margin: 15px 0;
+      font-weight: bold;
+      color: red;
+    }
+
+    .controls-row {
+      display: flex; 
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 5px; 
+      margin-top: -10px;
+    }
+
+    #playerNameInput {
+      width: 22%; /* Ridotto del 30% circa */
+      min-width: 80px;
+      padding: 2px;
+    }
+
+    #savedTracksSelect {
+      padding: 2px; 
+      width: 94px; /* Aumentato del 30% circa */
+    }
+
+    #loadTrackButton, 
+    #deleteTrackButton {
+      font-size: 18px;  
+      line-height: 1;
+    }
+  </style>
+  <!-- Includiamo FileSaver.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    .tutorial-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .tutorial-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+
+    .tutorial-slide {
+      text-align: center;
+    }
+
+    .tutorial-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .tutorial-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: #007bff;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .nav-button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .nav-button:disabled {
+      background: #ccc;
+    }
+
+    .skip-button {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      text-decoration: underline;
+    }
   </style>
 </head>
+
 <body>
+  <div id="tutorial-root"></div>
   <div class="container">
     <canvas id="canvas"></canvas>
 
-    <!-- Etichetta per SuperG / Gigante / Speciale -->
+    <!-- Label “SuperG / Gigante / Speciale” -->
     <p id="modeLabel"></p>
 
-    <!-- Bottoni di controllo "in gioco" -->
-    <button id="sameTrack">Same Run</button>
-    <button id="differentTrack">New Run</button>
-    <button id="chronoButton">Chrono</button>
+    <!-- Bottoni-icona di controllo in basso/alto -->
+    <button id="sameTrack" title="Same Run">🔁</button>
+    <button id="replayButton" title="Replay">⏯️</button>
+    <button id="differentTrack" title="New Run">✨</button>
+    <button id="chronoButton" title="Chrono">⏰</button>
 
-    <!-- Overlay nascosto di default -->
+    <!-- Overlay classifica -->
     <div id="chronoOverlay" class="overlay hidden">
       <div class="overlay-content">
         <button id="closeOverlay">X</button>
@@ -187,177 +328,187 @@
             <h2>Top 5</h2>
             <ol id="leaderboardList"></ol>
           </div>
-          <div class="chronology">
-            <h2>Tempi</h2>
-            <ul id="chronologyList"></ul>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="info">
-    <p id="finalTimeOutput">Final Time: 1'00"000'''</p>
-    <p id="statusOutput" style="color: red; font-weight: bold;"></p>
+  <!-- Final Time, avvisi e controlli (in basso) -->
+  <div class="info-container">
+    <p id="finalTimeOutput">⏰1'00"000'''</p>
+    <p id="statusOutput"></p>
+
+    <div class="controls-row">
+      <input type="text" id="playerNameInput" placeholder="Your name"/>
+      <select id="savedTracksSelect">
+        <option value="">Track</option>
+      </select>
+      <button id="loadTrackButton" title="Load">📥</button>
+      <button id="deleteTrackButton" title="Delete">🗑️</button>
+      <button id="exportButton" title="Esporta Pista">📤</button>
+      
+      <!-- NUOVO: Input file nascosto -->
+      <input type="file" id="fileInput" accept=".json" style="display:none;"/>
+      
+      <button id="importButton">&#128193</button>
+    </div>
   </div>
 
-  <div class="controls"></div>
-
   <script>
+    /* ==================================
+       JAVASCRIPT con funzione Replay
+       ================================== */
+
+    const PATH_LENGTH_SCALING = 500;
+    const PENALTY_WEIGHT      = 0.5;
+
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx    = canvas.getContext('2d');
 
     const finalTimeOutput = document.getElementById('finalTimeOutput');
-    const statusOutput = document.getElementById('statusOutput');
+    const statusOutput    = document.getElementById('statusOutput');
 
-    const sameTrackButton = document.getElementById('sameTrack');
+    const sameTrackButton      = document.getElementById('sameTrack');
+    const replayButton         = document.getElementById('replayButton');
     const differentTrackButton = document.getElementById('differentTrack');
-    const chronoButton = document.getElementById('chronoButton');
-    const chronoOverlay = document.getElementById('chronoOverlay');
-    const closeOverlay = document.getElementById('closeOverlay');
+    const chronoButton         = document.getElementById('chronoButton');
+    const chronoOverlay        = document.getElementById('chronoOverlay');
+    const closeOverlay         = document.getElementById('closeOverlay');
 
-    const modeLabel = document.getElementById('modeLabel');
+    const modeLabel            = document.getElementById('modeLabel');
 
-    let bestTimes = [];
-    let allTimes = [];
+    const playerNameInput      = document.getElementById('playerNameInput');
 
-    let drawing = false;
-    let points = [];
-    let startTime = 0;
-    let gates = [];
-    let currentTrack = null;
+    const savedTracksSelect    = document.getElementById('savedTracksSelect');
+    const loadTrackButton      = document.getElementById('loadTrackButton');
+    const deleteTrackButton    = document.getElementById('deleteTrackButton');
 
-    let startPoint = { x: 0, y: 0 };
-    let finishLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
-    let finishRect = { x: 0, y: 0, width: 0, height: 10 };
+    let bestTimes      = [];
+    let currentTrack   = null;
+    let currentTrackName = null;
+    let gates          = [];
 
+    // Punti: salveremo (x, y, t)
+    let points         = [];
+    let drawing        = false;
+    let startTime      = 0;
+    let startPoint     = { x: 0, y: 0 };
+    let finishRect     = { x: 0, y: 0, width: 0, height: 10 };
     let intersectedGates = new Set();
 
+    // Overlay top 5
     chronoButton.addEventListener('click', () => {
       chronoOverlay.classList.remove('hidden');
     });
-
     closeOverlay.addEventListener('click', () => {
       chronoOverlay.classList.add('hidden');
     });
 
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      drawTrack(currentTrack);
-    });
-
+    // Impostiamo le dimensioni fisse
     function resizeCanvas() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas.width = 300;
+      canvas.height = 520;
       startPoint = { x: canvas.width / 2, y: 20 };
-      finishLine = {
-        x1: canvas.width / 2 - 20,
-        y1: canvas.height - 30,
-        x2: canvas.width / 2 + 20,
-        y2: canvas.height - 30
-      };
+      const finishLineX1 = canvas.width / 2 - 20;
+      const finishLineY1 = canvas.height - 30;
       finishRect = {
-        x: finishLine.x1,
-        y: finishLine.y1,
+        x: finishLineX1,
+        y: finishLineY1,
         width: 40,
         height: 10
       };
     }
 
-    function drawTrack(track = null) {
+    function drawTrack(track) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawStartPoint();
+      drawFinishArea();
 
-      // start point
-      ctx.fillStyle = 'red';
-      ctx.beginPath();
-      ctx.arc(startPoint.x, startPoint.y, 10, 0, Math.PI * 2);
-      ctx.fill();
-
-      // finish area (rettangolo verde)
-      ctx.fillStyle = 'green';
-      ctx.fillRect(finishRect.x, finishRect.y, finishRect.width, finishRect.height);
-
-      if (!track) {
-        gates = [];
-        const gateCount = Math.floor(Math.random() * 5) + 6;
-
-        setModeLabel(gateCount);
-
-        let isRed = true;
-        for (let i = 0; i < gateCount; i++) {
-          const x = isRed
-            ? Math.random() * (canvas.width / 2 - 20) + canvas.width / 2
-            : Math.random() * (canvas.width / 2 - 20) + 20;
-          const y = 60 + i * ((canvas.height - 120) / gateCount);
-          const color = isRed ? 'red' : 'blue';
-          const direction = isRed ? 1 : -1;
-
-          gates.push({
-            x,
-            y,
-            color,
-            line: { x1: x, y1: y, x2: x + direction * 100, y2: y }
-          });
-
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          if (isRed) {
-            ctx.moveTo(x - 5, y - 5);
-            ctx.lineTo(x + 5, y);
-            ctx.lineTo(x - 5, y + 5);
-          } else {
-            ctx.moveTo(x + 5, y - 5);
-            ctx.lineTo(x - 5, y);
-            ctx.lineTo(x + 5, y + 5);
-          }
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.strokeStyle = 'transparent';
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + direction * 100, y);
-          ctx.stroke();
-
-          isRed = !isRed;
-        }
+      if(!track) {
+        gates = generateGates();
         currentTrack = gates;
+        currentTrackName = null;
       } else {
         gates = track;
-        setModeLabel(gates.length);
+      }
+      drawGates(gates);
+      setModeLabel(gates.length);
+    }
 
-        for (const gate of gates) {
-          const { x, y, color, line } = gate;
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          if (color === 'red') {
-            ctx.moveTo(x - 5, y - 5);
-            ctx.lineTo(x + 5, y);
-            ctx.lineTo(x - 5, y + 5);
-          } else {
-            ctx.moveTo(x + 5, y - 5);
-            ctx.lineTo(x - 5, y);
-            ctx.lineTo(x + 5, y + 5);
+    function drawStartPoint() {
+      ctx.font = '18px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';  
+      ctx.fillText('🏠', startPoint.x, startPoint.y);
+    }
+
+    function drawFinishArea() {
+      const { x, y, width, height } = finishRect;
+      const squareSize = width / 8;
+      const rowCount = Math.floor(height / (width / 8));
+      for (let row = 0; row < rowCount; row++) {
+          for (let col = 0; col < 8; col++) {
+              ctx.fillStyle = (row + col) % 2 === 0 ? 'black' : '#F0F0F0';
+              ctx.fillRect(x + col * squareSize, y + row * squareSize, squareSize, squareSize);
           }
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.strokeStyle = 'transparent';
-          ctx.beginPath();
-          ctx.moveTo(line.x1, line.y1);
-          ctx.lineTo(line.x2, line.y2);
-          ctx.stroke();
-        }
       }
     }
 
-    function setModeLabel(gateCount) {
-      if (gateCount === 6 || gateCount === 7) {
-        modeLabel.textContent = 'SuperG';
-      } else if (gateCount === 8) {
-        modeLabel.textContent = 'Gigante';
-      } else if (gateCount === 9 || gateCount === 10) {
-        modeLabel.textContent = 'Speciale';
+    function drawGates(gatesArray) {
+      for(const gate of gatesArray) {
+        const { x, y, color, line } = gate;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        if(color === 'red') {
+          ctx.moveTo(x - 5, y - 5);
+          ctx.lineTo(x + 5, y);
+          ctx.lineTo(x - 5, y + 5);
+        } else {
+          ctx.moveTo(x + 5, y - 5);
+          ctx.lineTo(x - 5, y);
+          ctx.lineTo(x + 5, y + 5);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'transparent';
+        ctx.beginPath();
+        ctx.moveTo(line.x1, line.y1);
+        ctx.lineTo(line.x2, line.y2);
+        ctx.stroke();
+      }
+    }
+
+    function generateGates() {
+      const gateCount = Math.floor(Math.random() * 5) + 6;
+      const startWithRedRight = Math.random() < 0.5;
+      let isRed = startWithRedRight;
+
+      const newGates = [];
+      for (let i = 0; i < gateCount; i++) {
+        const direction = isRed ? 1 : -1;
+        const x = isRed
+            ? Math.random() * (canvas.width / 2 - 20) + canvas.width / 2
+            : Math.random() * (canvas.width / 2 - 20) + 20;
+        const y = 60 + i * ((canvas.height - 120) / gateCount);
+        const color = isRed ? 'red' : 'blue';
+        newGates.push({
+          x, 
+          y, 
+          color,
+          line: { x1: x, y1: y, x2: x + direction * 100, y2: y }
+        });
+        isRed = !isRed;
+      }
+      return newGates;
+    }
+
+    function setModeLabel(gateCount){
+      if(gateCount === 6 || gateCount === 7) {
+        modeLabel.textContent = '💾SuperG';
+      } else if(gateCount === 8) {
+        modeLabel.textContent = '💾Gigante';
+      } else if(gateCount === 9 || gateCount === 10) {
+        modeLabel.textContent = '💾Speciale';
       } else {
         modeLabel.textContent = '';
       }
@@ -369,221 +520,486 @@
       intersectedGates.clear();
       finalTimeOutput.textContent = "Final Time: 1'00\"000'''";
       statusOutput.textContent = '';
-
-      if (resetLeaderboards) {
+      if(resetLeaderboards){
         bestTimes = [];
-        allTimes = [];
         updateLeaderboard();
-        updateChronology();
       }
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawTrack(track);
     }
 
+    // Gestione disegno con mouse
     function isNearStartPoint(x, y) {
-      const distance = Math.sqrt(
-        Math.pow(x - startPoint.x, 2) + Math.pow(y - startPoint.y, 2)
-      );
-      return distance <= 20;
+      const dist = Math.sqrt((x - startPoint.x) ** 2 + (y - startPoint.y) ** 2);
+      return (dist <= 20);
+    }
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+
+    function handleMouseDown(e){
+      const { x, y } = getMouseCoords(e);
+      if(!isNearStartPoint(x, y)){
+        statusOutput.textContent = 'False start! Try again!';
+        return;
+      }
+      drawing = true;
+      points = [];
+      startTime = performance.now();
+      statusOutput.textContent = '';
+      ctx.beginPath();
+      points.push({ x, y, t: 0 });
+      ctx.moveTo(x, y);
+    }
+    function handleMouseMove(e){
+      if(!drawing) return;
+      const { x, y } = getMouseCoords(e);
+      const now = performance.now() - startTime;
+      points.push({ x, y, t: now });
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = 'grey';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      checkIntersections();
+    }
+    function handleMouseUp(e){
+      if(!drawing)return;
+      drawing = false;
     }
 
-    function checkIntersections() {
-      for (let i = 1; i < points.length; i++) {
-        const p1 = points[i - 1];
-        const p2 = points[i];
+    // Supporto touch
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', handleTouchEnd);
 
-        for (const [index, gate] of gates.entries()) {
-          const { x1, y1, x2, y2 } = gate.line;
-          if (linesIntersect(p1.x, p1.y, p2.x, p2.y, x1, y1, x2, y2)) {
+    function handleTouchStart(e){
+      e.preventDefault();
+      const { x, y } = getMouseCoords(e);
+      if(!isNearStartPoint(x, y)){
+        statusOutput.textContent = 'You must start from the start point!';
+        return;
+      }
+      drawing = true;
+      points = [];
+      startTime = performance.now();
+      statusOutput.textContent = '';
+      ctx.beginPath();
+      points.push({ x, y, t: 0 });
+      ctx.moveTo(x, y);
+    }
+    function handleTouchMove(e){
+      e.preventDefault();
+      if(!drawing)return;
+      const { x, y } = getMouseCoords(e);
+      const now = performance.now() - startTime;
+      points.push({ x, y, t: now });
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = 'grey';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      checkIntersections();
+    }
+    function handleTouchEnd(e){
+      e.preventDefault();
+      if(!drawing)return;
+      drawing = false;
+    }
+
+    function checkIntersections(){
+      for(let i = 1; i < points.length; i++){
+        const p1 = points[i - 1], p2 = points[i];
+        for(const [index, gate] of gates.entries()){
+          if(linesIntersect(p1.x, p1.y, p2.x, p2.y,
+                            gate.line.x1, gate.line.y1,
+                            gate.line.x2, gate.line.y2)){
             intersectedGates.add(index);
           }
         }
-
-        if (isSegmentInFinishArea(p1, p2, finishRect)) {
-          if (intersectedGates.size === gates.length) {
+        if(isSegmentInFinishArea(p1, p2, finishRect)){
+          if(intersectedGates.size === gates.length){
             finishRun();
           } else {
             statusOutput.textContent = 'You missed a gate!';
             drawing = false;
           }
-          return true;
+          return;
         }
       }
-      return false;
     }
-
-    function isSegmentInFinishArea(p1, p2, rect) {
-      if ((p1.y < rect.y && p2.y < rect.y) ||
-          (p1.y > rect.y + rect.height && p2.y > rect.y + rect.height)) {
-        return false;
-      }
-      if ((p1.x < rect.x && p2.x < rect.x) ||
-          (p1.x > rect.x + rect.width && p2.x > rect.x + rect.width)) {
-        return false;
-      }
+    function isSegmentInFinishArea(p1, p2, rect){
+      if((p1.y < rect.y && p2.y < rect.y) ||
+         (p1.y > rect.y + rect.height && p2.y > rect.y + rect.height)) return false;
+      if((p1.x < rect.x && p2.x < rect.x) ||
+         (p1.x > rect.x + rect.width && p2.x > rect.x + rect.width)) return false;
       return true;
     }
-
-    function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+    function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4){
       const det = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
-      if (det === 0) return false;
-
+      if(det === 0) return false;
       const lambda = ((y4 - y3) * (x4 - x1) + (x3 - x4) * (y4 - y1)) / det;
       const gamma = ((y1 - y2) * (x4 - x1) + (x2 - x1) * (y4 - y1)) / det;
-      return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+      return (0 < lambda && lambda < 1 && 0 < gamma && gamma < 1);
     }
 
-    function calculateFinalTime(actualTime, pathLength, scalingFactor, weight) {
-      const timeInSeconds = actualTime / 1000;
-      const penalty = weight * (pathLength / scalingFactor);
-      // Partenza "fissa" di 1 minuto => 60 secondi
-      const finalTime = 60 + timeInSeconds + penalty;
-      return finalTime;
-    }
-
-    function formatTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = (seconds % 60).toFixed(3);
-      return `${minutes}'${remainingSeconds.replace('.', '"')}'''`;
-    }
-
-    function finishRun() {
+    function finishRun(){
       drawing = false;
       const endTime = performance.now();
       const elapsedTime = endTime - startTime;
-
       let totalLength = 0;
-      for (let i = 1; i < points.length; i++) {
+      for(let i = 1; i < points.length; i++){
         const dx = points[i].x - points[i - 1].x;
         const dy = points[i].y - points[i - 1].y;
         totalLength += Math.sqrt(dx * dx + dy * dy);
       }
-
-      const scalingFactor = 500;
-      const weight = 0.5;
-      const finalTimeInSeconds = calculateFinalTime(
-        elapsedTime,
-        totalLength,
-        scalingFactor,
-        weight
-      );
-
-      finalTimeOutput.textContent = `Final Time: ${formatTime(finalTimeInSeconds)}`;
+      const finalTimeSeconds = calculateFinalTime(elapsedTime, totalLength);
+      finalTimeOutput.textContent = `Final Time: ${formatTime(finalTimeSeconds)}`;
       statusOutput.textContent = 'Finished!';
-
-      updateTimes(finalTimeInSeconds);
+      updateTimes(finalTimeSeconds);
     }
 
-    function updateTimes(timeInSeconds) {
-      allTimes.push(timeInSeconds);
-      updateChronology();
+    function calculateFinalTime(actualTimeMs, pathLength){
+      const timeInSeconds = actualTimeMs / 1000;
+      const penalty = PENALTY_WEIGHT * (pathLength / PATH_LENGTH_SCALING);
+      return 60 + timeInSeconds + penalty;
+    }
+    function formatTime(seconds){
+      const minutes = Math.floor(seconds / 60);
+      const remaining = (seconds % 60).toFixed(3);
+      return `${minutes}'${remaining.replace('.', '"')}'''`;
+    }
 
-      bestTimes.push(timeInSeconds);
-      bestTimes.sort((a, b) => a - b);
-      if (bestTimes.length > 5) {
+    /* ======================================
+       REPLAY a velocità reale (bottone ⏯️)
+       ====================================== */
+    replayButton.addEventListener('click', replayTrajectory);
+    function replayTrajectory(){
+      if(points.length < 2){
+        statusOutput.textContent = "No run to replay!";
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawStartPoint();
+      drawFinishArea();
+      drawGates(gates);
+      let i = 0;
+      function step(){
+        if(i >= points.length - 1) return;
+        ctx.beginPath();
+        ctx.moveTo(points[i].x, points[i].y);
+        ctx.lineTo(points[i + 1].x, points[i + 1].y);
+        ctx.strokeStyle = 'grey';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        const dt = points[i + 1].t - points[i].t;
+        i++;
+        if(i < points.length - 1){
+          setTimeout(step, dt);
+        }
+      }
+      setTimeout(step, 0);
+    }
+
+    // Aggiornamento tempi e bestTimes
+    function updateTimes(timeInSeconds){
+      const nameValue = playerNameInput.value.trim() || "Anonymous";
+      const newResult = { name: nameValue, time: timeInSeconds };
+      bestTimes.push(newResult);
+      bestTimes.sort((a, b) => a.time - b.time);
+      if(bestTimes.length > 5){
         bestTimes.length = 5;
       }
       updateLeaderboard();
+      autoSaveTrackTimes();
     }
-
-    function updateLeaderboard() {
+    function updateLeaderboard(){
       const leaderboardList = document.getElementById('leaderboardList');
       leaderboardList.innerHTML = '';
-      bestTimes.forEach((time) => {
+      bestTimes.forEach((entry) => {
         const li = document.createElement('li');
-        li.textContent = formatTime(time);
+        li.textContent = `${entry.name} - ${formatTime(entry.time)}`;
         leaderboardList.appendChild(li);
       });
     }
 
-    function updateChronology() {
-      const chronologyList = document.getElementById('chronologyList');
-      chronologyList.innerHTML = '';
-      allTimes.forEach((time) => {
-        const li = document.createElement('li');
-        li.textContent = formatTime(time);
-        chronologyList.appendChild(li);
+    /* Persistenza localStorage */
+    function autoSaveTrackTimes(){
+      if(!currentTrackName)return;
+      let savedTracks = JSON.parse(localStorage.getItem('savedTracks')) || [];
+      const idx = savedTracks.findIndex(t => t.trackName === currentTrackName);
+      if(idx >= 0){
+        savedTracks[idx].bestTimes = bestTimes;
+        localStorage.setItem('savedTracks', JSON.stringify(savedTracks));
+      }
+    }
+    function saveCurrentTrack(){
+      if(!currentTrack || currentTrack.length === 0){
+        alert("No track to save!");
+        return;
+      }
+      const trackName = prompt("Insert a name for this track:");
+      if(!trackName)return;
+      let savedTracks = JSON.parse(localStorage.getItem('savedTracks')) || [];
+      const trackData = {
+        trackName, 
+        gates: currentTrack, 
+        bestTimes
+      };
+      savedTracks.push(trackData);
+      localStorage.setItem('savedTracks', JSON.stringify(savedTracks));
+      currentTrackName = trackName;
+      alert(`Track "${trackName}" has been saved!`);
+      populateSavedTracksList();
+    }
+    function loadTrackByName(trackName){
+      let savedTracks = JSON.parse(localStorage.getItem('savedTracks')) || [];
+      const foundTrack = savedTracks.find(t => t.trackName === trackName);
+      if(!foundTrack){
+        alert(`Track "${trackName}" not found!`);
+        return;
+      }
+      currentTrack = foundTrack.gates;
+      currentTrackName = foundTrack.trackName;
+      bestTimes = foundTrack.bestTimes || [];
+      resetTrack(currentTrack, false);
+      updateLeaderboard();
+      statusOutput.textContent = `Loaded track "${trackName}"`;
+    }
+    function deleteTrackByName(trackName){
+      let savedTracks = JSON.parse(localStorage.getItem('savedTracks')) || [];
+      const newTracks = savedTracks.filter(t => t.trackName !== trackName);
+      localStorage.setItem('savedTracks', JSON.stringify(newTracks));
+      if(currentTrackName === trackName){
+        currentTrackName = null;
+        statusOutput.textContent =
+          `Track "${trackName}" was deleted from storage (but you can still ski on it if you like).`;
+      } else {
+        statusOutput.textContent = `Track "${trackName}" has been deleted!`;
+      }
+      populateSavedTracksList();
+    }
+    function populateSavedTracksList(){
+      let savedTracks = JSON.parse(localStorage.getItem('savedTracks')) || [];
+      savedTracksSelect.innerHTML = '<option value="">Track</option>';
+      savedTracks.forEach(trackObj => {
+        const opt = document.createElement('option');
+        opt.value = trackObj.trackName;
+        opt.textContent = trackObj.trackName;
+        savedTracksSelect.appendChild(opt);
       });
     }
 
-    function getCoordinates(event) {
+    // Utility per ottenere le coordinate
+    function getMouseCoords(e){
       const rect = canvas.getBoundingClientRect();
-      const x = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
-      const y = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
-      return { x, y };
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
     }
 
-    canvas.addEventListener('mousedown', (e) => {
-      const { x, y } = getCoordinates(e);
-      if (!isNearStartPoint(x, y)) {
-        statusOutput.textContent = 'You must start from the start point!';
+    // Eventi Bottoni
+    sameTrackButton.addEventListener('click', () => {
+      resetTrack(currentTrack);
+    });
+    differentTrackButton.addEventListener('click', () => {
+      resetTrack(null, true);
+      currentTrackName = null;
+    });
+    modeLabel.addEventListener('click', saveCurrentTrack);
+
+    loadTrackButton.addEventListener('click', () => {
+      const chosenTrackName = savedTracksSelect.value;
+      if(!chosenTrackName){
+        alert("Select a track first!");
         return;
       }
-
-      drawing = true;
-      points = [];
-      startTime = performance.now();
-      statusOutput.textContent = '';
-
-      ctx.beginPath();
-      points.push({ x, y });
-      ctx.moveTo(x, y);
+      loadTrackByName(chosenTrackName);
     });
 
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const { x, y } = getCoordinates(e);
-      if (!isNearStartPoint(x, y)) {
-        statusOutput.textContent = 'You must start from the start point!';
+    deleteTrackButton.addEventListener('click', () => {
+      const chosenTrackName = savedTracksSelect.value;
+      if(!chosenTrackName){
+        alert("Select a track first!");
         return;
       }
-
-      drawing = true;
-      points = [];
-      startTime = performance.now();
-      statusOutput.textContent = '';
-
-      ctx.beginPath();
-      points.push({ x, y });
-      ctx.moveTo(x, y);
+      if(confirm(`Delete track "${chosenTrackName}" from storage?`)){
+        deleteTrackByName(chosenTrackName);
+      }
     });
 
-    function handleMove(e) {
-      if (!drawing) return;
-
-      const { x, y } = getCoordinates(e);
-      points.push({ x, y });
-      ctx.lineTo(x, y);
-      ctx.strokeStyle = 'blue';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      checkIntersections();
+    // Funzioni per esportare e importare il tracciato, con FileSaver.js per il download
+    function exportTrack() {
+      if (!currentTrack || currentTrack.length === 0) {
+          alert("Non ci sono piste da esportare!");
+          return;
+      }
+      const trackData = {
+          trackName: currentTrackName || "Unnamed Track",
+          gates: currentTrack,
+          bestTimes: bestTimes
+      };
+      const trackDataStr = JSON.stringify(trackData);
+      const blob = new Blob([trackDataStr], { type: 'application/json' });
+      const filename = `${currentTrackName || "Unnamed Track"}.json`;
+      
+      // Utilizzo di FileSaver.js per forzare il salvataggio del file
+      saveAs(blob, filename);
     }
 
-    canvas.addEventListener('mousemove', handleMove);
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      handleMove(e);
+    function importTrack(event) {
+      const fileInput = event.target || document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (!file) {
+          alert("Seleziona un file da importare!");
+          return;
+      }
+      const defaultTrackName = file.name.replace(/\.json$/, '');
+      const confirmImport = confirm(`Vuoi importare la pista "${defaultTrackName}"?`);
+      if (!confirmImport) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+          try {
+              const trackData = JSON.parse(event.target.result);
+              if (!trackData.gates || !Array.isArray(trackData.gates)) {
+                  throw new Error("File non valido");
+              }
+              currentTrack = trackData.gates;
+              currentTrackName = defaultTrackName;
+              bestTimes = trackData.bestTimes || [];
+              let savedTracks = JSON.parse(localStorage.getItem('savedTracks')) || [];
+              const existingTrackIndex = savedTracks.findIndex(t => t.trackName === currentTrackName);
+              const trackToSave = {
+                  trackName: currentTrackName, 
+                  gates: currentTrack, 
+                  bestTimes: bestTimes
+              };
+              if (existingTrackIndex !== -1) {
+                  savedTracks[existingTrackIndex] = trackToSave;
+              } else {
+                  savedTracks.push(trackToSave);
+              }
+              localStorage.setItem('savedTracks', JSON.stringify(savedTracks));
+              resizeCanvas();
+              drawTrack(currentTrack);
+              updateLeaderboard();
+              populateSavedTracksList();
+              alert(`Pista "${currentTrackName}" importata e salvata con successo!`);
+              fileInput.value = '';
+          } catch (error) {
+              alert("Errore durante l'importazione: " + error.message);
+          }
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('exportButton').addEventListener('click', exportTrack);
+    document.getElementById('importButton').addEventListener('click', importTrack);
+    document.getElementById('importButton').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
     });
+    document.getElementById('fileInput').addEventListener('change', importTrack);
 
-    canvas.addEventListener('mouseup', () => {
-      if (!drawing) return;
-      drawing = false;
-    });
-
-    canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      if (!drawing) return;
-      drawing = false;
-    });
-
-    sameTrackButton.addEventListener('click', () => resetTrack(currentTrack));
-    differentTrackButton.addEventListener('click', () => resetTrack(null, true));
-
+    // Inizializzazione
     resizeCanvas();
     drawTrack();
+    populateSavedTracksList();
+  </script>
+  <script type="text/babel">
+    function Tutorial() {
+      const [currentSlide, setCurrentSlide] = React.useState(0);
+      const [showTutorial, setShowTutorial] = React.useState(true);
+
+      const slides = [
+        {
+          title: "Benvenuto in Ski-Zag! ⛷️",
+          content: "Impara a giocare e diventa campione 🏆!"
+        },
+        {
+          title: "Come Iniziare 🎯",
+          content: "Parti dal box in alto 🏠 e traccia il tuo percorso con il dito. Devi passare correttamente tutte le porte per completare la discesa tagliando il traguardo 🏁!"
+        },
+        {
+          title: "Le Porte 🚩",
+          content: "Affronta le porte rosse e blu nell'ordine corretto. Le porte rosse vanno prese da sinistra a destra, quelle blu da destra a sinistra. Velocità e traiettoria più breve concorreranno a definire il tuo tempo finale ⏰!"
+        },
+        {
+          title: "Controlli del Gioco 🎮",
+          content: "🔁 Rigioca sulla stessa pista\n⏯️ Rivedi la discesa\n✨ Gioca su una nuova pista\n⏰ Classifica tempi Top 5"
+        },
+        {
+          title: "Salvataggio e Caricamento 💾",
+          content: "Clicca in alto a sinistra sul tipo di pista (SuperG/Gigante/Speciale) per salvare il tracciato. Usa i controlli in basso per scrivere il nome del giocatore e per gestire, caricare📥 e cancellare🗑️ le piste salvate."
+        }
+      ];
+
+      if (!showTutorial) return null;
+
+      return (
+        <div className="tutorial-overlay">
+          <div className="tutorial-content">
+            <button 
+              className="close-button"
+              onClick={() => setShowTutorial(false)}
+            >
+              ×
+            </button>
+            
+            <div className="tutorial-slide">
+              <h2>{slides[currentSlide].title}</h2>
+              <p style={{whiteSpace: 'pre-line'}}>{slides[currentSlide].content}</p>
+            </div>
+
+            <div className="tutorial-dots">
+              {slides.map((_, index) => (
+                <div 
+                  key={index}
+                  className={`dot ${currentSlide === index ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
+
+            <div className="tutorial-nav">
+              <button 
+                className="nav-button"
+                onClick={() => setCurrentSlide(prev => prev - 1)}
+                disabled={currentSlide === 0}
+              >
+                ←
+              </button>
+
+              {currentSlide === slides.length - 1 ? (
+                <button 
+                  className="nav-button"
+                  onClick={() => setShowTutorial(false)}
+                >
+                  Gioca!
+                </button>
+              ) : (
+                <button 
+                  className="skip-button"
+                  onClick={() => setShowTutorial(false)}
+                >
+                  Salta
+                </button>
+              )}
+
+              <button 
+                className="nav-button"
+                onClick={() => setCurrentSlide(prev => prev + 1)}
+                disabled={currentSlide === slides.length - 1}
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<Tutorial />, document.getElementById('tutorial-root'));
   </script>
 </body>
 </html>
