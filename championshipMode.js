@@ -45,15 +45,38 @@ function promptForPlayerNames() {
 // Start a Manche
 function startManche() {
     alert(`Starting Manche ${currentManche}. All players will compete on the same track.`);
+    
+    // Genera la pista per la manche
+    championshipTrack = {
+        gates: generateGates(),
+        trees: [] // Aggiungi alberi solo se necessario
+    };
 
-    // Generate a track for the manche
-    championshipTrack = generateGates(); // Use the existing function to generate gates
+    // Disegna la pista sul canvas
+    resetTrack(championshipTrack);
 
-    // Start the first player's turn
+    // Inizia il turno del primo giocatore
     currentPlayerIndex = 0;
     startPlayerTurn();
 }
+function resetTrack(track) {
+    drawing = false;
+    points = [];
+    intersectedGates.clear();
+    trees = track.trees || []; // Gestisce gli alberi se presenti
+    finalTimeOutput.textContent = "⏰1'00\"000'''";
+    statusOutput.textContent = '';
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (track && track.gates) {
+        gates = track.gates;
+    } else {
+        gates = generateGates(); // Fallback se la pista non è valida
+    }
+
+    drawTrack(track);
+}
 // Start the current player's turn
 function startPlayerTurn() {
     const player = players[currentPlayerIndex];
@@ -67,8 +90,8 @@ function startPlayerTurn() {
         // Reset the track and let the player make their run
         resetTrack(championshipTrack);
 
-        // Simulate the player's run and record the time
-        const runTime = simulateRun(); // Assume simulateRun handles the actual gameplay
+        // Simula il gameplay o attiva la funzione reale
+        const runTime = simulateRun(); // Deve richiamare le funzionalità esistenti
 
         if (runTime) {
             playerTimes.push(runTime);
@@ -77,13 +100,11 @@ function startPlayerTurn() {
         }
     }
 
-    // Record the best time for the player
     const bestTime = Math.min(...playerTimes);
     alert(`${player.name}'s best time: ${formatTime(bestTime)}`);
 
     championshipResults.push({ name: player.name, time: bestTime });
 
-    // Proceed to the next player
     currentPlayerIndex++;
 
     if (currentPlayerIndex < players.length) {
@@ -92,6 +113,7 @@ function startPlayerTurn() {
         endManche();
     }
 }
+
 
 // End the current manche
 function endManche() {
