@@ -1312,15 +1312,7 @@ function handleTouchEndEditor(e) {
     if (isLongPressActive) {
         isLongPressActive = false; // Resetta il flag
         return; // Nessun double tap dopo un long press
-    }
 
-    // Nessun dragging o long press, possibile double tap
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    if (tapLength > 0 && tapLength < 300) {
-        handleDoubleConfirm();
-    }
-    lastTap = currentTime;
 }
 
       function addTree(x, y) {
