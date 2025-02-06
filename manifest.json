@@ -2,7 +2,7 @@
   "id": "/",
   "name": "SkiZag",
   "short_name": "SkiZag",
-  "start_url": "/",
+  "start_url": "https://dagame71.github.io/ski/",
   "display": "standalone",
   "background_color": "#c4d3fc",
   "theme_color": "#8fa2f7",
