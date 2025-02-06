@@ -1074,15 +1074,20 @@ let isLongPressActive = false;
           handleTouchMoveGame(e);
         }
       }
-  function handleTouchEnd(e) {
-    e.preventDefault();
-    
-    // Controlla se il tocco è avvenuto su #infoLine, altrimenti esci
-    if (!e.target.closest("#infoLine")) {
-        return;
-    }
-
-
+      function handleTouchEnd(e) {
+        e.preventDefault();
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
+         
+        }
+        lastTap = currentTime;
+        if (editingMode) {
+          handleTouchEndEditor(e);
+        } else {
+          handleTouchEndGame(e);
+        }
+      }
       // (Le funzioni Editor rimangono invariate)
       function handleMouseDownEditor(e) {
     const { x, y } = getMouseCoords(e);
@@ -1305,7 +1310,15 @@ function handleTouchEndEditor(e) {
     if (isLongPressActive) {
         isLongPressActive = false; // Resetta il flag
         return; // Nessun double tap dopo un long press
+    }
 
+    // Nessun dragging o long press, possibile double tap
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    if (tapLength > 0 && tapLength < 300) {
+        handleDoubleConfirm();
+    }
+    lastTap = currentTime;
 }
 
       function addTree(x, y) {
@@ -1327,7 +1340,7 @@ function handleTouchEndEditor(e) {
   canvas.addEventListener("touchstart", handleTouchStart);
   canvas.addEventListener("touchmove", handleTouchMove);
   canvas.addEventListener("touchend", handleTouchEnd);
-
+  
 
   //listener per il pulsante di chiusura dell'overlay introduttivo
   let closeIntroOverlay = document.getElementById("closeIntroOverlay");
@@ -2272,7 +2285,7 @@ function handleTouchEndDoubleTap(e) {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     if (tapLength > 0 && tapLength < 300) {
-        handleDoubleConfirm();
+        
     }
     lastTap = currentTime;
 }
