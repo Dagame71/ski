@@ -625,7 +625,8 @@ let bestTimes = [];
       let outPenaltyCount = 0;
       let isOut = false;
       // === Variabili per l'editor ===
-      let editingMode = false;
+      let interactionInProgress = false;
+let editingMode = false;
       let draggedElement = null;
 
       /* =======================================
@@ -1088,64 +1089,72 @@ let bestTimes = [];
       }
       // (Le funzioni Editor rimangono invariate)
       function handleMouseDownEditor(e) {
-        const { x, y } = getMouseCoords(e);
-        longPressTimer = setTimeout(() => {
-          if (!touchMoved) {
+    const { x, y } = getMouseCoords(e);
+    longPressTimer = setTimeout(() => {
+        if (!touchMoved && !interactionInProgress) {
+            interactionInProgress = true;
             addTree(x, y);
-          }
-          longPressTimer = null;
-        }, LONG_PRESS_DURATION);
-        touchStartPos = { x, y };
-        touchMoved = false;
-        let foundG = findNearestGate(x, y, 20);
-        if (foundG) {
-          let g = gates[foundG.index];
-          draggedElement = {
+            interactionInProgress = false;
+        }
+        longPressTimer = null;
+    }, LONG_PRESS_DURATION);
+    touchStartPos = { x, y };
+    touchMoved = false;
+
+    // Verifica se l'utente sta trascinando un elemento
+    let foundG = findNearestGate(x, y, 20);
+    if (foundG) {
+        let g = gates[foundG.index];
+        draggedElement = {
             type: "gate",
             index: foundG.index,
             oldX: g.x,
             oldY: g.y,
             offsetX: g.x - x,
-            offsetY: g.y - y
-          };
-          touchMoved = true;
-          clearTimeout(longPressTimer);
-          longPressTimer = null;
-          return;
-        }
-        let foundT = findNearestTree(x, y, 20);
-        if (foundT) {
-          let t = trees[foundT.index];
-          draggedElement = {
+            offsetY: g.y - y,
+        };
+        touchMoved = true;
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        return;
+    }
+
+    let foundT = findNearestTree(x, y, 20);
+    if (foundT) {
+        let t = trees[foundT.index];
+        draggedElement = {
             type: "tree",
             index: foundT.index,
             oldX: t.x,
             oldY: t.y,
             offsetX: t.x - x,
-            offsetY: t.y - y
-          };
-          touchMoved = true;
-          clearTimeout(longPressTimer);
-          longPressTimer = null;
-          return;
-        }
-        draggedElement = null;
-      }
+            offsetY: t.y - y,
+        };
+        touchMoved = true;
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        return;
+    }
+
+    draggedElement = null;
+}
+
       function handleMouseMoveEditor(e) {
-        if (!draggedElement) {
-          const { x, y } = getMouseCoords(e);
-          const dx = Math.abs(x - touchStartPos.x);
-          const dy = Math.abs(y - touchStartPos.y);
-          if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
+    if (!draggedElement) {
+        const { x, y } = getMouseCoords(e);
+        const dx = Math.abs(x - touchStartPos.x);
+        const dy = Math.abs(y - touchStartPos.y);
+        if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
             touchMoved = true;
             clearTimeout(longPressTimer);
             longPressTimer = null;
-          }
-        } else {
-          const { x, y } = getMouseCoords(e);
-          const dragX = x + draggedElement.offsetX;
-          const dragY = y + draggedElement.offsetY;
-          if (draggedElement.type === "gate") {
+        }
+    } else {
+        const { x, y } = getMouseCoords(e);
+        const dragX = x + draggedElement.offsetX;
+        const dragY = y + draggedElement.offsetY;
+
+        if (draggedElement.type === "gate") {
             const gate = gates[draggedElement.index];
             const { minY, maxY } = getVerticalLimits(draggedElement.index);
             let newY = dragY;
@@ -1158,29 +1167,31 @@ let bestTimes = [];
             gate.line.y1 = gate.y;
             gate.line.x2 = gate.x + dir * 200;
             gate.line.y2 = gate.y;
-          } else if (draggedElement.type === "tree") {
+        } else if (draggedElement.type === "tree") {
             const tree = trees[draggedElement.index];
             tree.x = dragX;
             tree.y = dragY;
-          }
-          drawTrack(currentTrack);
         }
-      }
-      function handleMouseUpEditor(e) {
-        if (longPressTimer) {
-          clearTimeout(longPressTimer);
-          longPressTimer = null;
-        }
-        if (!draggedElement) {
-          console.log("Nessun elemento era stato trascinato.");
-          return;
-        }
-        console.log(`Rilasciato elemento: ${draggedElement.type} all'indice ${draggedElement.index}`);
-        checkEditorConstraints(draggedElement);
-        draggedElement = null;
-        console.log("Elemento rilasciato correttamente.");
         drawTrack(currentTrack);
-      }
+    }
+}
+
+function handleMouseUpEditor(e) {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+    if (!draggedElement) {
+        interactionInProgress = false; // Nessun dragging o long press
+        return;
+    }
+
+    checkEditorConstraints(draggedElement);
+    draggedElement = null;
+    drawTrack(currentTrack);
+    interactionInProgress = false; // Fine dell'interazione
+}
+
       function handleTouchStartEditor(e) {
         e.preventDefault();
         const { x, y } = getMouseCoords(e);
@@ -2235,18 +2246,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const infoLineEl = document.getElementById("infoLine");
 
   // Funzione per gestire il doppio tap tramite touchend
-  function handleTouchEndDoubleTap(e) {
-    // Se l'elemento toccato (o uno dei suoi antenati) è un <button>, esci dalla funzione
-    if (e.target.closest('button')) {
-      return;
+function handleTouchEndDoubleTap(e) {
+    if (interactionInProgress || touchMoved) {
+        return; // Evita il double tap se c'è un'interazione in corso
     }
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     if (tapLength > 0 && tapLength < 300) {
-      handleDoubleConfirm();
+        handleDoubleConfirm();
     }
     lastTap = currentTime;
-  }
+}
+
 
   // Aggiungi i listener per il double tap su #infoLine
   infoLineEl.addEventListener("touchend", handleTouchEndDoubleTap, false);
