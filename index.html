@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#8fa2f7">
+
+    <title>SkiZag</title>
+
+    <!-- Collegamento al Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icona per dispositivi Apple -->
+    <link rel="apple-touch-icon" href="icon192.png">
+
+    <!-- Registra il Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log("Service Worker registrato!"))
+                .catch(error => console.log("Errore nel Service Worker:", error));
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #c4d3fc;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .canvas-container {
+            position: relative;
+            width: 310px;
+            height: 400px;
+            background-color: #c4d3fc;
+            border: none;
+            margin-top: -100px;
+        }
+        .canvas-container img.cover {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100%;
+            height: auto;
+        }
+        .button-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .button-container a {
+            position: absolute;
+        }
+        .button-container a.training {
+            top: 77%;
+            left: 13%;
+        }
+        .button-container a.players {
+            top: 77%;
+            left: 53%;
+        }
+        .button-container img {
+            width: 109px;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .button-container img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container">
+        <img class="cover" src="cover.png" alt="Cover Image">
+        <div class="button-container">
+            <a href="training.html" class="training">
+                <img src="training.png" alt="Training Button">
+            </a>
+            <a href="players.html" class="players">
+                <img src="players.png" alt="Players Button">
+            </a>
+        </div>
+    </div>
+</body>
+</html>

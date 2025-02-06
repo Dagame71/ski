@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<!-- Collegamento al Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Icona per dispositivi Apple -->
+<link rel="apple-touch-icon" href="icon192.png">
+
+<!-- Registra il Service Worker -->
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(() => console.log("Service Worker registrato!"))
+      .catch(error => console.log("Errore nel Service Worker:", error));
+  }
+</script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ski Solo – Responsive Version</title>
+    <style>
+      /* Stili di base */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background: #c4d3fc;
+        margin-top: 10px;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        position: relative;
+        width: 90%; /* Responsive width */
+        max-width: 90vw; /* 90% della larghezza della viewport */
+        aspect-ratio: 300 / 520; /* Mantiene il rapporto di aspetto */
+        background: #e1dffc url("sfondo.png") no-repeat center center;
+        background-size: cover;
+        border: 0px solid #ffffff;
+        border-radius: 10px;
+        margin-top: 20px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+      }
+
+      /* Canvas per la neve */
+      #snowCanvas {
+        position: fixed; /* per coprire tutto lo schermo */
+        top: 0;
+        left: 0;
+        width: 100vw; /* copre l'intera larghezza finestra */
+        height: 100vh; /* copre l'intera altezza finestra */
+        pointer-events: none; /* la neve non intercetta clic/touch */
+        z-index: 5; /* layer medio */
+      }
+
+      /* Bottoni */
+      button {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        margin: 0;
+        padding: 0;
+        color: black;
+        z-index: 9999;
+      }
+      button:hover {
+        opacity: 0.7;
+      }
+      .button-disabled {
+        background-color: transparent;
+        border: 0px solid #aaa; /* Bordo scuro per simulare effetto premuto */
+        color: transparent; /* Colore del testo */
+        cursor: not-allowed; /* Cambia il cursore */
+        opacity: 0.7; /* Rende il pulsante meno evidente */
+      }
+      .button-disabled:hover {
+        opacity: 0.7;
+      }
+      .play-button {
+        display: block;
+        margin: 20px auto 0; /* Sposta il pulsante verso il basso e lo centra */
+        background-color: #8fa2f7; /* Colore del pulsante */
+        font-size: 16px;
+        padding: 10px 20px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+      }
+      .play-button:hover {
+        background-color: #bdc9fb; /* Colore hover */
+      }
+
+      /* Posizionamento bottoni di controllo con percentuali */
+      #sameTrack {
+        position: absolute;
+        bottom: 1.15%;
+        right: 16.67%;
+      }
+      #challengeButton {
+        position: absolute;
+        bottom: 1.15%;
+        right: 30%;
+      }
+      #replayButton {
+        position: absolute;
+        bottom: 0.96%;
+        left: 3.33%;
+      }
+      #quit {
+        position: absolute;
+        bottom: 1.15%;
+        right: 1.92%;
+      }
+      #homeBtn {
+        position: absolute;
+        top: 1.92%;
+        left: 3.33%;
+      }
+      #chronoButton {
+        position: absolute;
+        top: 1.92%;
+        right: 3.33%;
+      }
+      #viewBtn {
+        position: absolute;
+        bottom: 1.15%;
+        left: 33.33%;
+        transform: translateX(-50%);
+      }
+      #saveResultBtn {
+        position: absolute;
+        bottom: 1.15%;
+        left: 17.33%;
+      }
+
+      /* Contenitore delle info */
+      .info-container {
+  width: 90vw;
+  max-width: 500px;
+  margin: 2px auto;
+  padding: 1px;
+  margin-top: -3px; /* Valore negativo per alzare il blocco */
+  border: 0px solid #9cc1e2;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2); /* opzione per uno sfondo leggero */
+  display: flex;
+ box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.2), 
+    inset -1px -1px 3px #9cc1e2;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 9999; /* come da impostazione originale */
+}
+
+      /* UNICA RIGA di testo per tutti i messaggi */
+      #infoLine {
+        margin: 5px 0;
+        font-weight: bold;
+        font-size: 1.2em; /* Dimensione relativa */
+        min-height: 20px;
+        text-align: center;
+        color: black;
+      }
+
+      .centered-button {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      /* Overlay e animazioni */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .record {
+        animation: blink 0.5s ease-in-out 3;
+      }
+      .hidden {
+        display: none;
+      }
+      .overlay-content {
+        background-image: url("backpopup.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        width: 80%; /* Responsive width */
+        max-width: 280px;
+        box-sizing: border-box;
+        position: relative;
+        text-align: center;
+        color: #333;
+        box-shadow: inset 4px 4px 2px rgba(175, 219, 245, 0.8),
+          inset -4px -4px 2px rgba(255, 255, 255, 0.8);
+      }
+      /* Bottoni per chiudere gli overlay */
+      #closeChronoOverlay,
+      #closeViewOverlay,
+      #closeSaveResultOverlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #8fa2f7;
+        font-size: 14px;
+        padding: 5px 10px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #closeChronoOverlay:hover,
+      #closeViewOverlay:hover,
+      #closeSaveResultOverlay:hover {
+        background-color: #bdc9fb;
+      }
+      /* Stile uguale a .player-name-input, applicato agli ID degli input di Ski Solo */
+      #trackNameInput,
+      #resultNameInput {
+        background: #ffffff;
+        border: 1px solid #bdc9fb;
+        border-radius: 16px;
+        padding: 10px;
+        width: 80%;
+        margin-bottom: 8px;
+        box-shadow: inset 3px 3px 4px rgba(0, 0, 0, 0.2),
+          inset -3px -3px 4px rgba(255, 255, 255, 0.7);
+        outline: none;
+        font-size: 1em;
+        transition: all 0.2s ease-in-out;
+      }
+      /* Effetto focus identico */
+      #trackNameInput:focus,
+      #resultNameInput:focus {
+        background: #ffffff;
+        box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+          inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+      }
+      /* Stile per il campo di input del salvataggio Challenge */
+      #challengeSaveName {
+        background: #ffffff;
+        border: 1px solid #bdc9fb;
+        border-radius: 16px;
+        padding: 10px;
+        width: 80%;
+        margin-bottom: 8px;
+        box-shadow: inset 3px 3px 4px rgba(0, 0, 0, 0.2),
+          inset -3px -3px 4px rgba(255, 255, 255, 0.7);
+        outline: none;
+        font-size: 1em;
+        transition: all 0.2s ease-in-out;
+      }
+      /* Effetto focus */
+      #challengeSaveName:focus {
+        background: #ffffff;
+        box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+          inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+      }
+
+      /* Leaderboard */
+      .leaderboard-container {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .leaderboard {
+        width: 80%;
+        margin: 0 auto;
+      }
+      .leaderboard h2 {
+        text-align: center;
+        margin: 10px 0;
+      }
+      ol {
+        border: 1px solid #999bf2;
+        border-radius: 5px;
+        list-style: decimal inside;
+        min-height: 100px;
+        padding: 10px;
+        margin: 0;
+      }
+      li {
+        padding: 5px 0;
+      }
+      /* Stili per il tutorial (slide) */
+      .intro-overlay {
+      }
+      .slide-content {
+        margin-bottom: 20px;
+        line-height: 1.4;
+      }
+      .slide-title {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+      .slides-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+      }
+      .tutorial-icon {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+        position: relative;
+        top: -2px; /* Regola l'altezza abbassando leggermente l'icona */
+        margin-right: 5px;
+      }
+      .medal-title-icon {
+        width: 22px; /* Più grande rispetto alle icone normali */
+        height: 22px;
+        vertical-align: middle; /* Allinea meglio l'icona con il testo */
+        margin-left: 8px; /* Distanza dal titolo */
+      }
+      .slides-nav .nav-button {
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+   @media (hover: hover) {
+  .slides-nav .nav-button:hover {
+    background: #bdc9fb; /* Azzurro più chiaro in hover */
+  }
+}
+
+      .tutorial-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .dot.active {
+        background: #007bff;
+      }
+      /* Pulsanti delete per le piste salvate */
+      .deleteBtn {
+        background-color: #999bf2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        padding: 2px 4px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      .deleteBtn:hover {
+        background-color: #cbcdf9;
+      }
+      @media (min-width: 768px) {
+        .container {
+          max-width: 500px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Canvas NEVE a pagina intera -->
+    <canvas id="snowCanvas" class="hidden"></canvas>
+    <!-- CONTENITORE DI GIOCO -->
+    <div class="container" id="gameContainer">
+      <canvas id="canvas"></canvas>
+      <!-- Canvas per l'effetto neve -->
+      <!-- Bottoni di controllo -->
+      <!-- Il tasto sameTrack ora viene usato per abilitare/disabilitare la neve -->
+      <button id="sameTrack" title="Toggle Snow">
+        <img src="snowflake.png" alt="Toggle Snow" style="width:19px; height:19px;" />
+      </button>
+      <button id="replayButton" title="Replay">
+        <img src="replay.png" alt="Replay" style="width:20px; height:20px;" />
+      </button>
+      <button id="quit" title="New Track">
+        <img src="new.png" alt="New Track" style="width:20px; height:20px;" />
+      </button>
+      <!-- Bottone Home -->
+      <button id="homeBtn" title="Home">
+        <img src="home.png" alt="Home" style="width:18px; height:18px;" />
+      </button>
+      <button id="chronoButton" title="Top 5">
+        <img src="stopwatch.png" alt="Top 5" style="width:20px; height:20px;" />
+      </button>
+      <button id="viewBtn" title="View / Save Track">
+        <img src="save.png" alt="View / Save" style="width:17px; height:17px;" />
+      </button>
+      <button id="saveResultBtn" title="Save Result">
+        <img src="cup.png" alt="Save Result" style="width:18px; height:18px;" />
+      </button>
+      <button id="challengeButton" title="Challenge Mode">
+        <img src="medal.png" alt="Medal" style="width:19px; height:19px;" />
+      </button>
+    </div>
+    <!-- UNICA RIGA PER TUTTI I MESSAGGI (tempo + avvisi) -->
+    <div class="info-container">
+      <p id="infoLine">
+        <img
+          src="stopwatch.png"
+          alt="Stopwatch"
+          style="width:18px; height:18px; vertical-align:middle; margin-right:4px;"
+        />
+        0'00"000'''
+      </p>
+    </div>
+    <!-- OVERLAY TOP 5 -->
+    <div id="chronoOverlay" class="overlay hidden">
+      <div class="overlay-content">
+        <button id="closeChronoOverlay">X</button>
+        <div class="leaderboard-container">
+          <div class="leaderboard">
+            <h2>Top 5</h2>
+            <ol id="leaderboardList"></ol>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- OVERLAY View: per salvare e CARICARE le piste -->
+    <div id="viewOverlay" class="overlay hidden">
+      <div class="overlay-content">
+        <button id="closeViewOverlay">X</button>
+        <h2>Saved Tracks</h2>
+        <div id="savedTracksList"></div>
+        <hr />
+        <h3>Save current track</h3>
+        <input type="text" id="trackNameInput" placeholder="Enter track name" />
+        <button id="saveTrackBtn">Save Track</button>
+      </div>
+    </div>
+    <!-- OVERLAY Save Result: per salvare il tempo realizzato -->
+    <div id="saveResultOverlay" class="overlay hidden">
+      <div class="overlay-content">
+        <button id="closeSaveResultOverlay">X</button>
+        <h2>Save Your Result</h2>
+        <input type="text" id="resultNameInput" placeholder="Enter your name" />
+        <button id="saveResultConfirmBtn">Save Result</button>
+      </div>
+    </div>
+<!-- OVERLAY Challenge Intro -->
+<div id="challengeIntroOverlay" class="overlay hidden">
+  <div class="overlay-content">
+    <!-- Pulsante di chiusura aggiunto in alto a sinistra, identico agli altri -->
+    <button id="closeChallengeIntroButton" style="
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background-color: #8fa2f7;
+          font-size: 14px;
+          padding: 5px 10px;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+    ">X</button>
+    <h2>Welcome to the Challenge Mode!</h2>
+    <p>
+      <i><b>Beat the best time, level up, and achieve the highest score!</b></i><br />
+      ❄ You have <b>3 attempts</b> to beat the best time; the more you lower
+      it, the more points you earn!<br />
+      ❄ If you pass the level on the first attempt, your points are multiplied by 3, on the second attempt, they are multiplied by 2, on the third attempt, you simply pass the level with the points you’ve earned.
+    </p>
+    <!-- Il pulsante "Play!" rimane invariato -->
+    <button id="closeChallengeIntroOverlay" class="play-button">Play!</button>
+  </div>
+</div>
+
+    <!-- OVERLAY FINALE CHALLENGE: per fallimento o fine partita -->
+    <div id="challengeEndOverlay" class="overlay hidden">
+      <div class="overlay-content" id="challengeEndContent" style="text-align: center;">
+        <!-- Contenuto gestito via JS -->
+      </div>
+    </div>
+    <!-- OVERLAY TUTORIAL -->
+    <div id="tutorialOverlay" class="overlay" style="z-index: 1000;">
+      <div class="overlay-content intro-overlay">
+        <div id="tutorialContent"></div>
+        <div class="tutorial-dots" id="tutorialDots"></div>
+        <div class="slides-nav">
+          <button class="nav-button" id="tutorialPrev">←</button>
+          <button class="nav-button" id="tutorialStart">Start!</button>
+          <button class="nav-button" id="tutorialNext">→</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      /* ==============================================
+         VARIABILI GLOBALI E IMPOSTAZIONI
+      ============================================== */
+      const PATH_LENGTH_SCALING = 500;
+      const PENALTY_WEIGHT = 0.5;
+      const BORDER_THRESHOLD = 5;
+      const hardMode = true; // Abilita collisione con alberi
+
+      // Variabile per il controllo della neve: di default la neve è abilitata
+      let snowLocked = false;
+
+      // Variabili per la gestione della neve (come nel campionato)
+      let snowIntensity = 0;
+      let showSnow = false;
+      let weatherState = null;
+      function chooseWeatherState(prevState) {
+        const r = Math.random() * 100;
+        if (r < 60) return "nn";
+        else if (r < 80) return "pn";
+        else if (r < 95) return "mn";
+        else return "nf";
+      }
+      function applyWeatherState(state) {
+        if (state === "nn") {
+          snowIntensity = 0;
+        } else if (state === "pn") {
+          snowIntensity = 300;
+        } else if (state === "mn") {
+          snowIntensity = 1000;
+        } else if (state === "nf") {
+          snowIntensity = 3250;
+        }
+        showSnow = snowIntensity > 0;
+        return showSnow;
+      }
+
+      let canvas = document.getElementById("canvas");
+      let ctx = canvas.getContext("2d");
+      let snowCanvas = document.getElementById("snowCanvas");
+      let snowCtx = snowCanvas.getContext("2d");
+
+      // ELIMINATI finalTimeOutput E statusOutput, usiamo un UNICO <p id="infoLine">
+      const infoLine = document.getElementById("infoLine");
+
+      // Per gestire il testo base e i messaggi temporanei
+      let mainLabel = "⏰0'00\"000'''";
+      function setMainLabel(text) {
+        // Se siamo in modalità Challenge e il testo inizia con "⏰",
+        // evitiamo di forzare il testo "normale" (come da tua logica).
+        if (isChallengeMode && text.startsWith("⏰")) {
+          return;
+        }
+
+        // Sostituisce TUTTE le occorrenze di "⏰" con l'immagine stopwatch.png
+        // (Se preferisci solo la prima occorrenza, usa text.replace() anziché replaceAll).
+        let replacedText = text.replaceAll(
+          "⏰",
+          '<img src="stopwatch.png" alt="Stopwatch" ' +
+            'style="width:18px; height:18px; position: relative; top:-2px; vertical-align:middle; margin-right:4px;">'
+        );
+
+        // Aggiorna le variabili/elementi testuali
+        mainLabel = replacedText;
+        infoLine.innerHTML = replacedText;
+      }
+      function showTemporaryMessage(msg, duration = 2000) {
+        let old = mainLabel;
+        infoLine.innerHTML = msg;
+        infoLine.classList.remove("record");
+        setTimeout(() => {
+          infoLine.innerHTML = old;
+        }, duration);
+      }
+      function showTemporaryMessageHtml(html, duration = 2000) {
+        let old = mainLabel;
+        infoLine.innerHTML = html;
+        infoLine.classList.remove("record");
+        setTimeout(() => {
+          infoLine.innerHTML = old;
+        }, duration);
+      }
+
+      // Bottoni
+      let sameTrackButton = document.getElementById("sameTrack");
+      let replayButton = document.getElementById("replayButton");
+      let quitButton = document.getElementById("quit");
+      let homeBtn = document.getElementById("homeBtn");
+      let chronoButton = document.getElementById("chronoButton");
+      let viewBtn = document.getElementById("viewBtn");
+      let saveResultBtn = document.getElementById("saveResultBtn");
+
+      // Overlay
+      let chronoOverlay = document.getElementById("chronoOverlay");
+      let closeChronoOverlay = document.getElementById("closeChronoOverlay");
+      let viewOverlay = document.getElementById("viewOverlay");
+      let closeViewOverlay = document.getElementById("closeViewOverlay");
+      let saveResultOverlay = document.getElementById("saveResultOverlay");
+      let closeSaveResultOverlay = document.getElementById("closeSaveResultOverlay");
+      let tutorialOverlay = document.getElementById("tutorialOverlay");
+      let tutorialContent = document.getElementById("tutorialContent");
+      let tutorialDots = document.getElementById("tutorialDots");
+      let tutorialPrev = document.getElementById("tutorialPrev");
+      let tutorialNext = document.getElementById("tutorialNext");
+      let tutorialStart = document.getElementById("tutorialStart");
+
+      // Variabili di gioco
+      let currentTrack = null; // { gates, trees }
+      let bestTimes = []; // Array dei migliori tempi della pista corrente
+      // Saved tracks saranno salvate in localStorage
+      let savedTracks = {};
+      // Variabile per ricordare il nome della pista corrente (se salvata)
+      let currentTrackName = "";
+      // Variabile per salvare il tempo finale appena calcolato
+      window.lastFinalTime = 0;
+      let gates = [];
+      let trees = [];
+      let pointsPath = [];
+      let drawing = false;
+      let startTime = 0;
+      let lastCompleteRun = null;
+      let outPenaltyCount = 0;
+      let isOut = false;
+      let falseStartCount = 0;
+      let intersectedGates = new Set();
+      let didFinishOrFail = false; // Flag per terminazione run
+
+      // Punto di partenza e arrivo
+      let startPoint = { x: 150, y: 30 };
+      let finishRect = { x: 130, y: 490, width: 40, height: 10 };
+      let globalWind = Math.random() * 1 - 0.5;
+      let isChallengeMode = false; // Se siamo in modalità Sfida
+      let challengeBestTime = 0; // Tempo da battere
+      let challengeAttempts = 0; // Tentativi usati
+      let isGeneratingChallenge = false; // Flag per la generazione della sfida
+      let challengePoints = 0; // Punti totali accumulati
+      let leaderboard = []; // Classifica globale per la modalità sfida
+      const baseSpeed = 3.5; // Velocità iniziale
+      let speed = baseSpeed; // Velocità attuale
+      const speedDecrement = 0.05; // Riduzione velocità per ogni livello
+      let currentLevel = 1; // Livello corrente
+let currentChallengeSaveName = ""; // Qui verrà salvato il nome del salvataggio attivo (se esiste)
+// Nome attuale del giocatore (predefinito "Anonymous")
+let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous";
+
+      // TITOLI E VARIABILE DI STATO
+      const challengeTitles = [
+        "Snowflake Apprentice",
+        "Frosty Daredevil",
+        "Blizzard Tamer",
+        "Polar Maestro",
+        "Avalanche Overlord"
+      ];
+      let currentTitleUnlocked = "";
+      function getTitleForLevel(level) {
+        const index = Math.floor(level / 5);
+        if (index >= 1 && index <= 5) {
+          return challengeTitles[index - 1];
+        }
+        return "";
+      }
+
+      // Tutorial slides
+      let tutorialSlides = [
+        {
+          title: "Welcome to Ski-Zag!",
+          content:
+            "<b><i>Start at the hut and ski to the finish!</b></i><br>❄ Draw your path with your finger, pass through all gates, and cross the finish line.<br>❄ <b>Red gates</b> must be passed on the <b>right</b>, and <b>blue gates</b> on the <b>left</b>. <br>❄ Avoid trees and going off-track, and achieve the best time!<br>❄ You can save your favorite tracks, enter your time in the Top 5, review your runs with replay, and remove the snow to train better."
+        },
+        {
+          title: `Challenge Mode<img src="medal.png" class="medal-title-icon" alt="Medal">`,
+          content:
+            "<i><b>Beat the best time, level up, and achieve the highest score!</b></i><br>❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!<br>❄ If you pass the level on the first attempt, your points are multiplied by 3, on the second attempt, they are multiplied by 2, on the third attempt, you simply pass the level with the points you’ve earned."
+        },
+        {
+          title: "Controls",
+          content:
+            `<div class="controls-slide">
+              <b>Buttons:</b><br>
+              <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay <i>(review run)</i><br>
+              <img src="cup.png" class="tutorial-icon" alt="Save Result"> Save your result<br>
+              <img src="save.png" class="tutorial-icon" alt="View / Save Track"> Save/load track<br>
+              <img src="medal.png" class="tutorial-icon" alt="Medal">Challenge Mode In/Out<br>
+              <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Snow On/Off<br>
+              <img src="new.png" class="tutorial-icon" alt="New Track"> New Track<br>
+              <img src="stopwatch.png" class="tutorial-icon" alt="Top 5">Top 5 <i>(view best times)</i><br>
+              <img src="home.png" class="tutorial-icon" alt="homeBtn">Quit/Home
+            </div>`
+        },
+        {
+          title: "Good Luck!",
+          content: "Have fun with Ski-Zag!<br><b>Enjoy the slope!</b>"
+        }
+      ];
+      let currentTutorialIndex = 0;
+
+      const container = document.getElementById("gameContainer");
+      function resizeCanvas() {
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        snowCanvas.width = container.clientWidth;
+        snowCanvas.height = container.clientHeight;
+
+        // Aggiorna i punti di start/finish
+        startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
+        finishRect = {
+          x: canvas.width / 2 - 20,
+          y: canvas.height - 30,
+          width: 40,
+          height: 10
+        };
+
+        drawTrack(currentTrack);
+      }
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      function drawStartPoint() {
+        const iconWidth = (16 / 300) * canvas.width;
+        const iconHeight = (16 / 520) * canvas.height;
+        ctx.drawImage(
+          startIcon,
+          startPoint.x - iconWidth / 2,
+          startPoint.y - iconHeight / 2,
+          iconWidth,
+          iconHeight
+        );
+      }
+      function drawFinishArea() {
+        const { x, y, width, height } = finishRect;
+        const sq = width / 8;
+        let rowCount = Math.floor(height / (width / 8));
+        for (let row = 0; row < rowCount; row++) {
+          for (let col = 0; col < 8; col++) {
+            ctx.fillStyle = (row + col) % 2 === 0 ? "black" : "#F0F0F0";
+            ctx.fillRect(x + col * sq, y + row * sq, sq, sq);
+          }
+        }
+      }
+      const gateIcons = {
+        red: new Image(),
+        blue: new Image()
+      };
+      gateIcons.red.src = "red_gate.svg";
+      gateIcons.blue.src = "blue_gate.svg";
+      const startIcon = new Image();
+      startIcon.src = "start.svg";
+      // Precaricamento dell'immagine dell'albero
+      const treeImg = new Image();
+      treeImg.src = "tree.svg"; // Assicurati che il percorso sia corretto
+      treeImg.onload = () => {
+        console.log("Immagine dell'albero caricata con successo.");
+        drawTrack(currentTrack); // Ridisegna la pista una volta caricata l'immagine
+      };
+      treeImg.onerror = () => {
+        console.error("Errore nel caricamento di tree.svg");
+      };
+
+      function generateGates(count) {
+        let startWithRed = Math.random() < 0.5;
+        let isRed = startWithRed;
+        let arr = [];
+        for (let i = 0; i < count; i++) {
+          let dir = isRed ? 1 : -1;
+          let x =
+            isRed
+              ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
+              : Math.random() * (canvas.width / 2 - 35) + 35;
+          let y =
+            (60 / 520) * canvas.height +
+            i * ((canvas.height - (120 / 520) * canvas.height) / count);
+          let color = isRed ? "red" : "blue";
+          arr.push({
+            x,
+            y,
+            color,
+            line: {
+              x1: x,
+              y1: y,
+              x2: x + dir * ((200 / 300) * canvas.width),
+              y2: y
+            }
+          });
+          isRed = !isRed;
+        }
+        return arr;
+      }
+      function generateTrees(gArr) {
+        let treeCount = Math.floor(Math.random() * 3) + 6;
+        let arr = [];
+        const margin = (15 / 520) * canvas.height,
+          minGate = (50 / 300) * canvas.width,
+          minTree = (30 / 520) * canvas.height,
+          minFinish = (50 / 300) * canvas.width,
+          minStart = (40 / 520) * canvas.height;
+        while (arr.length < treeCount) {
+          let tx = margin + Math.random() * (canvas.width - 2 * margin);
+          let ty =
+            (40 / 520) * canvas.height +
+            Math.random() * (canvas.height - (40 / 520) * canvas.height - margin);
+          let closeGate = gArr.some((g) => Math.hypot(tx - g.x, ty - g.y) < minGate);
+          let closeTrees = arr.some((t) => Math.hypot(tx - t.x, ty - t.y) < minTree);
+          let closeFinish = isNearFinish(tx, ty, finishRect, minFinish);
+          let closeStart = Math.hypot(tx - startPoint.x, ty - startPoint.y) < minStart;
+          if (!closeGate && !closeTrees && !closeFinish && !closeStart) {
+            arr.push({ x: tx, y: ty });
+          }
+        }
+        return arr;
+      }
+      function createTrack() {
+        let g = generateGates(8);
+        let t = generateTrees(g);
+        return { gates: g, trees: t };
+      }
+      function drawGates(gArr) {
+        gArr.forEach((g) => {
+          let icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
+          let iconWidth = (16 / 300) * canvas.width;
+          let iconHeight = (16 / 520) * canvas.height;
+          ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
+        });
+      }
+      function drawTrees(tArr) {
+        if (!treeImg.complete) {
+          console.warn("Immagine dell'albero non ancora caricata.");
+          return;
+        }
+        tArr.forEach((t) => {
+          const treeWidth = (12 / 300) * canvas.width;
+          const treeHeight = (20 / 520) * canvas.height;
+          ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
+        });
+      }
+      function drawTrack(track) {
+        if (!track) return;
+        clearCanvas();
+        gates = track.gates;
+        trees = track.trees;
+        intersectedGates.clear();
+        drawStartPoint();
+        drawFinishArea();
+        drawGates(gates);
+        drawTrees(trees);
+      }
+
+      /* Neve */
+      let snowflakes = [];
+      function initSnow() {
+        snowflakes = [];
+        for (let i = 0; i < snowIntensity; i++) {
+          snowflakes.push({
+            x: Math.random() * snowCanvas.width,
+            y: Math.random() * snowCanvas.height,
+            radius: Math.random() * 3 + 1,
+            speedY: Math.random() * 0.5 + 0.5,
+            speedX: Math.random() * 0.5 - 0.25
+          });
+        }
+      }
+      function updateSnow() {
+        if (!showSnow) return;
+        snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+        snowflakes.forEach((flake) => {
+          flake.x += flake.speedX + globalWind;
+          flake.y += flake.speedY;
+          if (flake.y > snowCanvas.height) {
+            flake.y = 0;
+            flake.x = Math.random() * snowCanvas.width;
+          }
+          if (flake.x > snowCanvas.width) flake.x = 0;
+          if (flake.x < 0) flake.x = snowCanvas.width;
+          snowCtx.beginPath();
+          snowCtx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+          snowCtx.fillStyle = "white";
+          snowCtx.fill();
+        });
+        requestAnimationFrame(updateSnow);
+      }
+
+      /* Eventi mouse / touch */
+      if (!canvas._eventsAttached) {
+        canvas.addEventListener("mousedown", handleMouseDown);
+        canvas.addEventListener("mousemove", handleMouseMove);
+        canvas.addEventListener("mouseup", handleMouseUp);
+        canvas.addEventListener("touchstart", handleTouchStart);
+        canvas.addEventListener("touchmove", handleTouchMove);
+        canvas.addEventListener("touchend", handleTouchEnd);
+        canvas._eventsAttached = true;
+      }
+      function getMouseCoords(e) {
+        let rect = canvas.getBoundingClientRect();
+        let cx = e.touches ? e.touches[0].clientX : e.clientX;
+        let cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: ((cx - rect.left) / rect.width) * canvas.width,
+          y: ((cy - rect.top) / rect.height) * canvas.height
+        };
+      }
+      function isNearStartPoint(x, y) {
+        return Math.hypot(x - startPoint.x, y - startPoint.y) <= (20 / 520) * canvas.height;
+      }
+
+      function handleMouseDown(e) {
+        let { x, y } = getMouseCoords(e);
+        if (!isNearStartPoint(x, y)) {
+          falseStartCount++;
+          if (falseStartCount === 1) {
+            showTemporaryMessageHtml(
+              '<span style="color:red;">False start!</span> <span style="color:black;">2nd attempt!</span>',
+              1500
+            );
+          } else if (falseStartCount === 2) {
+            showTemporaryMessageHtml(
+              '<span style="color:red;">False start!</span> <span style="color:black;">Last attempt!</span>',
+              1500
+            );
+          } else if (falseStartCount >= 3) {
+            setMainLabel("Run failed due to consecutive false starts!");
+            failRun("Run failed due to false starts.");
+            falseStartCount = 0;
+          }
+          // Ripristina il messaggio dopo 2 secondi
+          setTimeout(() => {
+            if (isChallengeMode && challengeBestTime > 0) {
+              setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+            }
+          }, 2000);
+          return;
+        }
+        falseStartCount = 0;
+        outPenaltyCount = 0;
+        isOut = false;
+        drawing = true;
+        pointsPath = [];
+        startTime = performance.now();
+        didFinishOrFail = false;
+
+        setMainLabel(""); // reset momentaneamente?
+        ctx.beginPath();
+        pointsPath.push({ x, y, t: 0 });
+        ctx.moveTo(x, y);
+      }
+      function handleMouseMove(e) {
+        if (!drawing) return;
+        let { x, y } = getMouseCoords(e);
+        let p1 = pointsPath[pointsPath.length - 1];
+        let p2 = { x, y };
+        if (p1 && checkInterpolationForBorder(p1, p2)) {
+          if (!isOut) {
+            outPenaltyCount++;
+            isOut = true;
+          }
+        } else {
+          isOut = false;
+        }
+        let now = performance.now() - startTime;
+        pointsPath.push({ x, y, t: now });
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "#a4b8eb";
+        ctx.lineWidth = (2 / 520) * canvas.height;
+        ctx.stroke();
+        checkIntersections();
+      }
+      function handleMouseUp(e) {
+        if (!drawing) return;
+        drawing = false;
+        if (!didFinishOrFail) {
+          failRun("Run interrupted!");
+        }
+      }
+      function handleTouchStart(e) {
+        e.preventDefault();
+        let { x, y } = getMouseCoords(e);
+        if (!isNearStartPoint(x, y)) {
+          setMainLabel("You must start from the house icon!");
+          // Ripristina il messaggio dopo 2 secondi
+          setTimeout(() => {
+            if (isChallengeMode && challengeBestTime > 0) {
+              setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+            }
+          }, 2000);
+          return;
+        }
+        falseStartCount = 0;
+        outPenaltyCount = 0;
+        isOut = false;
+        drawing = true;
+        pointsPath = [];
+        startTime = performance.now();
+        didFinishOrFail = false;
+
+        setMainLabel("");
+        ctx.beginPath();
+        pointsPath.push({ x, y, t: 0 });
+        ctx.moveTo(x, y);
+      }
+      function handleTouchMove(e) {
+        e.preventDefault();
+        if (!drawing) return;
+        let { x, y } = getMouseCoords(e);
+        let p1 = pointsPath[pointsPath.length - 1];
+        let p2 = { x, y };
+        if (p1 && checkInterpolationForBorder(p1, p2)) {
+          if (!isOut) {
+            outPenaltyCount++;
+            isOut = true;
+          }
+        } else {
+          isOut = false;
+        }
+        let now = performance.now() - startTime;
+        pointsPath.push({ x, y, t: now });
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "#a4b8eb";
+        ctx.lineWidth = (2 / 520) * canvas.height;
+        ctx.stroke();
+        checkIntersections();
+      }
+      function handleTouchEnd(e) {
+        e.preventDefault();
+        if (!drawing) return;
+        drawing = false;
+        if (!didFinishOrFail) {
+          failRun("Run interrupted!");
+        }
+      }
+      function checkInterpolationForBorder(p1, p2) {
+        const stepLength = 2;
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const distance = Math.hypot(dx, dy);
+        const steps = Math.ceil(distance / stepLength);
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          const ix = p1.x + t * dx;
+          const iy = p1.y + t * dy;
+          if (ix < BORDER_THRESHOLD || ix > canvas.width - BORDER_THRESHOLD) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      /* Collisioni */
+      function checkIntersections() {
+        for (let i = 1; i < pointsPath.length; i++) {
+          let p1 = pointsPath[i - 1],
+            p2 = pointsPath[i];
+          // Alberi
+          if (hardMode) {
+            for (const tree of trees) {
+              let steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
+              for (let j = 0; j <= steps; j++) {
+                let ix = p1.x + ((p2.x - p1.x) * j) / steps;
+                let iy = p1.y + ((p2.y - p1.y) * j) / steps;
+                let dist = Math.hypot(ix - tree.x, iy - (tree.y - (10 / 520) * canvas.height));
+                if (dist < (10 / 520) * canvas.height) {
+                  didFinishOrFail = true;
+                  failRun("You hit a tree!");
+                  return;
+                }
+              }
+            }
+          }
+          // Porte
+          for (const [idx, gate] of gates.entries()) {
+            if (
+              linesIntersect(
+                p1.x,
+                p1.y,
+                p2.x,
+                p2.y,
+                gate.line.x1,
+                gate.line.y1,
+                gate.line.x2,
+                gate.line.y2
+              )
+            ) {
+              intersectedGates.add(idx);
+            }
+          }
+          // Finish
+          if (isSegmentInFinishArea(p1, p2, finishRect)) {
+            didFinishOrFail = true;
+            if (intersectedGates.size === gates.length) {
+              finishRun();
+            } else {
+              failRun("You missed a gate!");
+            }
+            return;
+          }
+        }
+      }
+      function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+        const det = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
+        if (det === 0) return false;
+        const lambda = ((y4 - y3) * (x4 - x1) + (x3 - x4) * (y4 - y1)) / det;
+        const gamma = ((y1 - y2) * (x4 - x1) + (x2 - x1) * (y4 - y1)) / det;
+        return lambda >= 0 && lambda <= 1 && gamma >= 0 && gamma <= 1;
+      }
+      function isSegmentInFinishArea(p1, p2, rect) {
+        if (
+          (p1.y < rect.y && p2.y < rect.y) ||
+          (p1.y > rect.y + rect.height && p2.y > rect.y + rect.height)
+        )
+          return false;
+        if (
+          (p1.x < rect.x && p2.x < rect.x) ||
+          (p1.x > rect.x + rect.width && p2.x > rect.x + rect.width)
+        )
+          return false;
+        return true;
+      }
+      function isNearFinish(x, y, rect, minD) {
+        return (
+          x >= rect.x - minD &&
+          x <= rect.x + rect.width + minD &&
+          y >= rect.y - minD &&
+          y <= rect.y + rect.height + minD
+        );
+      }
+
+      /* Fine run / fallimento run */
+function finishRun() {
+    drawing = false;
+    didFinishOrFail = true;
+
+    let endTime = performance.now();
+    let elapsedTime = endTime - startTime;
+
+    let distPx = calculateDistance(pointsPath);
+    let baseTime = calculateFinalTime(elapsedTime, distPx);
+    let outPenaltyTotal = outPenaltyCount * 0.1;
+    let finalTime = baseTime + outPenaltyTotal;
+
+    lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
+    window.lastFinalTime = finalTime;
+
+    if (isChallengeMode) {
+        setMainLabel(`Your time: ${formatTime(finalTime)}`);
+
+        setTimeout(() => {
+            if (finalTime <= challengeBestTime) {
+                let differenceInCents = Math.max(0, Math.floor((challengeBestTime - finalTime) * 100));
+                let multiplier = challengeAttempts;
+                let pointsEarned = differenceInCents * multiplier;
+
+                challengePoints += pointsEarned;
+
+                updateLeaderboardChallenge(pointsEarned);
+                adjustSpeedForNextLevel();
+                showPointsPopup(pointsEarned);
+
+                challengeAttempts = 3;
+                lastCompleteRun = null;
+
+            } else {
+                challengeAttempts--;
+                if (challengeAttempts > 0) {
+                    setMainLabel(`Try again! ${4 - challengeAttempts}nd attempt!`);
+                    setTimeout(() => {
+                        clearCanvas();
+                        drawTrack(currentTrack);
+                        updateWeatherForChallenge();
+                        setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+                    }, 1500);
+                } else {
+                    setMainLabel("Failed! Retry!");
+                    setTimeout(() => {
+                        showChallengeEndOverlay("Well done!");
+                        isChallengeMode = false;
+                    }, 1500);
+                }
+            }
+        }, 2000);
+    } else {
+        // ✅ Modalità normale: Salva il tempo con il nome attuale
+        setMainLabel(
+            `⏰${formatTime(finalTime)}${
+                outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : ""
+            }`
+        );
+
+        // ✅ Usa il nome attuale per salvare il tempo
+        updateBestTimes(finalTime, lastCompleteRun, currentPlayerName);
+
+        if (currentTrackName !== "") {
+            savedTracks[currentTrackName].bestTimes = bestTimes;
+            storeSavedTracks();
+        }
+    }
+
+    if (!isChallengeMode) {
+        setTimeout(() => {
+            resetRun();
+        }, 1000);
+    }
+}
+
+function showChallengeEndOverlay(failReason = "") {
+  const overlay = document.getElementById("challengeEndOverlay");
+  const content = document.getElementById("challengeEndContent");
+
+  let titleText = currentTitleUnlocked ? currentTitleUnlocked : "(no title unlocked)";
+  let reasonText = failReason ? `<p style="color:red;">${failReason}</p>` : "";
+
+  let html = `
+    <h2>Challenge End</h2>
+    ${reasonText}
+    <p>You reached <strong>Level #${currentLevel}</strong></p>
+    <p>Your total score: <strong>${challengePoints}</strong></p>
+    <p>Title unlocked: <strong>${titleText}</strong></p>
+    <hr>`;
+
+  // **Se la partita è stata caricata da un salvataggio**
+  if (currentChallengeSaveName) {
+    html += `<p>Your game has been saved as: <strong>${currentChallengeSaveName}</strong></p>`;
+  } 
+  // **Se invece la partita NON era stata salvata, permette di salvarla**
+  else if (challengePoints > 0) {
+   html += `<div style="margin-bottom: 15px;">
+           <label style="display: block; font-weight: bold; margin-bottom: 8px;">Save your game:</label>
+           <input type="text" id="challengeSaveName" placeholder="Enter a name">
+           <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
+         </div>`;
+
+  }
+
+  // **Sezione con la lista dei giochi salvati, senza il doppio titolo**
+  html += `<hr>
+           <div id="challengeSavedGamesList" style="margin:10px 0;"></div>
+           <hr>`;
+
+  html += `
+    <div class="centered-button">
+      <button id="challengeNewGameBtn" class="play-button">New Game</button>
+    </div>
+    <button id="challengeQuitBtn" style="margin:10px;">Quit</button>`;
+
+  content.innerHTML = html;
+  overlay.classList.remove("hidden");
+
+  // **Aggiungi il listener per il tasto "New Game"**
+  document.getElementById("challengeNewGameBtn").addEventListener("click", function() {
+    currentChallengeSaveName = ""; // Resetta il nome per una nuova partita
+    resetChallenge();
+    overlay.classList.add("hidden");
+    startNewChallenge();
+  });
+
+  // **Aggiungi il listener per il tasto "Quit"**
+  document.getElementById("challengeQuitBtn").addEventListener("click", function() {
+    currentChallengeSaveName = ""; // Resetta il nome del salvataggio attivo
+    isChallengeMode = false;
+    challengeAttempts = 0;
+    setMainLabel("⏰0'00\"000'''");
+    toggleButtonState(false);
+    resetRun();
+    overlay.classList.add("hidden");
+  });
+
+  // **Se la partita NON era salvata, permette di salvarla manualmente**
+  if (!currentChallengeSaveName && challengePoints > 0) {
+    document.getElementById("challengeSaveBtn").addEventListener("click", () => {
+      let name = (document.getElementById("challengeSaveName").value || "").trim();
+      if (!name) {
+        alert("Please enter a valid name for your saved game.");
+        return;
+      }
+
+      let saves = getChallengeSaves();
+      if (saves.hasOwnProperty(name)) {
+        alert("A game with this name already exists. Please choose a different name.");
+        return;
+      }
+
+      saveChallengeGame(name, {
+        level: currentLevel,
+        points: challengePoints,
+        title: currentTitleUnlocked,
+        attemptsLeft: challengeAttempts,
+        speed: speed
+      });
+
+      currentChallengeSaveName = name; // Imposta il nome del salvataggio attivo
+      renderSavedGamesList();
+      document.getElementById("challengeSaveName").value = "";
+    });
+  }
+
+  // **Mostra la lista dei giochi salvati**
+  renderSavedGamesList();
+}
+
+
+      /**
+       * Funzione che legge i salvataggi (getChallengeSaves()) e li mostra
+       * in #challengeSavedGamesList. Cliccando su un nome, carichi la partita.
+       */
+      function renderSavedGamesList() {
+        const listDiv = document.getElementById("challengeSavedGamesList");
+        let saves = getChallengeSaves();
+        let keys = Object.keys(saves);
+
+        if (keys.length === 0) {
+          listDiv.innerHTML = "<p>No saved games.</p>";
+          return;
+        }
+
+        let html = "<p><strong>Saved games:</strong></p>";
+        html += "<ul style='list-style: none; padding:0;'>";
+        keys.forEach((name) => {
+          let data = saves[name];
+          // Mostra info minime
+          html += `
+            <li style="margin-bottom:8px;">
+              <span style="cursor:pointer; color:blue; text-decoration:underline;"
+                    onclick="onLoadSavedGame('${name}')">
+                ${name} (Lv ${data.level}, ${data.points} pts)
+              </span>
+              <button style="margin-left:10px; font-size:0.8em;"
+                      onclick="onDeleteSavedGame('${name}')">
+                Delete
+              </button>
+            </li>
+          `;
+        });
+        html += "</ul>";
+        listDiv.innerHTML = html;
+      }
+
+      /**
+       * Funzione chiamata quando clicchiamo su un salvataggio nella lista
+       */
+  function onLoadSavedGame(name) {
+  if (loadChallengeGame(name)) {
+    currentChallengeSaveName = name; // Salviamo il nome del salvataggio attivo
+    alert("Loaded saved game: " + name);
+    document.getElementById("challengeEndOverlay").classList.add("hidden");
+    startNewChallenge();
+  } else {
+    alert("Error: saved game not found.");
+  }
+}
+
+
+      /**
+       * Funzione chiamata quando clicchiamo su 'Delete'
+       */
+      function onDeleteSavedGame(name) {
+        if (confirm(`Are you sure you want to delete '${name}'?`)) {
+          deleteChallengeGame(name);
+          renderSavedGamesList();
+        }
+      }
+      function checkSavedChallengeGames() {
+        let saves = getChallengeSaves();
+        let keys = Object.keys(saves);
+        let overlay = document.getElementById("challengeEndOverlay");
+        let content = document.getElementById("challengeEndContent");
+
+        // Se ci sono partite salvate, mostra la lista di salvataggi
+        if (keys.length > 0) {
+          let html = `
+            <h2>Load or Start a New Challenge!</h2>
+            <p><strong>Saved Games:</strong></p>
+            <ul style="list-style: none; padding:0;">`;
+          keys.forEach((name) => {
+            let data = saves[name];
+            html += `
+              <li style="margin-bottom:8px;">
+                <span style="cursor:pointer; color:blue; text-decoration:underline;"
+                      onclick="onLoadSavedGame('${name}')">
+                  ${name} (Lv ${data.level}, ${data.points} pts)
+                </span>
+                <button style="margin-left:10px; font-size:0.8em;"
+                        onclick="onDeleteSavedGame('${name}')">
+                  Delete
+                </button>
+              </li>`;
+          });
+          html += `</ul>
+            <hr>
+            <button id="challengeNewGameBtn" class="play-button">New Game</button>
+            <button id="challengeQuitBtn" style="margin:10px;">Quit</button>`;
+          content.innerHTML = html;
+
+          // Aggiunge il listener per New Game
+          document.getElementById("challengeNewGameBtn").addEventListener("click", () => {
+            resetChallenge();
+            overlay.classList.add("hidden");
+            startNewChallenge();
+          });
+          // Aggiunge il listener per Quit
+          document.getElementById("challengeQuitBtn").addEventListener("click", () => {
+            isChallengeMode = false;
+            challengeAttempts = 0;
+            setMainLabel("⏰0'00\"000'''");
+            toggleButtonState(false);
+            resetRun(); // 🔴 Aggiungiamo questa riga per cancellare la traiettoria!
+            document.getElementById("challengeEndOverlay").classList.add("hidden");
+          });
+        } else {
+          // Nessun salvataggio → Mostra solo "Start the Challenge!"
+          content.innerHTML = `
+            <h2>Start the Challenge!</h2>
+            <p>Try to beat the best time and level up!</p>
+            <hr>
+            <button id="challengeNewGameBtn" class="play-button">New Game</button>
+            <button id="challengeQuitBtn" style="margin:10px;">Quit</button>`;
+          // Aggiunge il listener per New Game
+          document.getElementById("challengeNewGameBtn").addEventListener("click", () => {
+            resetChallenge();
+            overlay.classList.add("hidden");
+            startNewChallenge();
+          });
+          // Aggiunge il listener per Quit
+          document.getElementById("challengeQuitBtn").addEventListener("click", () => {
+            isChallengeMode = false;
+            challengeAttempts = 0;
+            setMainLabel("⏰0'00\"000'''");
+            toggleButtonState(false);
+            overlay.classList.add("hidden");
+          });
+        }
+        // Mostra il popup
+        overlay.classList.remove("hidden");
+      }
+function showConfirmPopup(message, onConfirm, onCancel) {
+  // Crea un overlay dinamico con struttura simile al popup Top 5
+  const overlay = document.createElement("div");
+  overlay.className = "overlay"; 
+  // Puoi aggiungere eventuali stili inline se desideri personalizzare ulteriormente
+
+  const content = document.createElement("div");
+  content.className = "overlay-content";
+  content.innerHTML = `
+    <!-- Bottone di chiusura in alto a sinistra (stile identico al close dei popup esistenti) -->
+    <button id="closePopup" style="
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background-color: #8fa2f7;
+          font-size: 14px;
+          padding: 5px 10px;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;">X</button>
+    <h2>Attention!</h2>
+    <p class="slide-content">${message}</p>
+    <!-- Un singolo bottone OK centrato -->
+    <div class="popup-button-container" style="margin-top: 15px;">
+      <button class="nav-button" id="popupConfirmButton">OK</button>
+    </div>
+  `;
+
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+
+  // Gestione del click sul bottone OK
+  document.getElementById("popupConfirmButton").addEventListener("click", function () {
+    document.body.removeChild(overlay);
+    if (onConfirm) onConfirm();
+  });
+  // Gestione del click sulla X (considerato come annulla)
+  document.getElementById("closePopup").addEventListener("click", function () {
+    document.body.removeChild(overlay);
+    if (onCancel) onCancel();
+  });
+}
+
+
+      function showLeaderboardPopup() {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+
+        const content = document.createElement("div");
+        content.className = "overlay-content";
+        content.innerHTML = `
+          <h2>Game Over!</h2>
+          <p>You reached <strong>Level #${currentLevel}</strong>.</p>
+          <p>Your total score: <strong>${challengePoints}</strong></p>
+          <button class="play-button">Play Again</button>
+        `;
+
+        content.querySelector("button").addEventListener("click", () => {
+          document.body.removeChild(overlay);
+          resetChallenge(); // Resetta la sfida
+          toggleChallengeMode(); // Torna al popup iniziale
+          startNewChallenge();
+        });
+
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+      }
+
+      function adjustSpeedForNextLevel() {
+        speed = Math.max(1.0, speed - speedDecrement); // Riduce la velocità ma non scende sotto 1.0
+      }
+
+      function showPointsPopup(points) {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+
+        const content = document.createElement("div");
+        content.className = "overlay-content";
+
+        // 1) Calcoliamo il titolo relativo a currentLevel
+        let newTitle = getTitleForLevel(currentLevel);
+        let titleHtml = "";
+
+        if (newTitle !== "") {
+          // Abbiamo un titolo
+          if (newTitle !== currentTitleUnlocked) {
+            // È un NUOVO titolo sbloccato
+            titleHtml = `<span style="color:blue; font-size:1.1em;">
+              You are now <br><b>${newTitle}</b>!
+            </span>`;
+            currentTitleUnlocked = newTitle; // Aggiorniamo la variabile globale
+          } else {
+            // Titolo già ottenuto
+            titleHtml = `<span style="color:grey; font-size:0.9em;">
+              Current title: <br><b>${newTitle}</b>
+            </span>`;
+          }
+        } else {
+          // newTitle === "" => non hai ancora sbloccato un titolo
+          titleHtml = ""; // Mostra nulla (oppure "No Title")
+        }
+
+        // 2) Adesso costruiamo l'HTML inserendo <p id="titleLine"> con titleHtml
+        content.innerHTML = `
+          <h2>Level #${currentLevel} Complete!</h2>
+          <p>You earned <strong>${points}</strong> points!</p>
+          <p>Total Points: <strong>${challengePoints}</strong></p>
+          <p id="titleLine">${titleHtml}</p>
+          <button class="play-button">Next Level</button>
+        `;
+
+        // 3) Listener del pulsante "Next Level"
+        content.querySelector("button").addEventListener("click", () => {
+          document.body.removeChild(overlay);
+          // Incrementiamo e passiamo al livello successivo come prima
+          currentLevel++;
+          adjustSpeedForNextLevel();
+          startNewChallenge();
+        });
+
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+      }
+
+function failRun(msg) {
+    drawing = false;
+    didFinishOrFail = true;
+
+    // 🛠️ Salvare comunque la traiettoria fallita
+    if (pointsPath.length > 1) {
+        lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
+    }
+
+    // 🛠️ Azzerare il tempo perché la run è fallita
+    window.lastFinalTime = 0; 
+
+    setMainLabel(msg);
+
+    if (isChallengeMode) {
+        challengeAttempts--;
+        if (challengeAttempts > 0) {
+            setTimeout(() => {
+                setMainLabel(`Try again! ${4 - challengeAttempts}nd attempt!`);
+                setTimeout(() => {
+                    clearCanvas();
+                    drawTrack(currentTrack);
+                    updateWeatherForChallenge();
+                    setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+                }, 1500);
+            }, 1500);
+        } else {
+            setTimeout(() => {
+                showChallengeEndOverlay("You failed the Challenge!");
+            }, 1500);
+        }
+    } else {
+        setTimeout(() => {
+            resetRun();
+        }, 1000);
+    }
+}
+
+      function resetChallenge() {
+        currentLevel = 1; // Resetta il livello
+        speed = 3.5; // Resetta la velocità
+        challengePoints = 0; // Resetta i punti
+      }
+      function showLeaderboardPopupWithPlayAgain() {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+
+        const content = document.createElement("div");
+        content.className = "overlay-content";
+
+        // Se hai già sbloccato un titolo, usalo nella frase
+        let titleText = "";
+        if (currentTitleUnlocked) {
+          // ad esempio "Blizzard Tamer "
+          titleText = currentTitleUnlocked + " ";
+        }
+
+        content.innerHTML = `
+          <h2>Challenge Failed</h2>
+          <p>You reached <br><strong>${titleText}<br>Level #${currentLevel}</strong>
+             <br>with <strong>${challengePoints}</strong> points.</p>
+          <button class="play-button">Play Again</button>
+        `;
+
+        content.querySelector("button").addEventListener("click", () => {
+          document.body.removeChild(overlay);
+          resetChallenge();
+          toggleChallengeMode();
+        });
+
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+      }
+      function updateLeaderboardChallenge(pointsEarned) {
+        leaderboard.push({ points: challengePoints, date: new Date() });
+        leaderboard.sort((a, b) => b.points - a.points);
+        if (leaderboard.length > 10) leaderboard.length = 10; // Limita la classifica a 10 record
+      }
+      function calculateDistance(arr) {
+        let tot = 0;
+        for (let i = 1; i < arr.length; i++) {
+          let dx = arr[i].x - arr[i - 1].x;
+          let dy = arr[i].y - arr[i - 1].y;
+          tot += Math.hypot(dx, dy);
+        }
+        return tot;
+      }
+      function calculateFinalTime(ms, dist) {
+        let s = ms / 1000;
+        let penalty = PENALTY_WEIGHT * (dist / PATH_LENGTH_SCALING);
+        return 60 + s + penalty;
+      }
+      function formatTime(sec) {
+        let m = Math.floor(sec / 60);
+        let r = (sec % 60).toFixed(3);
+        return `${m}'${r.replace(".", '"')}'''`;
+      }
+function updateBestTimes(time, replayData, playerName = "Anonymous") {
+    // ✅ Rimuoviamo eventuali duplicati dello stesso tempo, indipendentemente dal nome
+    bestTimes = bestTimes.filter(entry => entry.time !== time);
+
+    // ✅ Aggiungiamo il nuovo tempo con il nome aggiornato
+    let result = { name: playerName, time, replay: replayData };
+    bestTimes.push(result);
+
+    // ✅ Riordiniamo i tempi dal più veloce al più lento
+    bestTimes.sort((a, b) => a.time - b.time);
+
+    // ✅ Manteniamo solo i migliori 5 tempi
+    if (bestTimes.length > 5) bestTimes.length = 5;
+
+    // ✅ Ripristino del lampeggio se il nuovo tempo è il record
+    if (bestTimes.length > 0 && bestTimes[0].time === time) {
+        infoLine.classList.add("record");
+        setTimeout(() => {
+            infoLine.classList.remove("record");
+        }, 2000);
+    }
+}
+
+function toggleChallengeMode() {
+  if (isChallengeMode) {
+    showConfirmPopup(
+      "Are you sure you want to quit Challenge Mode?",
+      function () {
+        isChallengeMode = false;
+        challengeAttempts = 0;
+        setMainLabel("⏰0'00\"000'''");
+        toggleButtonState(false);
+      },
+      function () {
+        console.log("Quit Challenge Mode canceled");
+      }
+    );
+  } else {
+    document.getElementById("challengeIntroOverlay").classList.remove("hidden");
+
+    // 🛠️ Reset della traiettoria per evitare che la modalità Challenge usi l'ultima run normale!
+    lastCompleteRun = null;
+    window.lastFinalTime = 0;
+  }
+}
+
+
+
+      document.getElementById("challengeButton").addEventListener("click", toggleChallengeMode);
+      function toggleButtonState(disable) {
+        // Elenco dei pulsanti da disattivare
+        const buttonsToDisable = [
+          document.getElementById("chronoButton"), // Pulsante "Top 5"
+          document.getElementById("sameTrack"), // Pulsante "Neve/Non neve"
+          document.getElementById("quit"), // Pulsante "New Track"
+          document.getElementById("saveResultBtn"), // Pulsante "Save Result"
+          document.getElementById("viewBtn") // Pulsante "View / Save Track"
+        ];
+        buttonsToDisable.forEach((button) => {
+          if (disable) {
+            button.disabled = true; // Disattiva il pulsante
+            button.classList.add("button-disabled"); // Aggiunge stile disattivato
+          } else {
+            button.disabled = false; // Riattiva il pulsante
+            button.classList.remove("button-disabled"); // Rimuove stile disattivato
+          }
+        });
+      }
+      function startNewChallenge() {
+        if (isGeneratingChallenge) return; // Evita doppie esecuzioni
+        isGeneratingChallenge = true;
+
+        // Aggiorna la velocità per il livello successivo
+        adjustSpeedForNextLevel();
+
+        // Crea una nuova pista (gates e trees) e disegna
+        currentTrack = createTrack();
+        drawTrack(currentTrack);
+
+        // Conta quanti alberi sono stati generati
+        let numTrees = currentTrack.trees.length;
+
+        // Imposta un fattore di peggioramento base
+        let factor = 1.0;
+        if (numTrees === 6) {
+          factor = 1.10; // +10% se 6 alberi
+        } else if (numTrees === 7) {
+          factor = 1.20; // +20% se 7 alberi
+        } else if (numTrees >= 8) {
+          factor = 1.30; // +30% se 8 (o più) alberi
+        }
+
+        // Aggiorna il meteo per la nuova sfida
+        updateWeatherForChallenge();
+
+        // Calcola la lunghezza ideale della pista
+        let idealLength = calculateIdealPath(currentTrack.gates);
+// Se il valore è 0 o NaN, assegna un valore predefinito
+if (isNaN(idealLength) || idealLength <= 0) {
+    idealLength = 300; // Lunghezza di default per evitare errori
+}
+        // Gonfia la lunghezza ideale in base al numero di alberi
+        idealLength *= factor;
+
+        // Calcola il best time da battere
+    challengeBestTime = calculateFinalTime(
+    idealLength * 6.5 * (speed / baseSpeed),
+    idealLength
+);
+
+// Se challengeBestTime è NaN o negativo, imposta un valore predefinito
+if (isNaN(challengeBestTime) || challengeBestTime <= 0) {
+    challengeBestTime = 66.542; // Tempo predefinito per evitare errori
+}
+
+        // Resetta i tentativi disponibili
+        challengeAttempts = 3;
+
+        // Mostra la scritta “Beat this time”
+        setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+
+        // Dopo mezzo secondo, sblocca la generazione
+        setTimeout(() => {
+          isGeneratingChallenge = false;
+        }, 500);
+      }
+      function calculateIdealPath(gates) {
+        let length = 0;
+        for (let i = 1; i < gates.length; i++) {
+          let dx = gates[i].x - gates[i - 1].x;
+          let dy = gates[i].y - gates[i - 1].y;
+          length += Math.hypot(dx, dy);
+        }
+        return length;
+      }
+      function updateWeatherForChallenge() {
+        weatherState = chooseWeatherState(weatherState);
+        applyWeatherState(weatherState);
+        if (!snowLocked) {
+          if (showSnow) {
+            snowCanvas.classList.remove("hidden");
+            initSnow();
+            updateSnow();
+          } else {
+            snowCanvas.classList.add("hidden");
+          }
+        }
+      }
+      /* Replay */
+      function replayTrajectory(customPoints) {
+    let container = document.getElementById("gameContainer");
+    let originalBackground = container.style.background;
+    container.style.background = '#c4d3fc url("sfondoreplay.png") no-repeat center center';
+    container.style.backgroundSize = "cover";
+
+    let rp = customPoints && customPoints.length >= 2 ? customPoints : lastCompleteRun;
+
+    // 🏆 Se stiamo rivedendo il best time, usa il tempo salvato
+    let replayTime = window.lastFinalTime;
+
+    // 📌 Controlla se il replay è del best time
+    if (customPoints && bestTimes.length > 0) {
+        let bestReplay = bestTimes.find(entry => entry.replay === customPoints);
+        if (bestReplay) {
+            replayTime = bestReplay.time;
+        }
+    }
+
+    // ⏰ Mostra il tempo corretto
+    setMainLabel(`⏰${formatTime(replayTime)}`);
+
+    if (!rp || rp.length < 2) {
+        showTemporaryMessage("No run to replay!", 1000);
+        setTimeout(() => {
+            setMainLabel("⏰0'00\"000'''");
+            container.style.background = originalBackground;
+        }, 1000);
+        return;
+    }
+
+    clearCanvas();
+    drawStartPoint();
+    drawFinishArea();
+    drawGates(gates);
+    drawTrees(trees);
+
+    let i = 0;
+    function step() {
+        if (i >= rp.length - 1) {
+            setTimeout(() => {
+                clearCanvas();
+                drawTrack(currentTrack);
+                container.style.background = originalBackground;
+                setMainLabel("⏰0'00\"000'''");
+            }, 1000);
+            return;
+        }
+        ctx.beginPath();
+        ctx.moveTo(rp[i].x, rp[i].y);
+        ctx.lineTo(rp[i + 1].x, rp[i + 1].y);
+        ctx.strokeStyle = "#a4b8eb";
+        ctx.lineWidth = (2 / 520) * canvas.height;
+        ctx.stroke();
+
+        let dt = rp[i + 1].t - rp[i].t;
+        i++;
+        setTimeout(step, dt);
+    }
+    setTimeout(step, 0);
+}
+
+
+
+      /* Bottoni */
+      sameTrackButton.addEventListener("click", () => {
+        snowLocked = !snowLocked;
+        if (snowLocked) {
+          sameTrackButton.style.opacity = "0.5";
+          showTemporaryMessage("Snow locked", 1000);
+        } else {
+          sameTrackButton.style.opacity = "1";
+          showTemporaryMessage("Snow enabled", 1000);
+        }
+        resetRun();
+      });
+      replayButton.addEventListener("click", () => {
+        if (lastCompleteRun && lastCompleteRun.length >= 2) {
+          replayTrajectory(lastCompleteRun);
+        } else {
+          showTemporaryMessage("No run to replay!", 1000);
+        }
+      });
+      quitButton.addEventListener("click", () => {
+        isChallengeMode = false; // Assicura che non siamo più in modalità Challenge
+        challengeAttempts = 0; // Resetta i tentativi
+        setMainLabel("⏰0'00\"000'''"); // Ripristina l'etichetta iniziale
+        toggleButtonState(false); // Riattiva i pulsanti disabilitati
+
+        currentTrack = createTrack();
+        bestTimes = [];
+        currentTrackName = "";
+        lastCompleteRun = null;
+
+        clearCanvas(); // ✅ Pulisce il canvas dalla vecchia traiettoria
+        drawTrack(currentTrack); // ✅ Ridisegna la pista pulita
+      });
+      chronoButton.addEventListener("click", () => {
+        updateLeaderboard();
+        chronoOverlay.classList.remove("hidden");
+      });
+      closeChronoOverlay.addEventListener("click", () => {
+        chronoOverlay.classList.add("hidden");
+      });
+      viewBtn.addEventListener("click", () => {
+        updateSavedTracksList();
+        viewOverlay.classList.remove("hidden");
+      });
+      closeViewOverlay.addEventListener("click", () => {
+        viewOverlay.classList.add("hidden");
+      });
+      saveResultBtn.addEventListener("click", () => {
+        if (isChallengeMode) {
+          alert("Save Result is disabled in Challenge Mode.");
+          return;
+        }
+        saveResultOverlay.classList.remove("hidden");
+      });
+      closeSaveResultOverlay.addEventListener("click", () => {
+        saveResultOverlay.classList.add("hidden");
+      });
+      // Listener per il popup della modalità medaglia
+      document
+        .getElementById("closeChallengeIntroOverlay")
+        .addEventListener("click", () => {
+          document.getElementById("challengeIntroOverlay").classList.add("hidden");
+          isChallengeMode = true;
+          challengeAttempts = 3;
+          toggleButtonState(true);
+          // Controlla se ci sono salvataggi
+          checkSavedChallengeGames();
+        });
+// <-- nuovo event listener per il pulsante "X" -->
+document.getElementById("closeChallengeIntroButton").addEventListener("click", function() {
+  document.getElementById("challengeIntroOverlay").classList.add("hidden");
+});
+document.getElementById("saveResultConfirmBtn").addEventListener("click", () => {
+    let name = document.getElementById("resultNameInput").value.trim();
+    if (name === "") {
+        alert("Inserisci un nome!");
+        return;
+    }
+    if (typeof window.lastFinalTime !== "number" || window.lastFinalTime === 0) {
+        alert("Nessun tempo valido registrato!");
+        return;
+    }
+
+    // ✅ Aggiorniamo il nome attuale e lo salviamo nel localStorage
+    currentPlayerName = name;
+    localStorage.setItem("currentPlayerName", name);
+
+    // ✅ Aggiorniamo il tempo con il nuovo nome
+    updateBestTimes(window.lastFinalTime, lastCompleteRun, name);
+
+    // ✅ Chiudiamo il menu di salvataggio
+    saveResultOverlay.classList.add("hidden");
+    updateLeaderboard();
+});
+
+      function resetRun() {
+        drawing = false;
+        didFinishOrFail = false;
+        pointsPath = [];
+        setMainLabel("⏰0'00\"000'''"); // Tornare al default
+        clearCanvas();
+        drawTrack(currentTrack);
+        globalWind = Math.random() * 1 - 0.5;
+        weatherState = chooseWeatherState(weatherState);
+        applyWeatherState(weatherState);
+        if (snowLocked) {
+          snowCanvas.classList.add("hidden");
+        } else {
+          if (showSnow) {
+            snowCanvas.classList.remove("hidden");
+            initSnow();
+            updateSnow();
+          } else {
+            snowCanvas.classList.add("hidden");
+          }
+        }
+      }
+  function updateLeaderboard() {
+  let lb = document.getElementById("leaderboardList");
+  lb.innerHTML = "";
+  bestTimes.forEach((entry, i) => {
+    let li = document.createElement("li");
+    if (i === 0) {
+      // Sostituisci il carattere con un'immagine
+li.innerHTML = `${entry.name} - ${formatTime(entry.time)} <img src="replay.png" alt="Replay" style="width:20px; height:20px; cursor:pointer; transform: translateY(3px);" title="Click to watch the best replay">`;
+
+      li.style.fontWeight = "bold";
+      li.addEventListener("click", () => {
+        chronoOverlay.classList.add("hidden");
+        replayTrajectory(entry.replay);
+      });
+    } else {
+      li.textContent = `${entry.name} - ${formatTime(entry.time)}`;
+    }
+    lb.appendChild(li);
+  });
+}
+
+
+      /* Gestione localStorage piste salvate */
+      const LS_KEY = "skiSolo_savedTracks";
+      /**
+       * Salvataggi delle partite Challenge (livello, punti, titolo, ecc.)
+       * Li terremo in un oggetto con struttura simile a:
+       * {
+       *   "NomePartita": {
+       *     level: 3,
+       *     points: 450,
+       *     title: "Blizzard Tamer",
+       *     attemptsLeft: 2,
+       *     // ... altri dati
+       *   },
+       *   "AltroSalvataggio": { ... }
+       * }
+       */
+      const CHALLENGE_SAVES_KEY = "skiSolo_challengeSaves";
+      /**
+       * Ritorna l'oggetto con tutti i salvataggi Challenge da localStorage.
+       */
+      function getChallengeSaves() {
+        let raw = localStorage.getItem(CHALLENGE_SAVES_KEY);
+        if (!raw) return {};
+        try {
+          return JSON.parse(raw);
+        } catch (e) {
+          return {};
+        }
+      }
+      /**
+       * Salva (sovrascrive) l'oggetto di tutti i salvataggi Challenge in localStorage.
+       */
+      function storeChallengeSaves(savesObj) {
+        localStorage.setItem(CHALLENGE_SAVES_KEY, JSON.stringify(savesObj));
+      }
+      /**
+       * Salva una singola partita Challenge nel localStorage,
+       * usando come 'name' la chiave scelta dall'utente.
+       */
+      function saveChallengeGame(name, data) {
+        let saves = getChallengeSaves();
+        saves[name] = data;
+        storeChallengeSaves(saves);
+        // Aggiorna la lista e nasconde l'input
+        renderSavedGamesList();
+        // Nasconde il campo di input e il pulsante dopo il salvataggio
+        document.getElementById("challengeSaveName").style.display = "none";
+        document.getElementById("challengeSaveBtn").style.display = "none";
+      }
+      /**
+       * Elimina un salvataggio col nome specifico
+       */
+      function deleteChallengeGame(name) {
+        let saves = getChallengeSaves();
+        if (saves[name]) {
+          delete saves[name];
+          storeChallengeSaves(saves);
+        }
+      }
+      /**
+       * Carica un salvataggio esistente e imposta le variabili globali
+       */
+      function loadChallengeGame(name) {
+        let saves = getChallengeSaves();
+        if (!saves[name]) return false; // Non esiste
+        let data = saves[name];
+        // Impostiamo le variabili globali della Challenge
+        currentLevel = data.level;
+        challengePoints = data.points;
+        currentTitleUnlocked = data.title;
+        challengeAttempts = data.attemptsLeft;
+        speed = data.speed; // Ripristina la velocità salvata
+        return true;
+      }
+      function loadSavedTracks() {
+        let saved = localStorage.getItem(LS_KEY);
+        if (saved) {
+          try {
+            savedTracks = JSON.parse(saved);
+          } catch (e) {
+            savedTracks = {};
+          }
+        } else {
+          savedTracks = {};
+        }
+      }
+      function storeSavedTracks() {
+        localStorage.setItem(LS_KEY, JSON.stringify(savedTracks));
+      }
+      function updateSavedTracksList() {
+        loadSavedTracks();
+        let listDiv = document.getElementById("savedTracksList");
+        listDiv.innerHTML = "";
+        for (let name in savedTracks) {
+          let container = document.createElement("div");
+          container.style.display = "flex";
+          container.style.alignItems = "center";
+          container.style.justifyContent = "space-between";
+          container.style.margin = "5px 0";
+          let span = document.createElement("span");
+          span.textContent = name;
+          span.style.cursor = "pointer";
+          span.addEventListener("click", () => {
+            let saved = savedTracks[name];
+            currentTrack = saved.track;
+            bestTimes = saved.bestTimes || [];
+            currentTrackName = name;
+            resizeCanvas();
+            resetRun();
+            viewOverlay.classList.add("hidden");
+          });
+          let delBtn = document.createElement("button");
+          delBtn.textContent = "Delete";
+          delBtn.className = "deleteBtn";
+          delBtn.addEventListener("click", () => {
+            if (confirm(`Are you sure you want to delete the track "${name}"?`)) {
+              delete savedTracks[name];
+              storeSavedTracks();
+              updateSavedTracksList();
+            }
+          });
+          container.appendChild(span);
+          container.appendChild(delBtn);
+          listDiv.appendChild(container);
+        }
+      }
+      document.getElementById("saveTrackBtn").addEventListener("click", () => {
+        let trackName = document.getElementById("trackNameInput").value.trim();
+        if (trackName === "") {
+          alert("Enter a track name.");
+          return;
+        }
+        savedTracks[trackName] = { track: currentTrack, bestTimes: [...bestTimes] };
+        currentTrackName = trackName;
+        storeSavedTracks();
+        alert("Track saved!");
+        updateSavedTracksList();
+        viewOverlay.classList.add("hidden");
+      });
+
+      /* Tutorial */
+      function renderTutorial() {
+        let slide = tutorialSlides[currentTutorialIndex];
+        tutorialContent.innerHTML = `<h2>${slide.title}</h2><p>${slide.content}</p>`;
+        tutorialDots.innerHTML = "";
+        tutorialSlides.forEach((s, i) => {
+          let d = document.createElement("div");
+          d.className = "dot" + (i === currentTutorialIndex ? " active" : "");
+          d.addEventListener("click", () => {
+            currentTutorialIndex = i;
+            renderTutorial();
+          });
+          tutorialDots.appendChild(d);
+        });
+        tutorialStart.style.display = "inline-block";
+        tutorialPrev.style.display = "inline-block";
+        tutorialNext.style.display = "inline-block";
+      }
+      tutorialPrev.addEventListener("click", () => {
+        if (currentTutorialIndex > 0) {
+          currentTutorialIndex--;
+          renderTutorial();
+        }
+      });
+      tutorialNext.addEventListener("click", () => {
+        if (currentTutorialIndex < tutorialSlides.length - 1) {
+          currentTutorialIndex++;
+          renderTutorial();
+        }
+      });
+      tutorialStart.addEventListener("click", () => {
+        tutorialOverlay.classList.add("hidden");
+        startGame();
+      });
+      function startGame() {
+        loadSavedTracks();
+        currentTrack = createTrack();
+        bestTimes = [];
+        currentTrackName = "";
+        resizeCanvas();
+        resetRun();
+        drawTrack(currentTrack);
+      }
+      renderTutorial();
+
+   document.getElementById("homeBtn").addEventListener("click", function () {
+  showConfirmPopup(
+    "Return to home to play the World Cup?",
+    function () {
+      // Azione in caso di conferma
+      location.href = "index.html";
+    },
+    function () {
+      // Azione in caso di annullamento (facoltativa)
+      console.log("Home action canceled");
+    }
+  );
+});
+
+      window.onload = function () {
+        resizeCanvas();
+      };
+    </script>
+  </body>
+</html>

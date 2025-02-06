@@ -1,0 +1,20 @@
+{
+  "name": "SkiZag",
+  "short_name": "SkiZag",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#c4d3fc",
+  "theme_color": "#8fa2f7",
+  "icons": [
+    {
+      "src": "icon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
