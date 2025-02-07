@@ -9,6 +9,7 @@
 
 <!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 
 <!-- Nome visualizzato nella Home Screen -->
 <meta name="apple-mobile-web-app-title" content="Ski-Zag!">
@@ -179,6 +180,11 @@
   justify-content: center;
   position: relative;
   z-index: 9999; /* come da impostazione originale */
+  user-select: none;            /* Standard moderno */
+  -webkit-user-select: none;    /* Safari e vecchi */
+  -moz-user-select: none;       /* Firefox */
+  -ms-user-select: none;        /* IE/Edge */
+  -webkit-touch-callout: none;  /* Previene i menu contestuali su iOS */
 }
 
       /* UNICA RIGA di testo per tutti i messaggi */
