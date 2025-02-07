@@ -7,6 +7,15 @@
 <!-- Icona per dispositivi Apple -->
 <link rel="apple-touch-icon" href="icon192.png">
 
+<!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<!-- Nome visualizzato nella Home Screen -->
+<meta name="apple-mobile-web-app-title" content="Ski-Zag!">
+
+<!-- Colore della barra di stato -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <!-- Registra il Service Worker -->
 <script>
   if ("serviceWorker" in navigator) {
@@ -31,7 +40,7 @@
         height: 100%;
         font-family: "Helvetica Neue", Arial, sans-serif;
         background: #c4d3fc;
-        margin-top: 10px;
+        margin-top: 0px;
       }
       body {
         display: flex;
@@ -47,7 +56,7 @@
         background-size: cover;
         border: 0px solid #ffffff;
         border-radius: 10px;
-        margin-top: 20px;
+        margin-top: 10px;
         box-sizing: border-box;
         overflow: hidden;
       }
@@ -444,11 +453,30 @@
           left: 95%;
         }
       }
-      @media (min-width: 768px) {
-        .container {
-          max-width: 500px !important;
-        }
-      }
+       @media (min-width: 768px) {
+  .container {
+    max-width: 500px !important;
+  }
+}
+
+/* =======================
+   IMMAGINE LOGO IN BASSO
+   ======================= */
+.bottom-space {
+  width: 100%;
+  height: 80px;
+  background: url("logo.png") no-repeat center bottom;
+  background-size: contain;
+  flex-shrink: 0;
+}
+
+/* Se l'altezza dello schermo è sotto i 700px, nascondi la .bottom-space */
+@media (max-height: 700px) {
+  .bottom-space {
+    display: none;
+  }
+}
+
     </style>
   </head>
   <body>
@@ -2315,5 +2343,6 @@ function handleDoubleConfirm() {
    Fine Script
 ======================================= */
     </script>
+<div class="bottom-space"></div>
   </body>
 </html>
