@@ -13,21 +13,22 @@
     <!-- Icona per dispositivi Apple -->
     <link rel="apple-touch-icon" href="icon192.png">
 
-<!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 
-<!-- Nome visualizzato nella Home Screen -->
-<meta name="apple-mobile-web-app-title" content="Ski-Zag!">
+    <!-- Nome visualizzato nella Home Screen -->
+    <meta name="apple-mobile-web-app-title" content="Ski-Zag!">
 
-<!-- Colore della barra di stato -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Colore della barra di stato -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <!-- Registra il Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
-                .then(() => console.log("Service Worker registrato!"))
-                .catch(error => console.log("Errore nel Service Worker:", error));
+                .then(() => console.log("Service Worker registered!"))
+                .catch(error => console.log("Service Worker registration failed:", error));
         }
     </script>
 
@@ -63,6 +64,9 @@
             position: absolute;
             width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .button-container a {
             position: absolute;
@@ -84,6 +88,49 @@
         .button-container img:hover {
             transform: scale(1.1);
         }
+
+        /* Stile per il pulsante Share */
+        .share-container {
+            position: absolute;
+            top: 90%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            text-align: center;
+        }
+
+        .button-container button.share {
+            background-color: #c4d3fc;
+            color: #434d74;
+            font-size: 14px;
+            padding: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .button-container button.share:hover {
+            opacity: 0.8;
+        }
+
+        button.share img.share-icon {
+            width: 20px;
+            height: auto;
+            vertical-align: middle;
+            transform: translateY(0px); /* Abbassa leggermente le icone */
+        }
+
+        button.share .share-text {
+            margin-top: -2px;
+        }
+
+        /* Posizionamento dei credits sotto il pulsante Share */
+        .credits {
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            margin-top: 5px; /* Distanza dal pulsante */
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +143,36 @@
             <a href="players.html" class="players">
                 <img src="players.png" alt="Players Button">
             </a>
+            <!-- Contenitore per Share e Credits -->
+            <div class="share-container">
+                <!-- Pulsante SHARE -->
+                <button id="shareBtn" class="share" title="Share the App">
+                    <img src="share.png" alt="Share Icon" class="share-icon">
+                    Share Ski-Zag!
+                    <img src="share2.png" alt="Share Icon 2" class="share-icon">
+                </button>
+                <!-- Crediti sotto il pulsante Share -->
+                <p class="credits">A game by © Davide Ghelfi - 2025. All rights reserved.</p>
+            </div>
         </div>
     </div>
+
+    <!-- Script per il pulsante di condivisione -->
+    <script>
+        document.getElementById('shareBtn').addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'SkiZag - Free game!',
+                    text: 'Check out SkiZag, a fun free skiing game!',
+                    url: 'https://dagame71.github.io/ski/'
+                })
+                .then(() => console.log('Share successful!'))
+                .catch((error) => console.log('Error sharing:', error));
+            } else {
+                // Fallback se la Web Share API non è supportata
+                alert("Your browser doesn't support the native share feature.\n\nPlease copy the link:\nhttps://dagame71.github.io/ski/");
+            }
+        });
+    </script>
 </body>
 </html>
