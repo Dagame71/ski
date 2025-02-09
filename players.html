@@ -1425,6 +1425,13 @@ if (!document._eventsAttached) {
   canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
   canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
   canvas.addEventListener("touchcancel", handleTouchEnd, { passive: false });
+// Aggiungiamo un listener al document per catturare il "touchend" anche fuori dal canvas
+document.addEventListener("touchend", (e) => {
+  // Se non sei in modalità editor e un disegno era in corso, forza la fine della run
+  if (!editingMode && drawing) {
+    handleTouchEndGame(e);
+  }
+}, { passive: false });
 
   let closeIntroOverlay = document.getElementById("closeIntroOverlay");
   if (closeIntroOverlay) {
