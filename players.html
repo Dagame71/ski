@@ -1121,14 +1121,13 @@ function animate() {
         checkIntersections();
       }
     function handleTouchEndGame(e) {
-    e.preventDefault();
-    
-    if (!drawing) return;  // Se il disegno non è attivo, non fare nulla
-    
-    drawing = false;  // Impedisce che il tratto continui
-    if (!didFinishOrFailThisRun) {
-        failAttempt("Run interrupted!");
-    }
+  e.preventDefault();
+  console.log("touchEndGame: drawing =", drawing, "didFinishOrFail=", didFinishOrFailThisRun);
+  if (!drawing) return;
+  drawing = false;
+  if (!didFinishOrFailThisRun) {
+    failAttempt("Run interrupted!");
+  }
 }
 
       // Dispatcher per Mouse/Touch in Editor o Game
