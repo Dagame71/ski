@@ -1079,6 +1079,7 @@ function animate() {
       }
       function handleTouchStartGame(e) {
         e.preventDefault();
+ didFinishOrFailThisRun = false;
         const { x, y } = getMouseCoords(e);
         if (!isNearStartPoint(x, y)) {
           showTemporaryMessage("You must start from the start point!", 1500);
@@ -1119,14 +1120,16 @@ function animate() {
         }
         checkIntersections();
       }
-      function handleTouchEndGame(e) {
-        e.preventDefault();
-        if (!drawing) return;
-        drawing = false;
-        if (!didFinishOrFailThisRun) {
-          failAttempt("Run interrupted!");
-        }
-      }
+    function handleTouchEndGame(e) {
+    e.preventDefault();
+    
+    if (!drawing) return;  // Se il disegno non è attivo, non fare nulla
+    
+    drawing = false;  // Impedisce che il tratto continui
+    if (!didFinishOrFailThisRun) {
+        failAttempt("Run interrupted!");
+    }
+}
 
       // Dispatcher per Mouse/Touch in Editor o Game
       function handleMouseDown(e) {
