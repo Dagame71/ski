@@ -642,7 +642,7 @@ let bestTimes = [];
       let replaySnowState = false;
       // Variabili per il long press e per il touch
       let longPressTimer = null;
-      const LONG_PRESS_DURATION = 1000; // 1000 ms
+      const LONG_PRESS_DURATION = 700; // 700 ms
       const LONG_PRESS_MOVE_THRESHOLD = 10; // Pixels
       let touchStartPos = { x: 0, y: 0 };
       let touchMoved = false;
@@ -659,6 +659,8 @@ let editingMode = false;
       let draggedElement = null;
 let isDragging = false;
 let isLongPressActive = false;
+let pulseTime = 0;
+const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
       /* =======================================
          Funzione di interpolazione per il bordo
       ======================================= */
@@ -911,26 +913,87 @@ let isLongPressActive = false;
           }
         }
       }
-      function drawGates(gArr) {
-        gArr.forEach((g) => {
-          const icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
-          const iconWidth = (16 / 300) * canvas.width;
-          const iconHeight = (16 / 520) * canvas.height;
-          ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
-        });
-      }
-      function drawTrees(tArr) {
-        if (!treeImg.complete) {
-          console.warn("Immagine dell'albero non ancora caricata.");
-          return;
-        }
-        tArr.forEach((t) => {
-          const treeWidth = (12 / 300) * canvas.width;
-          const treeHeight = (20 / 520) * canvas.height;
-          ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
-        });
-      }
+function drawGates(gArr) {
+  gArr.forEach((g) => {
 
+    // [OPZIONALE] Alone respirante SOLO in editingMode
+    if (editingMode) {
+      ctx.save();
+      // Raggio base: 14 px (puoi variare)
+      const baseRadius = 14;
+      // La sinusoide va da -1 a +1, qui la moltiplichiamo per 2 (raggio +/-2)
+      const pulse = Math.sin(pulseTime) * 2;
+      const radius = baseRadius + pulse;
+
+      ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; // giallo semitrasparente
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(g.x, g.y, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Ora disegna l’icona del gate
+    const icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
+    const iconWidth = (16 / 300) * canvas.width;
+    const iconHeight = (16 / 520) * canvas.height;
+    ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
+
+  });
+}
+function drawTrees(tArr) {
+  if (!treeImg.complete) return; // Immagine non ancora caricata
+
+  tArr.forEach((t) => {
+
+    // Se siamo in editing, disegna l’alone “respirante”
+    if (editingMode) {
+      ctx.save();
+      const baseRadius = 14;
+      const pulse = Math.sin(pulseTime) * 2;
+      const radius = baseRadius + pulse;
+      ctx.strokeStyle = "rgba(255, 255, 0, 0.6)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+
+      // Calcola la dimensione dell’albero (stessa formula che usi sotto)
+      const treeWidth = (12 / 300) * canvas.width;
+      const treeHeight = (20 / 520) * canvas.height;
+
+      // Centra il cerchio a metà della figura:
+      // sposta il centro dell'arco di "treeHeight/2" verso l'alto
+      ctx.arc(t.x, t.y - treeHeight / 2, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Disegna l’albero, ancorandolo alla base (come prima)
+    const treeWidth = (12 / 300) * canvas.width;
+    const treeHeight = (20 / 520) * canvas.height;
+    ctx.drawImage(
+      treeImg,
+      t.x - treeWidth / 2,
+      t.y - treeHeight,
+      treeWidth,
+      treeHeight
+    );
+  });
+}
+
+function animate() {
+  // Aggiorna il tempo di pulsazione
+  pulseTime += PULSE_SPEED;
+
+  // Se sei in editing, ridisegna tutto
+  // (altrimenti, potresti voler disegnare solo in editing)
+  if (editingMode && currentTrack) {
+    clearCanvas();
+    drawTrack(currentTrack);
+  }
+
+  // Continua il loop di animazione
+  requestAnimationFrame(animate);
+}
       /* =======================================
          Eventi Mouse / Touch (Unificati)
       ======================================= */
@@ -1016,6 +1079,7 @@ let isLongPressActive = false;
       }
       function handleTouchStartGame(e) {
         e.preventDefault();
+ didFinishOrFailThisRun = false;
         const { x, y } = getMouseCoords(e);
         if (!isNearStartPoint(x, y)) {
           showTemporaryMessage("You must start from the start point!", 1500);
@@ -1056,14 +1120,16 @@ let isLongPressActive = false;
         }
         checkIntersections();
       }
-      function handleTouchEndGame(e) {
-        e.preventDefault();
-        if (!drawing) return;
-        drawing = false;
-        if (!didFinishOrFailThisRun) {
-          failAttempt("Run interrupted!");
-        }
-      }
+    function handleTouchEndGame(e) {
+    e.preventDefault();
+    
+    if (!drawing) return;  // Se il disegno non è attivo, non fare nulla
+    
+    drawing = false;  // Impedisce che il tratto continui
+    if (!didFinishOrFailThisRun) {
+        failAttempt("Run interrupted!");
+    }
+}
 
       // Dispatcher per Mouse/Touch in Editor o Game
       function handleMouseDown(e) {
@@ -1411,13 +1477,23 @@ function handleTouchEndEditor(e) {
         return foundIndex !== null ? { index: foundIndex } : null;
       }
 
-      function handleDoubleConfirm() {
-        if (editingMode && !draggedElement) {
-          editingMode = false;
-          callParticipant();
-          showTemporaryMessage("Slope confirmed! Race starting...", 2000);
-        }
-      }
+function handleDoubleConfirm() {
+  if (editingMode && !draggedElement) {
+    editingMode = false;
+    callParticipant();
+    showTemporaryMessage("Slope confirmed! Race starting...", 2000);
+
+    // Forza un ridisegno subito SENZA bagliori
+    clearCanvas();
+    drawTrack(currentTrack);
+
+    // Cambi sfondo gara
+    const container = document.querySelector('.container');
+    container.style.background = "url('sfondo.png') no-repeat center center";
+    container.style.backgroundSize = "cover";
+  }
+}
+
 
       /* =======================================
          Funzioni Editor (dispatcher già integrato)
@@ -2324,21 +2400,11 @@ function handleTouchEndDoubleTap(e) {
   infoLineEl.addEventListener("dblclick", handleDoubleConfirm, false);
 
 });
+document.addEventListener("DOMContentLoaded", () => {
+  // ... codice di inizializzazione ...
+  animate(); // Lancia il loop
+});
 
-
-let lastTap = 0;
-function handleDoubleConfirm() {
-    if (editingMode && !draggedElement) {
-        editingMode = false;
-        callParticipant();
-        showTemporaryMessage("Slope confirmed! Race starting...", 2000);
-
-        // 🔄 Ripristina lo sfondo della gara
-        const container = document.querySelector('.container');
-        container.style.background = "url('sfondo.png') no-repeat center center";
-        container.style.backgroundSize = "cover";
-    }
-}
 
 /* =======================================
    Fine Script
