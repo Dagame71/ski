@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-<!-- Collegamento al Manifest -->
-<link rel="manifest" href="manifest.json">
-
-<!-- Icona per dispositivi Apple -->
-<link rel="apple-touch-icon" href="icon192.png">
-
-<!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-
-<!-- Nome visualizzato nella Home Screen -->
-<meta name="apple-mobile-web-app-title" content="Ski-Zag!">
-
-<!-- Colore della barra di stato -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- Registra il Service Worker -->
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(() => console.log("Service Worker registrato!"))
-      .catch(error => console.log("Errore nel Service Worker:", error));
-  }
-</script>
+    <!-- Collegamento al Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icona per dispositivi Apple -->
+    <link rel="apple-touch-icon" href="icon192.png">
+    
+    <!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Nome visualizzato nella Home Screen -->
+    <meta name="apple-mobile-web-app-title" content="Ski-Zag!">
+    
+    <!-- Colore della barra di stato -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Registra il Service Worker -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js")
+          .then(() => console.log("Service Worker registrato!"))
+          .catch(error => console.log("Errore nel Service Worker:", error));
+      }
+    </script>
     <meta charset="UTF-8" />
     <!-- Disabilita pinch-to-zoom / doppio tap -->
     <meta
@@ -133,50 +133,49 @@
         cursor: pointer;
       }
       
-.info-container {
-  width: 90vw;
-  max-width: 500px;
-  margin: 2px auto;
-  padding: 1px;
-  margin-top: -10px; /* Valore negativo per alzare il blocco */
-  border: 0px solid #9cc1e2;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2); /* opzione per uno sfondo leggero */
-  display: flex;
-  box-shadow: 
-    inset 1px 1px 3px rgba(0, 0, 0, 0.2), 
-    inset -1px -1px 3px #9cc1e2;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 9999; /* come da impostazione originale */
-
-  /* Disabilita la selezione del testo */
-  user-select: none;
-  -webkit-user-select: none; /* Chrome, Safari, Opera */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE/Edge */
-  -webkit-touch-callout: none; /* Disabilita il menu contestuale su iOS */
-}
-
-/* UNICA RIGA di testo per tutti i messaggi */
-#infoLine {
-  margin: 5px 0;
-  font-weight: bold;
-  font-size: 1.2em; /* Dimensione relativa */
-  min-height: 20px;
-  text-align: center;
-  color: black;
-
-  /* Disabilita la selezione del testo */
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-touch-callout: none;
-}
-
+      .info-container {
+        width: 90vw;
+        max-width: 500px;
+        margin: 2px auto;
+        padding: 1px;
+        margin-top: -10px; /* Valore negativo per alzare il blocco */
+        border: 0px solid #9cc1e2;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.2); /* opzione per uno sfondo leggero */
+        display: flex;
+        box-shadow: 
+          inset 1px 1px 3px rgba(0, 0, 0, 0.2), 
+          inset -1px -1px 3px #9cc1e2;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 9999;
+      
+        /* Disabilita la selezione del testo */
+        user-select: none;
+        -webkit-user-select: none; /* Chrome, Safari, Opera */
+        -moz-user-select: none;    /* Firefox */
+        -ms-user-select: none;     /* IE/Edge */
+        -webkit-touch-callout: none; /* Disabilita il menu contestuale su iOS */
+      }
+      
+      /* UNICA RIGA di testo per tutti i messaggi */
+      #infoLine {
+        margin: 5px 0;
+        font-weight: bold;
+        font-size: 1.2em; /* Dimensione relativa */
+        min-height: 20px;
+        text-align: center;
+        color: black;
+      
+        /* Disabilita la selezione del testo */
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-touch-callout: none;
+      }
       
       /* Animazioni */
       @keyframes blink {
@@ -235,12 +234,12 @@
           inset -4px -4px 2px rgba(255, 255, 255, 0.8);
       }
       
- .popup-button-container {
-  display: flex;
-  justify-content: center;
-  gap: 20px; /* Aggiunge uno spazio di 20px tra i pulsanti */
-  margin-top: 15px;
-}
+      .popup-button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px; /* Aggiunge uno spazio di 20px tra i pulsanti */
+        margin-top: 15px;
+      }
       #popupOkButton {
         background: #007bff;
         color: #fff;
@@ -359,21 +358,21 @@
       .dot.active {
         background: #007bff;
       }
-.close-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: #8fa2f7;
-  font-size: 0.875em;
-  padding: 0.5em 1em;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.close-button:hover {
-  background-color: #bdc9fb;
-}
+      .close-button {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #8fa2f7;
+        font-size: 0.875em;
+        padding: 0.5em 1em;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .close-button:hover {
+        background-color: #bdc9fb;
+      }
       
       /* Tabella del campionato */
       .champ-table {
@@ -454,30 +453,29 @@
           left: 95%;
         }
       }
-       @media (min-width: 768px) {
-  .container {
-    max-width: 500px !important;
-  }
-}
-
-/* =======================
-   IMMAGINE LOGO IN BASSO
-   ======================= */
-.bottom-space {
-  width: 100%;
-  height: 80px;
-  background: url("logo.png") no-repeat center bottom;
-  background-size: contain;
-  flex-shrink: 0;
-}
-
-/* Se l'altezza dello schermo è sotto i 700px, nascondi la .bottom-space */
-@media (max-height: 700px) {
-  .bottom-space {
-    display: none;
-  }
-}
-
+      @media (min-width: 768px) {
+        .container {
+          max-width: 500px !important;
+        }
+      }
+      
+      /* =======================
+         IMMAGINE LOGO IN BASSO
+         ======================= */
+      .bottom-space {
+        width: 100%;
+        height: 80px;
+        background: url("logo.png") no-repeat center bottom;
+        background-size: contain;
+        flex-shrink: 0;
+      }
+      
+      /* Se l'altezza dello schermo è sotto i 700px, nascondi la .bottom-space */
+      @media (max-height: 700px) {
+        .bottom-space {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -544,12 +542,12 @@
     </div>
     
     <!-- OVERLAY INTRO E SLIDES -->
-   <div id="slidesOverlay" class="overlay hidden">
-  <div id="slidesContent" class="overlay-content intro-overlay">
-    <button id="closeIntroOverlay" class="close-button">X</button>
-    <!-- Il resto del contenuto introduttivo -->
-  </div>
-</div>
+    <div id="slidesOverlay" class="overlay hidden">
+      <div id="slidesContent" class="overlay-content intro-overlay">
+        <button id="closeIntroOverlay" class="close-button">X</button>
+        <!-- Il resto del contenuto introduttivo -->
+      </div>
+    </div>
     
     <!-- OVERLAY ANNUNCI E CLASSIFICHE -->
     <div id="champOverlay" class="overlay hidden">
@@ -564,10 +562,10 @@
       const PENALTY_WEIGHT = 0.5;
       const BORDER_THRESHOLD = 5; // Considera "al bordo" se la traiettoria sta entro 5px dal limite del canvas.
       const MIN_VERTICAL_GAP = 30; // Distanza minima in pixel tra bandiere
-
+      
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
-
+      
       // === Unificazione messaggi in un solo <p> ===
       const infoLine = document.getElementById("infoLine");
       let mainLabel = "";
@@ -602,7 +600,7 @@
         }, duration);
       }
       // === Fine unificazione ===
-
+      
       const sameTrackButton = document.getElementById("sameTrack");
       const replayButton = document.getElementById("replayButton");
       const chronoButton = document.getElementById("chronoButton");
@@ -612,10 +610,10 @@
       const slidesContent = document.getElementById("slidesContent");
       const champOverlay = document.getElementById("champOverlay");
       const champContent = document.getElementById("champContent");
-
+      
       // Variabili di gioco e stato
       let treeHits = {};
-let bestTimes = [];
+      let bestTimes = [];
       let currentTrack = null;
       let gates = [];
       let trees = [];
@@ -646,7 +644,7 @@ let bestTimes = [];
       const LONG_PRESS_MOVE_THRESHOLD = 10; // Pixels
       let touchStartPos = { x: 0, y: 0 };
       let touchMoved = false;
-
+      
       // Impostazione di partenza/arrivo
       let startPoint = { x: 150, y: 30 };
       let finishRect = { x: 130, y: 490, width: 40, height: 10 };
@@ -655,12 +653,13 @@ let bestTimes = [];
       let isOut = false;
       // === Variabili per l'editor ===
       let interactionInProgress = false;
-let editingMode = false;
+      let editingMode = false;
       let draggedElement = null;
-let isDragging = false;
-let isLongPressActive = false;
-let pulseTime = 0;
-const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
+      let isDragging = false;
+      let isLongPressActive = false;
+      let pulseTime = 0;
+      const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
+      
       /* =======================================
          Funzione di interpolazione per il bordo
       ======================================= */
@@ -680,7 +679,7 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
         }
         return false;
       }
-
+      
       /* =======================================
          Resize Canvas Responsivo
       ======================================= */
@@ -696,14 +695,14 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
           height: 10
         };
       }
-
+      
       /* =======================================
          Clear Canvas
       ======================================= */
       function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
-
+      
       /* =======================================
          Calibrazione
       ======================================= */
@@ -711,7 +710,7 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
         const cal = document.getElementById("calibrationTest");
         window.conversionFactor = cal.offsetWidth / 96;
       });
-
+      
       /* =======================================
          Impostazione delle icone e risorse
       ======================================= */
@@ -725,16 +724,16 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
       startIcon.src = "start.svg";
       const treeImg = new Image();
       treeImg.src = "tree.svg";
-    treeImg.onload = () => {
-  console.log("Immagine dell'albero caricata con successo.");
-  if (currentTrack) {
-    drawTrack(currentTrack);
-  }
-};
+      treeImg.onload = () => {
+        console.log("Immagine dell'albero caricata con successo.");
+        if (currentTrack) {
+          drawTrack(currentTrack);
+        }
+      };
       treeImg.onerror = () => {
         console.error("Errore nel caricamento di tree.svg");
       };
-
+      
       /* =======================================
          Funzioni Meteo
       ======================================= */
@@ -778,7 +777,7 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
         weatherState = state;
         return snowIntensity > 0;
       }
-
+      
       /* =======================================
          Sistema neve: inizializza e aggiorna le particelle
       ======================================= */
@@ -816,7 +815,7 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
         });
         requestAnimationFrame(updateSnow);
       }
-
+      
       /* =======================================
          Generazione della Pista
       ======================================= */
@@ -877,7 +876,7 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
         }
         return arr;
       }
-
+      
       /* =======================================
          Disegno della Pista e degli Elementi
       ======================================= */
@@ -913,87 +912,77 @@ const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
           }
         }
       }
-function drawGates(gArr) {
-  gArr.forEach((g) => {
-
-    // [OPZIONALE] Alone respirante SOLO in editingMode
-    if (editingMode) {
-      ctx.save();
-      // Raggio base: 14 px (puoi variare)
-      const baseRadius = 14;
-      // La sinusoide va da -1 a +1, qui la moltiplichiamo per 2 (raggio +/-2)
-      const pulse = Math.sin(pulseTime) * 2;
-      const radius = baseRadius + pulse;
-
-      ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; // giallo semitrasparente
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.arc(g.x, g.y, radius, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Ora disegna l’icona del gate
-    const icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
-    const iconWidth = (16 / 300) * canvas.width;
-    const iconHeight = (16 / 520) * canvas.height;
-    ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
-
-  });
-}
-function drawTrees(tArr) {
-  if (!treeImg.complete) return; // Immagine non ancora caricata
-
-  tArr.forEach((t) => {
-
-    // Se siamo in editing, disegna l’alone “respirante”
-    if (editingMode) {
-      ctx.save();
-      const baseRadius = 14;
-      const pulse = Math.sin(pulseTime) * 2;
-      const radius = baseRadius + pulse;
-      ctx.strokeStyle = "rgba(255, 255, 0, 0.6)";
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-
-      // Calcola la dimensione dell’albero (stessa formula che usi sotto)
-      const treeWidth = (12 / 300) * canvas.width;
-      const treeHeight = (20 / 520) * canvas.height;
-
-      // Centra il cerchio a metà della figura:
-      // sposta il centro dell'arco di "treeHeight/2" verso l'alto
-      ctx.arc(t.x, t.y - treeHeight / 2, radius, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Disegna l’albero, ancorandolo alla base (come prima)
-    const treeWidth = (12 / 300) * canvas.width;
-    const treeHeight = (20 / 520) * canvas.height;
-    ctx.drawImage(
-      treeImg,
-      t.x - treeWidth / 2,
-      t.y - treeHeight,
-      treeWidth,
-      treeHeight
-    );
-  });
-}
-
-function animate() {
-  // Aggiorna il tempo di pulsazione
-  pulseTime += PULSE_SPEED;
-
-  // Se sei in editing, ridisegna tutto
-  // (altrimenti, potresti voler disegnare solo in editing)
-  if (editingMode && currentTrack) {
-    clearCanvas();
-    drawTrack(currentTrack);
-  }
-
-  // Continua il loop di animazione
-  requestAnimationFrame(animate);
-}
+      function drawGates(gArr) {
+        gArr.forEach((g) => {
+          // [OPZIONALE] Alone respirante SOLO in editingMode
+          if (editingMode) {
+            ctx.save();
+            // Raggio base: 14 px (puoi variare)
+            const baseRadius = 14;
+            // La sinusoide va da -1 a +1, qui la moltiplichiamo per 2 (raggio +/-2)
+            const pulse = Math.sin(pulseTime) * 2;
+            const radius = baseRadius + pulse;
+      
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; // giallo semitrasparente
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(g.x, g.y, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.restore();
+          }
+      
+          // Ora disegna l’icona del gate
+          const icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
+          const iconWidth = (16 / 300) * canvas.width;
+          const iconHeight = (16 / 520) * canvas.height;
+          ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
+        });
+      }
+      function drawTrees(tArr) {
+        if (!treeImg.complete) return; // Immagine non ancora caricata
+      
+        tArr.forEach((t) => {
+          // Se siamo in editing, disegna l’alone “respirante”
+          if (editingMode) {
+            ctx.save();
+            const baseRadius = 14;
+            const pulse = Math.sin(pulseTime) * 2;
+            const radius = baseRadius + pulse;
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.6)";
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+      
+            const treeWidth = (12 / 300) * canvas.width;
+            const treeHeight = (20 / 520) * canvas.height;
+      
+            ctx.arc(t.x, t.y - treeHeight / 2, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.restore();
+          }
+      
+          const treeWidth = (12 / 300) * canvas.width;
+          const treeHeight = (20 / 520) * canvas.height;
+          ctx.drawImage(
+            treeImg,
+            t.x - treeWidth / 2,
+            t.y - treeHeight,
+            treeWidth,
+            treeHeight
+          );
+        });
+      }
+      
+      function animate() {
+        pulseTime += PULSE_SPEED;
+      
+        if (editingMode && currentTrack) {
+          clearCanvas();
+          drawTrack(currentTrack);
+        }
+      
+        requestAnimationFrame(animate);
+      }
+      
       /* =======================================
          Eventi Mouse / Touch (Unificati)
       ======================================= */
@@ -1009,7 +998,7 @@ function animate() {
       function isNearStartPoint(x, y) {
         return Math.hypot(x - startPoint.x, y - startPoint.y) <= (20 / 520) * canvas.height;
       }
-
+      
       function handleMouseDownGame(e) {
         const { x, y } = getMouseCoords(e);
         if (!isNearStartPoint(x, y)) {
@@ -1079,7 +1068,6 @@ function animate() {
       }
       function handleTouchStartGame(e) {
         e.preventDefault();
- didFinishOrFailThisRun = false;
         const { x, y } = getMouseCoords(e);
         if (!isNearStartPoint(x, y)) {
           showTemporaryMessage("You must start from the start point!", 1500);
@@ -1120,16 +1108,15 @@ function animate() {
         }
         checkIntersections();
       }
-    function handleTouchEndGame(e) {
-  e.preventDefault();
-  console.log("touchEndGame: drawing =", drawing, "didFinishOrFail=", didFinishOrFailThisRun);
-  if (!drawing) return;
-  drawing = false;
-  if (!didFinishOrFailThisRun) {
-    failAttempt("Run interrupted!");
-  }
-}
-
+      function handleTouchEndGame(e) {
+        e.preventDefault();
+        if (!drawing) return;
+        drawing = false;
+        if (!didFinishOrFailThisRun) {
+          failAttempt("Run interrupted!");
+        }
+      }
+      
       // Dispatcher per Mouse/Touch in Editor o Game
       function handleMouseDown(e) {
         if (editingMode) {
@@ -1173,7 +1160,7 @@ function animate() {
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTap;
         if (tapLength < 300 && tapLength > 0) {
-         
+          // eventuale doppio tap
         }
         lastTap = currentTime;
         if (editingMode) {
@@ -1182,74 +1169,81 @@ function animate() {
           handleTouchEndGame(e);
         }
       }
-      // (Le funzioni Editor rimangono invariate)
+      
+      // IMPORTANTE: aggiungiamo il listener per "touchcancel"
+      canvas.addEventListener("touchcancel", handleTouchEnd, false);
+      
+      // Le funzioni Editor (handleMouseDownEditor, handleMouseMoveEditor, handleMouseUpEditor,
+      // handleTouchStartEditor, handleTouchMoveEditor, handleTouchEndEditor, findNearestGate,
+      // findNearestTree, addTree, checkEditorConstraints, isValidGatePosition, isValidTreePosition,
+      // getVerticalLimits) sono incluse qui (rimangono invariate rispetto alla versione originale)
+      
       function handleMouseDownEditor(e) {
-    const { x, y } = getMouseCoords(e);
-    longPressTimer = setTimeout(() => {
-        if (!touchMoved && !interactionInProgress) {
+        const { x, y } = getMouseCoords(e);
+        longPressTimer = setTimeout(() => {
+          if (!touchMoved && !interactionInProgress) {
             interactionInProgress = true;
             addTree(x, y);
             interactionInProgress = false;
-        }
-        longPressTimer = null;
-    }, LONG_PRESS_DURATION);
-    touchStartPos = { x, y };
-    touchMoved = false;
-
-    // Verifica se l'utente sta trascinando un elemento
-    let foundG = findNearestGate(x, y, 20);
-    if (foundG) {
-        let g = gates[foundG.index];
-        draggedElement = {
+          }
+          longPressTimer = null;
+        }, LONG_PRESS_DURATION);
+        touchStartPos = { x, y };
+        touchMoved = false;
+      
+        let foundG = findNearestGate(x, y, 20);
+        if (foundG) {
+          let g = gates[foundG.index];
+          draggedElement = {
             type: "gate",
             index: foundG.index,
             oldX: g.x,
             oldY: g.y,
             offsetX: g.x - x,
             offsetY: g.y - y,
-        };
-        touchMoved = true;
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-        return;
-    }
-
-    let foundT = findNearestTree(x, y, 20);
-    if (foundT) {
-        let t = trees[foundT.index];
-        draggedElement = {
+          };
+          touchMoved = true;
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+          return;
+        }
+      
+        let foundT = findNearestTree(x, y, 20);
+        if (foundT) {
+          let t = trees[foundT.index];
+          draggedElement = {
             type: "tree",
             index: foundT.index,
             oldX: t.x,
             oldY: t.y,
             offsetX: t.x - x,
             offsetY: t.y - y,
-        };
-        touchMoved = true;
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-        return;
-    }
-
-    draggedElement = null;
-}
-
+          };
+          touchMoved = true;
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+          return;
+        }
+      
+        draggedElement = null;
+      }
+      
       function handleMouseMoveEditor(e) {
-    if (!draggedElement) {
-        const { x, y } = getMouseCoords(e);
-        const dx = Math.abs(x - touchStartPos.x);
-        const dy = Math.abs(y - touchStartPos.y);
-        if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
+        if (!draggedElement) {
+          const { x, y } = getMouseCoords(e);
+          const dx = Math.abs(x - touchStartPos.x);
+          const dy = Math.abs(y - touchStartPos.y);
+          if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
             touchMoved = true;
             clearTimeout(longPressTimer);
             longPressTimer = null;
-        }
-    } else {
-        const { x, y } = getMouseCoords(e);
-        const dragX = x + draggedElement.offsetX;
-        const dragY = y + draggedElement.offsetY;
-
-        if (draggedElement.type === "gate") {
+          }
+        } else {
+          const { x, y } = getMouseCoords(e);
+          const dragX = x + draggedElement.offsetX;
+          const dragY = y + draggedElement.offsetY;
+      
+          if (draggedElement.type === "gate") {
             const gate = gates[draggedElement.index];
             const { minY, maxY } = getVerticalLimits(draggedElement.index);
             let newY = dragY;
@@ -1262,108 +1256,104 @@ function animate() {
             gate.line.y1 = gate.y;
             gate.line.x2 = gate.x + dir * 200;
             gate.line.y2 = gate.y;
-        } else if (draggedElement.type === "tree") {
+          } else if (draggedElement.type === "tree") {
             const tree = trees[draggedElement.index];
             tree.x = dragX;
             tree.y = dragY;
+          }
+          drawTrack(currentTrack);
         }
+      }
+      
+      function handleMouseUpEditor(e) {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        if (!draggedElement) {
+          interactionInProgress = false;
+          return;
+        }
+      
+        checkEditorConstraints(draggedElement);
+        draggedElement = null;
         drawTrack(currentTrack);
-    }
-}
-
-function handleMouseUpEditor(e) {
-    if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-    }
-    if (!draggedElement) {
-        interactionInProgress = false; // Nessun dragging o long press
-        return;
-    }
-
-    checkEditorConstraints(draggedElement);
-    draggedElement = null;
-    drawTrack(currentTrack);
-    interactionInProgress = false; // Fine dell'interazione
-}
-
+        interactionInProgress = false;
+      }
+      
       function handleTouchStartEditor(e) {
-    e.preventDefault();
-    const { x, y } = getMouseCoords(e);
-
-    // Inizializza i flag
-    isDragging = false;
-    isLongPressActive = false;
-
-    // Timer per long press
-    longPressTimer = setTimeout(() => {
-        if (!touchMoved) {
+        e.preventDefault();
+        const { x, y } = getMouseCoords(e);
+      
+        isDragging = false;
+        isLongPressActive = false;
+      
+        longPressTimer = setTimeout(() => {
+          if (!touchMoved) {
             isLongPressActive = true;
             addTree(x, y);
-        }
-        longPressTimer = null;
-    }, LONG_PRESS_DURATION);
-
-    touchStartPos = { x, y };
-    touchMoved = false;
-
-    // Controlla se è iniziato il dragging
-    let foundG = findNearestGate(x, y, 20);
-    if (foundG) {
-        let g = gates[foundG.index];
-        draggedElement = {
+          }
+          longPressTimer = null;
+        }, LONG_PRESS_DURATION);
+      
+        touchStartPos = { x, y };
+        touchMoved = false;
+      
+        let foundG = findNearestGate(x, y, 20);
+        if (foundG) {
+          let g = gates[foundG.index];
+          draggedElement = {
             type: "gate",
             index: foundG.index,
             oldX: g.x,
             oldY: g.y,
             offsetX: g.x - x,
             offsetY: g.y - y
-        };
-        touchMoved = true;
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-        return;
-    }
-    let foundT = findNearestTree(x, y, 20);
-    if (foundT) {
-        let t = trees[foundT.index];
-        draggedElement = {
+          };
+          touchMoved = true;
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+          return;
+        }
+        let foundT = findNearestTree(x, y, 20);
+        if (foundT) {
+          let t = trees[foundT.index];
+          draggedElement = {
             type: "tree",
             index: foundT.index,
             oldX: t.x,
             oldY: t.y,
             offsetX: t.x - x,
             offsetY: t.y - y
-        };
-        touchMoved = true;
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-        return;
-    }
-    draggedElement = null;
-}
-
-function handleTouchMoveEditor(e) {
-    e.preventDefault();
-
-    if (!draggedElement) {
-        const { x, y } = getMouseCoords(e);
-        const dx = Math.abs(x - touchStartPos.x);
-        const dy = Math.abs(y - touchStartPos.y);
-
-        // Se superiamo la soglia, consideriamo dragging
-        if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
+          };
+          touchMoved = true;
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+          return;
+        }
+        draggedElement = null;
+      }
+      
+      function handleTouchMoveEditor(e) {
+        e.preventDefault();
+      
+        if (!draggedElement) {
+          const { x, y } = getMouseCoords(e);
+          const dx = Math.abs(x - touchStartPos.x);
+          const dy = Math.abs(y - touchStartPos.y);
+      
+          if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
             isDragging = true;
             touchMoved = true;
             clearTimeout(longPressTimer);
             longPressTimer = null;
-        }
-    } else {
-        const { x, y } = getMouseCoords(e);
-        const dragX = x + draggedElement.offsetX;
-        const dragY = y + draggedElement.offsetY;
-
-        if (draggedElement.type === "gate") {
+          }
+        } else {
+          const { x, y } = getMouseCoords(e);
+          const dragX = x + draggedElement.offsetX;
+          const dragY = y + draggedElement.offsetY;
+      
+          if (draggedElement.type === "gate") {
             const gate = gates[draggedElement.index];
             const { minY, maxY } = getVerticalLimits(draggedElement.index);
             let newY = dragY;
@@ -1376,45 +1366,44 @@ function handleTouchMoveEditor(e) {
             gate.line.y1 = gate.y;
             gate.line.x2 = gate.x + dir * 200;
             gate.line.y2 = gate.y;
-        } else if (draggedElement.type === "tree") {
+          } else if (draggedElement.type === "tree") {
             const tree = trees[draggedElement.index];
             tree.x = dragX;
             tree.y = dragY;
+          }
+          drawTrack(currentTrack);
         }
-        drawTrack(currentTrack);
-    }
-}
-
-function handleTouchEndEditor(e) {
-    e.preventDefault();
-
-    if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-    }
-
-    if (isDragging) {
-        isDragging = false; // Resetta il flag
-        checkEditorConstraints(draggedElement);
-        draggedElement = null;
-        drawTrack(currentTrack);
-        return;
-    }
-
-    if (isLongPressActive) {
-        isLongPressActive = false; // Resetta il flag
-        return; // Nessun double tap dopo un long press
-    }
-
-    // Nessun dragging o long press, possibile double tap
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    if (tapLength > 0 && tapLength < 300) {
-        handleDoubleConfirm();
-    }
-    lastTap = currentTime;
-}
-
+      }
+      
+      function handleTouchEndEditor(e) {
+        e.preventDefault();
+      
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+      
+        if (isDragging) {
+          isDragging = false;
+          checkEditorConstraints(draggedElement);
+          draggedElement = null;
+          drawTrack(currentTrack);
+          return;
+        }
+      
+        if (isLongPressActive) {
+          isLongPressActive = false;
+          return;
+        }
+      
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength > 0 && tapLength < 300) {
+          handleDoubleConfirm();
+        }
+        lastTap = currentTime;
+      }
+      
       function addTree(x, y) {
         if (!editingMode) return;
         if (touchMoved) return;
@@ -1426,28 +1415,24 @@ function handleTouchEndEditor(e) {
         drawTrack(currentTrack);
         showTemporaryMessage("New tree added!", 1500);
       }
-      // Aggiungi EventListener se non già attaccati
- if (!document._eventsAttached) {
-  canvas.addEventListener("mousedown", handleMouseDown);
-  canvas.addEventListener("mousemove", handleMouseMove);
-  document.addEventListener("mouseup", handleMouseUp);
-  canvas.addEventListener("touchstart", handleTouchStart);
-  canvas.addEventListener("touchmove", handleTouchMove);
- document.addEventListener("touchend", handleTouchEnd, false);
-document.addEventListener("touchcancel", handleTouchEnd, false);
-  
-
-  //listener per il pulsante di chiusura dell'overlay introduttivo
-  let closeIntroOverlay = document.getElementById("closeIntroOverlay");
-  if (closeIntroOverlay) {
- closeIntroOverlay.addEventListener("click", function() {
-  window.location.href = "index.html";
-});
-  }
-
-  document._eventsAttached = true;
-}
-
+      
+      if (!document._eventsAttached) {
+        canvas.addEventListener("mousedown", handleMouseDown);
+        canvas.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+        canvas.addEventListener("touchstart", handleTouchStart);
+        canvas.addEventListener("touchmove", handleTouchMove);
+        canvas.addEventListener("touchend", handleTouchEnd);
+        // Il listener per "touchcancel" è già stato aggiunto sopra
+        let closeIntroOverlay = document.getElementById("closeIntroOverlay");
+        if (closeIntroOverlay) {
+          closeIntroOverlay.addEventListener("click", function() {
+            window.location.href = "index.html";
+          });
+        }
+        document._eventsAttached = true;
+      }
+      
       function findNearestGate(x, y, maxDist) {
         let foundIndex = null;
         let bestDist = Infinity;
@@ -1476,33 +1461,20 @@ document.addEventListener("touchcancel", handleTouchEnd, false);
         }
         return foundIndex !== null ? { index: foundIndex } : null;
       }
-
-function handleDoubleConfirm() {
-  if (editingMode && !draggedElement) {
-    editingMode = false;
-    callParticipant();
-    showTemporaryMessage("Slope confirmed! Race starting...", 2000);
-
-    // Forza un ridisegno subito SENZA bagliori
-    clearCanvas();
-    drawTrack(currentTrack);
-
-    // Cambi sfondo gara
-    const container = document.querySelector('.container');
-    container.style.background = "url('sfondo.png') no-repeat center center";
-    container.style.backgroundSize = "cover";
-  }
-}
-
-
-      /* =======================================
-         Funzioni Editor (dispatcher già integrato)
-      ======================================= */
-      // Le funzioni handleMouseDownEditor, handleMouseMoveEditor, handleMouseUpEditor,
-      // handleTouchStartEditor, handleTouchMoveEditor, handleTouchEndEditor, findNearestGate,
-      // findNearestTree, addTree, checkEditorConstraints, isValidGatePosition, isValidTreePosition,
-      // getVerticalLimits sono qui mantenute invariate
-
+      
+      function handleDoubleConfirm() {
+        if (editingMode && !draggedElement) {
+          editingMode = false;
+          callParticipant();
+          showTemporaryMessage("Slope confirmed! Race starting...", 2000);
+          clearCanvas();
+          drawTrack(currentTrack);
+          const container = document.querySelector('.container');
+          container.style.background = "url('sfondo.png') no-repeat center center";
+          container.style.backgroundSize = "cover";
+        }
+      }
+      
       function checkEditorConstraints(dragged) {
         if (dragged.type === "gate") {
           let g = gates[dragged.index];
@@ -1581,14 +1553,16 @@ function handleDoubleConfirm() {
         }
         return { minY, maxY };
       }
-
+      
       /* =======================================
          Gestione delle Collisioni
       ======================================= */
       function checkIntersections() {
         for (let i = 1; i < pointsPath.length; i++) {
           const p1 = pointsPath[i - 1],
-            p2 = pointsPath[i];
+                p2 = pointsPath[i];
+      
+          // Collisione con alberi (hardMode)
           if (hardMode) {
             for (const tree of trees) {
               const steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
@@ -1609,6 +1583,8 @@ function handleDoubleConfirm() {
               }
             }
           }
+      
+          // Intersezione con le porte
           for (const [idx, gate] of gates.entries()) {
             if (
               linesIntersect(
@@ -1625,6 +1601,17 @@ function handleDoubleConfirm() {
               intersectedGates.add(idx);
             }
           }
+      
+          // Controllo per il "finish"
+          if (
+            p1.y < finishRect.y &&
+            p2.y >= finishRect.y &&
+            !isSegmentInFinishArea(p1, p2, finishRect)
+          ) {
+            failAttempt("Run interrupted!");
+            return;
+          }
+      
           if (isSegmentInFinishArea(p1, p2, finishRect)) {
             if (intersectedGates.size === gates.length) {
               finishRun();
@@ -1663,17 +1650,17 @@ function handleDoubleConfirm() {
           y <= rect.y + rect.height + minD
         );
       }
-
+      
       /* =======================================
          Gestione dei Tentativi
       ======================================= */
       function failAttempt(msg) {
         drawing = false;
         didFinishOrFailThisRun = true;
-       if (pointsPath.length > 0) {
-  lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
-  window.lastFinalTime = null; // Segna che non c'è tempo valido per il replay
-}
+        if (pointsPath.length > 0) {
+          lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
+          window.lastFinalTime = null;
+        }
         if (isBlind) {
           setMainLabel("Blind failed! Penalty!");
           for (let player in championScores) {
@@ -1703,12 +1690,12 @@ function handleDoubleConfirm() {
         }
         let outPenaltyTotal = outPenaltyCount * 0.1;
         const finalTime = baseTime + extraPenalty + outPenaltyTotal;
-window.lastFinalTime = finalTime;
+        window.lastFinalTime = finalTime;
         lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
         lastSnowActive = showSnow;
-       let penaltyText = outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : "";
-setMainLabel(`⏰${formatTime(finalTime)}${penaltyText}`);
-
+        let penaltyText = outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : "";
+        setMainLabel(`⏰${formatTime(finalTime)}${penaltyText}`);
+      
         let wasFirst = updateTimes(finalTime);
         if (wasFirst) {
           infoLine.classList.add("record");
@@ -1737,26 +1724,26 @@ setMainLabel(`⏰${formatTime(finalTime)}${penaltyText}`);
         const r = (sec % 60).toFixed(3);
         return `${m}'${r.replace(".", '"')}'''`;
       }
-function updateTimes(t) {
-  const nameValue = participants[currentIndex];
-  const replayData = JSON.parse(JSON.stringify(pointsPath));
-
-const newResult = {
-  name: nameValue,
-  time: t,
-  replay: replayData,
-  blind: isBlind,
-  correctTime: t !== undefined ? t : null // Se il tempo è null, lo segniamo come "No time to show"
-};
-
-  bestTimes.push(newResult);
-  bestTimes.sort((a, b) => a.time - b.time);
-  if (bestTimes.length > 5) bestTimes.length = 5;
-  const isBest = bestTimes[0].time === t;
-  updateLeaderboard();
-  return isBest;
-}
-
+      function updateTimes(t) {
+        const nameValue = participants[currentIndex];
+        const replayData = JSON.parse(JSON.stringify(pointsPath));
+      
+        const newResult = {
+          name: nameValue,
+          time: t,
+          replay: replayData,
+          blind: isBlind,
+          correctTime: t !== undefined ? t : null
+        };
+      
+        bestTimes.push(newResult);
+        bestTimes.sort((a, b) => a.time - b.time);
+        if (bestTimes.length > 5) bestTimes.length = 5;
+        const isBest = bestTimes[0].time === t;
+        updateLeaderboard();
+        return isBest;
+      }
+      
       chronoButton.addEventListener("click", () => {
         updateLeaderboard();
         updatePointsLeaderboard();
@@ -1765,32 +1752,30 @@ const newResult = {
       closeOverlay.addEventListener("click", () => {
         chronoOverlay.classList.add("hidden");
       });
-function updateLeaderboard() {
-  const lb = document.getElementById("leaderboardList");
-  lb.innerHTML = "";
-  bestTimes.forEach((entry, i) => {
-    const li = document.createElement("li");
-    const blindMark = entry.blind ? " (B)" : "";
-    if (i === 0) {
-      li.innerHTML = `${entry.name} - ${formatTime(entry.time)}${blindMark} 
-        <img src="replay.png" alt="Replay" style="width:1.2em; height:1.2em; cursor:pointer; transform: translateY(0.2em);">`;
-      li.style.fontWeight = "bold";
-      li.style.cursor = "pointer";
-      li.title = "Click to watch the best replay";
-
-      // Ora il replay parte correttamente con i dati salvati!
-      li.addEventListener("click", () => {
-        chronoOverlay.classList.add("hidden");
-        replayTrajectory(entry.replay, entry.correctTime, entry.blind);
-      });
-    } else {
-      li.textContent = `${entry.name} - ${formatTime(entry.time)}${blindMark}`;
-    }
-    lb.appendChild(li);
-  });
-}
-
-
+      function updateLeaderboard() {
+        const lb = document.getElementById("leaderboardList");
+        lb.innerHTML = "";
+        bestTimes.forEach((entry, i) => {
+          const li = document.createElement("li");
+          const blindMark = entry.blind ? " (B)" : "";
+          if (i === 0) {
+            li.innerHTML = `${entry.name} - ${formatTime(entry.time)}${blindMark} 
+              <img src="replay.png" alt="Replay" style="width:1.2em; height:1.2em; cursor:pointer; transform: translateY(0.2em);">`;
+            li.style.fontWeight = "bold";
+            li.style.cursor = "pointer";
+            li.title = "Click to watch the best replay";
+      
+            li.addEventListener("click", () => {
+              chronoOverlay.classList.add("hidden");
+              replayTrajectory(entry.replay, entry.correctTime, entry.blind);
+            });
+          } else {
+            li.textContent = `${entry.name} - ${formatTime(entry.time)}${blindMark}`;
+          }
+          lb.appendChild(li);
+        });
+      }
+      
       function updatePointsLeaderboard() {
         const tableBody = document.getElementById("pointsLeaderboardBody");
         tableBody.innerHTML = "";
@@ -1820,57 +1805,28 @@ function updateLeaderboard() {
         }
       });
       function replayTrajectory(customPoints, correctTime, wasBlind){
-const savedMainLabel = mainLabel; // Salviamo il testo attuale
-  if (!customPoints || customPoints.length < 2) {
-    showTemporaryMessage("No run to replay!", 1000);
-    return;
-  }
-
-  // Salva il background originale
-  const container = document.querySelector('.container');
-  const originalBackground = container.style.background;
-
-  // Imposta lo sfondo da replay
-  container.style.background = "url('sfondoreplay.png') no-repeat center center";
-  container.style.backgroundSize = "cover";
-
-  // Mostra il tempo corretto per il replay
-const chronoIcon = '⏰';
-
-if (correctTime === null || window.lastFinalTime === null) {
-  setMainLabel(`${chronoIcon} No time to show`);
-} else {
-  setMainLabel(`${chronoIcon} ${formatTime(correctTime !== undefined ? correctTime : window.lastFinalTime)}`);
-}
-
-  // Gestione della neve nel replay
-  const preReplaySnowState = showSnow;
-  if (lastSnowActive) {
-    showSnow = true;
-    snowCanvasElem.classList.remove("hidden");
-    snowCanvasElem.width = canvas.width;
-    snowCanvasElem.height = canvas.height;
-    initSnow();
-    updateSnow();
-  } else {
-    snowCanvasElem.classList.add("hidden");
-  }
-
-  clearCanvas();
-  drawStartPoint();
-  drawFinishArea();
-  drawGates(gates);
-  drawTrees(trees);
-
-  let i = 0;
-  function step() {
-    if (i >= customPoints.length - 1) {
-      setTimeout(() => {
-        clearCanvas();
-        if (currentTrack) drawTrack(currentTrack);
-
-        // Ripristina la neve se era attiva prima del replay
-        if (preReplaySnowState) {
+        const savedMainLabel = mainLabel;
+        if (!customPoints || customPoints.length < 2) {
+          showTemporaryMessage("No run to replay!", 1000);
+          return;
+        }
+      
+        const container = document.querySelector('.container');
+        const originalBackground = container.style.background;
+      
+        container.style.background = "url('sfondoreplay.png') no-repeat center center";
+        container.style.backgroundSize = "cover";
+      
+        const chronoIcon = '⏰';
+      
+        if (correctTime === null || window.lastFinalTime === null) {
+          setMainLabel(`${chronoIcon} No time to show`);
+        } else {
+          setMainLabel(`${chronoIcon} ${formatTime(correctTime !== undefined ? correctTime : window.lastFinalTime)}`);
+        }
+      
+        const preReplaySnowState = showSnow;
+        if (lastSnowActive) {
           showSnow = true;
           snowCanvasElem.classList.remove("hidden");
           snowCanvasElem.width = canvas.width;
@@ -1878,42 +1834,55 @@ if (correctTime === null || window.lastFinalTime === null) {
           initSnow();
           updateSnow();
         } else {
-          showSnow = false;
           snowCanvasElem.classList.add("hidden");
         }
-
-        // Ripristina lo sfondo originale dopo il replay
-        container.style.background = originalBackground;
-        container.style.backgroundSize = "cover";
-
-        // Resetta il tempo visualizzato dopo il replay
-    // Se è un Best Time, ripristina il tempo corretto dopo il replay
-const finalTimeToShow = correctTime !== undefined ? formatTime(correctTime) : (window.lastFinalTime ? formatTime(window.lastFinalTime) : "⏰0'00\"000'''");
-
-// Dopo il replay, ripristina la stringa originale del giocatore
-setMainLabel(savedMainLabel);
-      }, 500);
-      return;
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(customPoints[i].x, customPoints[i].y);
-    ctx.lineTo(customPoints[i + 1].x, customPoints[i + 1].y);
-    ctx.strokeStyle = wasBlind ? "#ff4d4d" : "#a4b8eb"; // Linea rossa se era Blind Mode
-    ctx.lineWidth = (2 / 520) * canvas.height;
-    ctx.stroke();
-
-    const dt = customPoints[i + 1].t - customPoints[i].t;
-    i++;
-    setTimeout(step, dt);
-  }
-
-  setTimeout(step, 0);
-}
-
-
-
-
+      
+        clearCanvas();
+        drawStartPoint();
+        drawFinishArea();
+        drawGates(gates);
+        drawTrees(trees);
+      
+        let i = 0;
+        function step() {
+          if (i >= customPoints.length - 1) {
+            setTimeout(() => {
+              clearCanvas();
+              if (currentTrack) drawTrack(currentTrack);
+      
+              if (preReplaySnowState) {
+                showSnow = true;
+                snowCanvasElem.classList.remove("hidden");
+                snowCanvasElem.width = canvas.width;
+                snowCanvasElem.height = canvas.height;
+                initSnow();
+                updateSnow();
+              } else {
+                showSnow = false;
+                snowCanvasElem.classList.add("hidden");
+              }
+      
+              container.style.background = originalBackground;
+              setMainLabel(savedMainLabel);
+            }, 500);
+            return;
+          }
+      
+          ctx.beginPath();
+          ctx.moveTo(customPoints[i].x, customPoints[i].y);
+          ctx.lineTo(customPoints[i + 1].x, customPoints[i + 1].y);
+          ctx.strokeStyle = wasBlind ? "#ff4d4d" : "#a4b8eb";
+          ctx.lineWidth = (2 / 520) * canvas.height;
+          ctx.stroke();
+      
+          const dt = customPoints[i + 1].t - customPoints[i].t;
+          i++;
+          setTimeout(step, dt);
+        }
+      
+        setTimeout(step, 0);
+      }
+      
       /* =======================================
          Blind Mode
       ======================================= */
@@ -1936,6 +1905,7 @@ setMainLabel(savedMainLabel);
         blindIcon.src = "view.png";
         blindIcon.alt = "View Mode";
       }
+      
       /* =======================================
          Gestione Discesa, Manche e Gara
       ======================================= */
@@ -1979,11 +1949,11 @@ setMainLabel(savedMainLabel);
           penaltyDisplay = ` (+${penaltyVal.toFixed(2)}s)`;
         }
         let msg = 
-  `<span style="color: black;">${currentPlayer}</span> ` +
-  `<span style="color: rgba(0,0,0,0.3);">Race#${raceNumber}</span> ` +
-  `<span style="color: rgba(0,0,0,0.6);">Manche${runNumber}</span> ` +
-  `<span style="color: black;">Run${att}</span> ` +
-  `<span style="color: red;">${penaltyDisplay}</span>`;
+          `<span style="color: black;">${currentPlayer}</span> ` +
+          `<span style="color: rgba(0,0,0,0.3);">Race#${raceNumber}</span> ` +
+          `<span style="color: rgba(0,0,0,0.6);">Manche${runNumber}</span> ` +
+          `<span style="color: black;">Run${att}</span> ` +
+          `<span style="color: red;">${penaltyDisplay}</span>`;
         setMainLabel(msg);
         let newWeatherState = chooseWeatherState(weatherState);
         showSnow = applyWeatherState(newWeatherState);
@@ -2116,9 +2086,9 @@ setMainLabel(savedMainLabel);
         attemptCount = 0;
         runNumber = 1;
         editingMode = true;
-const container = document.querySelector('.container');
-container.style.background = "url('sfondoedit.png') no-repeat center center";
-container.style.backgroundSize = "cover";
+        const container = document.querySelector('.container');
+        container.style.background = "url('sfondoedit.png') no-repeat center center";
+        container.style.backgroundSize = "cover";
         resetTrack(currentTrack);
       }
       /* =======================================
@@ -2137,39 +2107,28 @@ container.style.backgroundSize = "cover";
           if (onOk) onOk();
         });
       }
-function showConfirmPopup(message, onConfirm, onCancel) {
-  // Creiamo il markup HTML del popup
-  // Usiamo la struttura simile al popup Top 5
-  champContent.innerHTML = `
-    <!-- Bottone di chiusura in alto a sinistra (stile identico al closeOverlay) -->
-    <button id="closePopup" style="position: absolute; top: 10px; left: 10px; background-color: #8fa2f7; font-size: 0.875em; padding: 0.5em 1em; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
-    
-    <h2>Attention!</h2>
-    <p class="slide-content">${message}</p>
-    
-    <!-- Container per il bottone OK (posizionato in basso, al centro) -->
-    <div class="popup-button-container" style="margin-top: 15px;">
-      <button class="nav-button" id="popupConfirmButton">OK</button>
-    </div>
-  `;
-
-  // Mostra il popup rimuovendo la classe "hidden" dall'overlay
-  champOverlay.classList.remove("hidden");
-
-  // Aggiungi l'evento per il pulsante OK: conferma
-  document.getElementById("popupConfirmButton").addEventListener("click", () => {
-    champOverlay.classList.add("hidden");
-    if (onConfirm) onConfirm();
-  });
-
-  // Aggiungi l'evento per il pulsante X (close): annulla
-  document.getElementById("closePopup").addEventListener("click", () => {
-    champOverlay.classList.add("hidden");
-    if (onCancel) onCancel();
-  });
-}
-
-
+      function showConfirmPopup(message, onConfirm, onCancel) {
+        champContent.innerHTML = `
+          <button id="closePopup" style="position: absolute; top: 10px; left: 10px; background-color: #8fa2f7; font-size: 0.875em; padding: 0.5em 1em; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+          <h2>Attention!</h2>
+          <p class="slide-content">${message}</p>
+          <div class="popup-button-container" style="margin-top: 15px;">
+            <button class="nav-button" id="popupConfirmButton">OK</button>
+          </div>`;
+      
+        champOverlay.classList.remove("hidden");
+      
+        document.getElementById("popupConfirmButton").addEventListener("click", () => {
+          champOverlay.classList.add("hidden");
+          if (onConfirm) onConfirm();
+        });
+      
+        document.getElementById("closePopup").addEventListener("click", () => {
+          champOverlay.classList.add("hidden");
+          if (onCancel) onCancel();
+        });
+      }
+      
       /* =======================================
          SLIDES INTRO & GESTIONE PLAYER
       ======================================= */
@@ -2215,70 +2174,69 @@ Have fun with Ski-Zag!<br><b>Enjoy the slope!</b>`
       ];
       let currentTutorialIndex = 0;
       let draftParticipants = [];
-function renderSlide() {
-  slidesOverlay.classList.remove("hidden");
-  const slide = slidesIntro[currentTutorialIndex];
-  slidesContent.innerHTML = `
- <button id="closeIntroOverlay" class="close-button">X</button>
-    <div style="margin-top:5px;">
-      <h2 class="slide-title">${slide.title}</h2>
-      <p class="slide-content">${slide.content}</p>
-      <div class="tutorial-dots"></div>
-      <div class="slides-nav">
-        <button class="nav-button" id="btnPrev">←</button>
-        <button class="nav-button" id="btnStartNow">Start!</button>
-        <button class="nav-button" id="btnNext">→</button>
-      </div>
-    </div>`;
-  
-  const dotsC = slidesContent.querySelector(".tutorial-dots");
-  slidesIntro.forEach((s, i) => {
-    const d = document.createElement("div");
-    d.className = "dot" + (i === currentTutorialIndex ? " active" : "");
-    d.addEventListener("click", () => {
-      syncDraftParticipants();
-      currentTutorialIndex = i;
-      renderSlide();
-    });
-    dotsC.appendChild(d);
-  });
-  const btnPrev = slidesContent.querySelector("#btnPrev");
-  btnPrev.disabled = currentTutorialIndex === 0;
-  btnPrev.addEventListener("click", () => {
-    if (currentTutorialIndex > 0) {
-      syncDraftParticipants();
-      currentTutorialIndex--;
-      renderSlide();
-    }
-  });
-  slidesContent.querySelector("#btnStartNow").addEventListener("click", () => {
-    syncDraftParticipants();
-    if (!checkDraftNames()) return;
-    acceptDraftParticipants();
-    startChampionship();
-  });
-  const btnNext = slidesContent.querySelector("#btnNext");
-  btnNext.disabled = currentTutorialIndex === slidesIntro.length - 1;
-  btnNext.addEventListener("click", () => {
-    if (currentTutorialIndex < slidesIntro.length - 1) {
-      syncDraftParticipants();
-      currentTutorialIndex++;
-      renderSlide();
-    }
-  });
-  if (currentTutorialIndex === 0) {
-    renderPlayersInput();
-  }
-  
-  // Aggiungi qui il listener per chiudere l'overlay introduttivo
-  let closeIntroOverlay = document.getElementById("closeIntroOverlay");
-  if (closeIntroOverlay) {
- closeIntroOverlay.addEventListener("click", function() {
-  window.location.href = "index.html";
-});
-  }
-}
-
+      function renderSlide() {
+        slidesOverlay.classList.remove("hidden");
+        const slide = slidesIntro[currentTutorialIndex];
+        slidesContent.innerHTML = `
+          <button id="closeIntroOverlay" class="close-button">X</button>
+          <div style="margin-top:5px;">
+            <h2 class="slide-title">${slide.title}</h2>
+            <p class="slide-content">${slide.content}</p>
+            <div class="tutorial-dots"></div>
+            <div class="slides-nav">
+              <button class="nav-button" id="btnPrev">←</button>
+              <button class="nav-button" id="btnStartNow">Start!</button>
+              <button class="nav-button" id="btnNext">→</button>
+            </div>
+          </div>`;
+      
+        const dotsC = slidesContent.querySelector(".tutorial-dots");
+        slidesIntro.forEach((s, i) => {
+          const d = document.createElement("div");
+          d.className = "dot" + (i === currentTutorialIndex ? " active" : "");
+          d.addEventListener("click", () => {
+            syncDraftParticipants();
+            currentTutorialIndex = i;
+            renderSlide();
+          });
+          dotsC.appendChild(d);
+        });
+        const btnPrev = slidesContent.querySelector("#btnPrev");
+        btnPrev.disabled = currentTutorialIndex === 0;
+        btnPrev.addEventListener("click", () => {
+          if (currentTutorialIndex > 0) {
+            syncDraftParticipants();
+            currentTutorialIndex--;
+            renderSlide();
+          }
+        });
+        slidesContent.querySelector("#btnStartNow").addEventListener("click", () => {
+          syncDraftParticipants();
+          if (!checkDraftNames()) return;
+          acceptDraftParticipants();
+          startChampionship();
+        });
+        const btnNext = slidesContent.querySelector("#btnNext");
+        btnNext.disabled = currentTutorialIndex === slidesIntro.length - 1;
+        btnNext.addEventListener("click", () => {
+          if (currentTutorialIndex < slidesIntro.length - 1) {
+            syncDraftParticipants();
+            currentTutorialIndex++;
+            renderSlide();
+          }
+        });
+        if (currentTutorialIndex === 0) {
+          renderPlayersInput();
+        }
+      
+        let closeIntroOverlay = document.getElementById("closeIntroOverlay");
+        if (closeIntroOverlay) {
+          closeIntroOverlay.addEventListener("click", function() {
+            window.location.href = "index.html";
+          });
+        }
+      }
+      
       function renderPlayersInput() {
         const cont = slidesContent.querySelector("#playersInputContainer");
         if (!cont) return;
@@ -2312,7 +2270,7 @@ function renderSlide() {
           <input type="text" class="player-name-input"
             placeholder="Player name"
             value="${def}"
-maxlength="8"
+            maxlength="8"
           />`;
         container.appendChild(d);
       }
@@ -2357,59 +2315,46 @@ maxlength="8"
         runNumber = 1;
         setupRace();
       }
+      
       /* =======================================
          Gestione Quit
       ======================================= */
-document.getElementById("quit").addEventListener("click", () => {
-  showConfirmPopup("Are you sure you want to quit?", 
-    () => { // onConfirm: se l'utente clicca OK
-      window.location.href = "index.html";
-    },
-    () => { // onCancel: se l'utente chiude il popup con la X
-      console.log("Quit canceled");
-    }
-  );
-});
-  /* =======================================
-   Inizializzazione alla DOMContentLoaded
-======================================= */
-document.addEventListener("DOMContentLoaded", () => {
-  resizeCanvas();
-  renderSlide();
-  resetBlindMode();
-
-  // Seleziona gli elementi su cui vuoi applicare il double tap
-  const infoLineEl = document.getElementById("infoLine");
-
-  // Funzione per gestire il doppio tap tramite touchend
-function handleTouchEndDoubleTap(e) {
-    if (isDragging || isLongPressActive) {
-        return; // Evita il double tap se è in corso un'interazione
-    }
-
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    if (tapLength > 0 && tapLength < 300) {
-        
-    }
-    lastTap = currentTime;
-}
-
-  // Aggiungi i listener per il double tap su #infoLine
-  infoLineEl.addEventListener("touchend", handleTouchEndDoubleTap, false);
-  infoLineEl.addEventListener("dblclick", handleDoubleConfirm, false);
-
-});
-document.addEventListener("DOMContentLoaded", () => {
-  // ... codice di inizializzazione ...
-  animate(); // Lancia il loop
-});
-
-
-/* =======================================
-   Fine Script
-======================================= */
+      document.getElementById("quit").addEventListener("click", () => {
+        showConfirmPopup("Are you sure you want to quit?", 
+          () => {
+            window.location.href = "index.html";
+          },
+          () => {
+            console.log("Quit canceled");
+          }
+        );
+      });
+      
+      document.addEventListener("DOMContentLoaded", () => {
+        resizeCanvas();
+        renderSlide();
+        resetBlindMode();
+      
+        const infoLineEl = document.getElementById("infoLine");
+        function handleTouchEndDoubleTap(e) {
+          if (isDragging || isLongPressActive) return;
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTap;
+          if (tapLength > 0 && tapLength < 300) {}
+          lastTap = currentTime;
+        }
+      
+        infoLineEl.addEventListener("touchend", handleTouchEndDoubleTap, false);
+        infoLineEl.addEventListener("dblclick", handleDoubleConfirm, false);
+      });
+      document.addEventListener("DOMContentLoaded", () => {
+        animate();
+      });
+      
+      /* =======================================
+         Fine Script
+      ======================================= */
     </script>
-<div class="bottom-space"></div>
+    <div class="bottom-space"></div>
   </body>
 </html>
