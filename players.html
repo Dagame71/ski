@@ -1416,22 +1416,25 @@
         showTemporaryMessage("New tree added!", 1500);
       }
       
-      if (!document._eventsAttached) {
-        canvas.addEventListener("mousedown", handleMouseDown);
-        canvas.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
-        canvas.addEventListener("touchstart", handleTouchStart);
-        canvas.addEventListener("touchmove", handleTouchMove);
-        canvas.addEventListener("touchend", handleTouchEnd);
-        // Il listener per "touchcancel" è già stato aggiunto sopra
-        let closeIntroOverlay = document.getElementById("closeIntroOverlay");
-        if (closeIntroOverlay) {
-          closeIntroOverlay.addEventListener("click", function() {
-            window.location.href = "index.html";
-          });
-        }
-        document._eventsAttached = true;
-      }
+if (!document._eventsAttached) {
+  canvas.addEventListener("mousedown", handleMouseDown);
+  canvas.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("mouseup", handleMouseUp);
+
+  canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+  canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+  canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+  canvas.addEventListener("touchcancel", handleTouchEnd, { passive: false });
+
+  let closeIntroOverlay = document.getElementById("closeIntroOverlay");
+  if (closeIntroOverlay) {
+    closeIntroOverlay.addEventListener("click", function() {
+      window.location.href = "index.html";
+    });
+  }
+  document._eventsAttached = true;
+}
+
       
       function findNearestGate(x, y, maxDist) {
         let foundIndex = null;
