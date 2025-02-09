@@ -1582,75 +1582,56 @@ function handleDoubleConfirm() {
       /* =======================================
          Gestione delle Collisioni
       ======================================= */
-function checkIntersections() {
-  for (let i = 1; i < pointsPath.length; i++) {
-    const p1 = pointsPath[i - 1],
-          p2 = pointsPath[i];
-
-    // --- Collisione con alberi (hardMode) ---
-    if (hardMode) {
-      for (const tree of trees) {
-        const steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
-        for (let j = 0; j <= steps; j++) {
-          const ix = p1.x + ((p2.x - p1.x) * j) / steps;
-          const iy = p1.y + ((p2.y - p1.y) * j) / steps;
-          const dist = Math.hypot(ix - tree.x, iy - (tree.y - 10));
-          if (dist < (10 / 520) * canvas.height) {
-            let currentPlayer = participants[currentIndex];
-            if (!treeHits[currentPlayer]) {
-              treeHits[currentPlayer] = 1;
-            } else {
-              treeHits[currentPlayer]++;
+      function checkIntersections() {
+        for (let i = 1; i < pointsPath.length; i++) {
+          const p1 = pointsPath[i - 1],
+            p2 = pointsPath[i];
+          if (hardMode) {
+            for (const tree of trees) {
+              const steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
+              for (let j = 0; j <= steps; j++) {
+                const ix = p1.x + ((p2.x - p1.x) * j) / steps;
+                const iy = p1.y + ((p2.y - p1.y) * j) / steps;
+                const dist = Math.hypot(ix - tree.x, iy - (tree.y - 10));
+                if (dist < (10 / 520) * canvas.height) {
+                  let currentPlayer = participants[currentIndex];
+                  if (!treeHits[currentPlayer]) {
+                    treeHits[currentPlayer] = 1;
+                  } else {
+                    treeHits[currentPlayer]++;
+                  }
+                  failAttempt("You hit a tree!");
+                  return;
+                }
+              }
             }
-            failAttempt("You hit a tree!");
+          }
+          for (const [idx, gate] of gates.entries()) {
+            if (
+              linesIntersect(
+                p1.x,
+                p1.y,
+                p2.x,
+                p2.y,
+                gate.line.x1,
+                gate.line.y1,
+                gate.line.x2,
+                gate.line.y2
+              )
+            ) {
+              intersectedGates.add(idx);
+            }
+          }
+          if (isSegmentInFinishArea(p1, p2, finishRect)) {
+            if (intersectedGates.size === gates.length) {
+              finishRun();
+            } else {
+              failAttempt("You missed a gate!");
+            }
             return;
           }
         }
       }
-    }
-
-    // --- Intersezione con le porte ---
-    for (const [idx, gate] of gates.entries()) {
-      if (
-        linesIntersect(
-          p1.x,
-          p1.y,
-          p2.x,
-          p2.y,
-          gate.line.x1,
-          gate.line.y1,
-          gate.line.x2,
-          gate.line.y2
-        )
-      ) {
-        intersectedGates.add(idx);
-      }
-    }
-
-    // === NUOVO CONTROLLO PRIMA DEL "FINISH" ===
-    // Se il segmento supera la Y del traguardo (p2.y >= finishRect.y)
-    // SENZA essere dentro il rettangolo d'arrivo => "Run interrupted!"
-    if (
-      p1.y < finishRect.y &&
-      p2.y >= finishRect.y &&
-      !isSegmentInFinishArea(p1, p2, finishRect)
-    ) {
-      failAttempt("Run interrupted!");
-      return;
-    }
-
-    // --- Finish Area ---
-    if (isSegmentInFinishArea(p1, p2, finishRect)) {
-      if (intersectedGates.size === gates.length) {
-        finishRun();
-      } else {
-        failAttempt("You missed a gate!");
-      }
-      return;
-    }
-  }
-}
-
       function linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
         const det = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3);
         if (det === 0) return false;
