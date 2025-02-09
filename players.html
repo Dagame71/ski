@@ -1434,7 +1434,8 @@ function handleTouchEndEditor(e) {
   document.addEventListener("mouseup", handleMouseUp);
   canvas.addEventListener("touchstart", handleTouchStart);
   canvas.addEventListener("touchmove", handleTouchMove);
-  canvas.addEventListener("touchend", handleTouchEnd);
+ document.addEventListener("touchend", handleTouchEnd, false);
+document.addEventListener("touchcancel", handleTouchEnd, false);
   
 
   //listener per il pulsante di chiusura dell'overlay introduttivo
