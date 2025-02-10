@@ -79,19 +79,27 @@
       }
 
       /* Bottoni */
-      button {
-        border: none;
-        background: none;
-        cursor: pointer;
-        font-size: 18px;
-        margin: 0;
-        padding: 0;
-        color: black;
-        z-index: 9999;
-      }
-      button:hover {
-        opacity: 0.7;
-      }
+button {
+border: none !important; /* Rimuove qualsiasi bordo */
+    outline: none; /* Rimuove il contorno del focus */
+border-radius: 8px; /* Angoli arrotondati */
+    background: rgba(255, 255, 255, 0.3); /* Sfondo bianco semitrasparente */
+    box-shadow: 
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8), /* Effetto embossed (rilievo) */
+        inset -1px -1px 2px #434d74, /* Effetto ombra interna */
+        1px 1px 2px #434d74; /* Ombra esterna per effetto 3D */
+    padding: 6px 8px; /* Spazio interno per un aspetto più bilanciato */
+    transition: all 0.2s ease-in-out; /* Effetto di transizione fluido */
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.5); /* Aumenta la trasparenza al passaggio del mouse */
+    box-shadow: 
+        inset 1px 1px 3px rgba(255, 255, 255, 0.8), 
+        inset -1px -1px 3px #434d74,
+        2px 2px 4px #434d74;
+}
+
       .button-disabled {
         background-color: transparent;
         border: 0px solid #aaa; /* Bordo scuro per simulare effetto premuto */
@@ -122,7 +130,7 @@
       #sameTrack {
         position: absolute;
         bottom: 1.15%;
-        right: 16.67%;
+        right: 16%;
       }
       #challengeButton {
         position: absolute;
@@ -131,7 +139,7 @@
       }
       #replayButton {
         position: absolute;
-        bottom: 0.96%;
+        bottom: 1.15%;
         left: 3.33%;
       }
       #quit {
@@ -158,7 +166,7 @@
       #saveResultBtn {
         position: absolute;
         bottom: 1.15%;
-        left: 17.33%;
+        left: 17%;
       }
 
       /* Contenitore delle info */
@@ -446,6 +454,21 @@
     display: none;
   }
 }
+#saveTrackBtn, 
+#saveResultConfirmBtn, 
+#popupConfirmButton {
+    color: #007bff;  /* Colore blu */
+    font-weight: bold; /* Per renderlo più visibile */
+    background: transparent; /* Sfondo trasparente */
+    border: none; /* Nessun bordo */
+    cursor: pointer; /* Indica che è cliccabile */
+}
+
+#saveTrackBtn:hover, 
+#saveResultConfirmBtn:hover, 
+#popupConfirmButton:hover {
+    text-decoration: underline; /* Sottolinea al passaggio del mouse */
+}
 
     </style>
   </head>
@@ -462,23 +485,23 @@
         <img src="snowflake.png" alt="Toggle Snow" style="width:19px; height:19px;" />
       </button>
       <button id="replayButton" title="Replay">
-        <img src="replay.png" alt="Replay" style="width:20px; height:20px;" />
+        <img src="replay.png" alt="Replay" style="width:19px; height:19px;" />
       </button>
       <button id="quit" title="New Track">
-        <img src="new.png" alt="New Track" style="width:20px; height:20px;" />
+        <img src="new.png" alt="New Track" style="width:19px; height:19px;" />
       </button>
       <!-- Bottone Home -->
       <button id="homeBtn" title="Home">
-        <img src="home.png" alt="Home" style="width:18px; height:18px;" />
+        <img src="home.png" alt="Home" style="width:19px; height:19px;" />
       </button>
       <button id="chronoButton" title="Top 5">
-        <img src="stopwatch.png" alt="Top 5" style="width:20px; height:20px;" />
+        <img src="stopwatch.png" alt="Top 5" style="width:19px; height:19px;" />
       </button>
       <button id="viewBtn" title="View / Save Track">
-        <img src="save.png" alt="View / Save" style="width:17px; height:17px;" />
+        <img src="save.png" alt="View / Save" style="width:19px; height:19px;" />
       </button>
       <button id="saveResultBtn" title="Save Result">
-        <img src="cup.png" alt="Save Result" style="width:18px; height:18px;" />
+        <img src="cup.png" alt="Save Result" style="width:19px; height:19px;" />
       </button>
       <button id="challengeButton" title="Challenge Mode">
         <img src="medal.png" alt="Medal" style="width:19px; height:19px;" />
@@ -700,6 +723,7 @@
       let falseStartCount = 0;
       let intersectedGates = new Set();
       let didFinishOrFail = false; // Flag per terminazione run
+let expectedGate = 1;
 
       // Punto di partenza e arrivo
       let startPoint = { x: 150, y: 30 };
@@ -832,35 +856,35 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
         console.error("Errore nel caricamento di tree.svg");
       };
 
-      function generateGates(count) {
-        let startWithRed = Math.random() < 0.5;
-        let isRed = startWithRed;
-        let arr = [];
-        for (let i = 0; i < count; i++) {
-          let dir = isRed ? 1 : -1;
-          let x =
-            isRed
-              ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
-              : Math.random() * (canvas.width / 2 - 35) + 35;
-          let y =
-            (60 / 520) * canvas.height +
+function generateGates(count) {
+  let startWithRed = Math.random() < 0.5;
+  let isRed = startWithRed;
+  let arr = [];
+  for (let i = 0; i < count; i++) {
+    let dir = isRed ? 1 : -1;
+    let x = isRed 
+            ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2 
+            : Math.random() * (canvas.width / 2 - 35) + 35;
+    let y = (60 / 520) * canvas.height +
             i * ((canvas.height - (120 / 520) * canvas.height) / count);
-          let color = isRed ? "red" : "blue";
-          arr.push({
-            x,
-            y,
-            color,
-            line: {
-              x1: x,
-              y1: y,
-              x2: x + dir * ((200 / 300) * canvas.width),
-              y2: y
-            }
-          });
-          isRed = !isRed;
-        }
-        return arr;
+    let color = isRed ? "red" : "blue";
+    arr.push({
+      x: x,
+      y: y,
+      color: color,
+      number: i + 1, // <-- Assegna il numero (primo gate = 1, secondo = 2, ecc.)
+      line: {
+        x1: x,
+        y1: y,
+        x2: x + dir * ((200 / 300) * canvas.width),
+        y2: y
       }
+    });
+    isRed = !isRed;
+  }
+  return arr;
+}
+
       function generateTrees(gArr) {
         let treeCount = Math.floor(Math.random() * 3) + 6;
         let arr = [];
@@ -1004,6 +1028,9 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
           }, 2000);
           return;
         }
+  // --- NUOVA LOGICA ---
+  expectedGate = 1; // Al momento del run, il prossimo gate atteso è il 1.
+
         falseStartCount = 0;
         outPenaltyCount = 0;
         isOut = false;
@@ -1058,6 +1085,8 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
           }, 2000);
           return;
         }
+// --- NUOVA LOGICA ---
+expectedGate = 1;
         falseStartCount = 0;
         outPenaltyCount = 0;
         isOut = false;
@@ -1141,23 +1170,28 @@ function checkIntersections() {
       }
     }
 
-    // --- Porte ---
-    for (const [idx, gate] of gates.entries()) {
-      if (
-        linesIntersect(
-          p1.x,
-          p1.y,
-          p2.x,
-          p2.y,
-          gate.line.x1,
-          gate.line.y1,
-          gate.line.x2,
-          gate.line.y2
-        )
-      ) {
-        intersectedGates.add(idx);
-      }
+// --- NUOVA LOGICA PER I GATE ---
+for (const gate of gates) {
+  if (linesIntersect(
+        p1.x, p1.y, p2.x, p2.y,
+        gate.line.x1, gate.line.y1, gate.line.x2, gate.line.y2
+      )) {
+    // Caso 1: se il gate intersecato ha numero minore del previsto, è già stato passato: lo ignori
+    if (gate.number < expectedGate) {
+      continue;
     }
+    // Caso 2: se il gate intersecato ha il numero esatto atteso, accettalo e passa al successivo
+    if (gate.number === expectedGate) {
+      expectedGate++;  // Ora il prossimo atteso sarà expectedGate + 1
+    } else {
+      // Caso 3: se il numero del gate è maggiore, significa che il giocatore ha saltato uno o più gate
+      didFinishOrFail = true;
+      failRun("You missed a gate!");
+      return;
+    }
+  }
+}
+
 
     // --- NUOVO CONTROLLO prima del "Finish" ---
     // Se il segmento "scende" oltre la y del traguardo (p2.y >= finishRect.y)
@@ -1175,7 +1209,7 @@ function checkIntersections() {
     // --- Finish ---
     if (isSegmentInFinishArea(p1, p2, finishRect)) {
       didFinishOrFail = true;
-      if (intersectedGates.size === gates.length) {
+      if (expectedGate === gates.length + 1) {
         finishRun();
       } else {
         failRun("You missed a gate!");
@@ -2193,18 +2227,20 @@ li.innerHTML = `${entry.name} - ${formatTime(entry.time)} <img src="replay.png" 
           container.style.alignItems = "center";
           container.style.justifyContent = "space-between";
           container.style.margin = "5px 0";
-          let span = document.createElement("span");
-          span.textContent = name;
-          span.style.cursor = "pointer";
-          span.addEventListener("click", () => {
-            let saved = savedTracks[name];
-            currentTrack = saved.track;
-            bestTimes = saved.bestTimes || [];
-            currentTrackName = name;
-            resizeCanvas();
-            resetRun();
-            viewOverlay.classList.add("hidden");
-          });
+  let span = document.createElement("span");
+span.textContent = name;
+span.style.cursor = "pointer";
+span.style.color = "#007bff"; // Testo blu
+span.style.textDecoration = "underline"; // Testo sottolineato
+span.addEventListener("click", () => {
+    let saved = savedTracks[name];
+    currentTrack = saved.track;
+    bestTimes = saved.bestTimes || [];
+    currentTrackName = name;
+    resizeCanvas();
+    resetRun();
+    viewOverlay.classList.add("hidden");
+});
           let delBtn = document.createElement("button");
           delBtn.textContent = "Delete";
           delBtn.className = "deleteBtn";
