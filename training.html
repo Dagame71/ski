@@ -80,6 +80,8 @@
 
       /* Bottoni */
 button {
+  position: relative; /* assicura che il z-index abbia effetto */
+  z-index: 10;        /* valore superiore a 5 */
 border: none !important; /* Rimuove qualsiasi bordo */
     outline: none; /* Rimuove il contorno del focus */
 border-radius: 8px; /* Angoli arrotondati */
@@ -97,7 +99,7 @@ button:hover {
     box-shadow: 
         inset 1px 1px 3px rgba(255, 255, 255, 0.8), 
         inset -1px -1px 3px #434d74,
-        2px 2px 4px #434d74;
+        1px 1px 3px #434d74;
 }
 
       .button-disabled {
@@ -166,7 +168,7 @@ button:hover {
       #saveResultBtn {
         position: absolute;
         bottom: 1.15%;
-        left: 16%;
+        left: 15.8%;
       }
 
       /* Contenitore delle info */
