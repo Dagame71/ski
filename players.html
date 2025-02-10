@@ -126,20 +126,30 @@ button:hover {
         position: absolute;
         z-index: 9999;
         top: 2%;
-        right: 2%;
+        right: 3%;
       }
       /* Bottone per Blind Mode */
       #blindToggle {
-        font-size: 0.9em; /* Dimensione relativa */
-      
-        position: absolute;
-        z-index: 9999;
-        bottom: 2%;
-        left: 90%;
-        transform: translateX(-50%);
-        cursor: pointer;
-      }
-      
+    font-size: 0.9em; /* Dimensione relativa */
+    position: absolute;
+    z-index: 9999;
+    bottom: 2%;
+    left: 85%; /* Regola la posizione senza il bisogno di translateX */
+    cursor: pointer;
+    border-radius: 8px; /* Aggiungi lo stile per uniformarlo agli altri */
+    background: rgba(255, 255, 255, 0.3); /* Uniforma il background */
+    box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.8), inset -1px -1px 2px #434d74, 1px 1px 2px #434d74;
+    padding: 6px 8px; /* Uniforma il padding */
+    transition: all 0.2s ease-in-out; /* Effetto di transizione fluido */
+}
+
+#blindToggle:hover {
+    background: rgba(255, 255, 255, 0.5); /* Aumenta la trasparenza al passaggio del mouse */
+    box-shadow: 
+        inset 1px 1px 3px rgba(255, 255, 255, 0.8), 
+        inset -1px -1px 3px #434d74,
+        1px 1px 3px #434d74;
+}
       .info-container {
         width: 90vw;
         max-width: 500px;
@@ -214,7 +224,7 @@ button:hover {
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.7);
-        z-index: 9999;
+        z-index: 10005;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -457,7 +467,7 @@ button:hover {
           left: 3%;
         }
         #blindToggle {
-          left: 95%;
+          left: 90%;
         }
       }
       @media (min-width: 768px) {
