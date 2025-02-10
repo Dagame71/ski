@@ -82,19 +82,26 @@
       }
       
       /* Bottoni */
-      button {
-        border: none;
-        background: none;
-        cursor: pointer;
-        font-size: 1em; /* Dimensione relativa */
-        margin: 0;
-        padding: 0;
-        color: black;
-        z-index: 9999;
-      }
-      button:hover {
-        opacity: 0.7;
-      }
+button {
+border: none !important; /* Rimuove qualsiasi bordo */
+    outline: none; /* Rimuove il contorno del focus */
+border-radius: 8px; /* Angoli arrotondati */
+    background: rgba(255, 255, 255, 0.3); /* Sfondo bianco semitrasparente */
+    box-shadow: 
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8), /* Effetto embossed (rilievo) */
+        inset -1px -1px 2px #434d74, /* Effetto ombra interna */
+        1px 1px 2px #434d74; /* Ombra esterna per effetto 3D */
+    padding: 6px 8px; /* Spazio interno per un aspetto più bilanciato */
+    transition: all 0.2s ease-in-out; /* Effetto di transizione fluido */
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.5); /* Aumenta la trasparenza al passaggio del mouse */
+    box-shadow: 
+        inset 1px 1px 3px rgba(255, 255, 255, 0.8), 
+        inset -1px -1px 3px #434d74,
+        2px 2px 4px #434d74;
+}
       
       /* Posizionamento bottoni con percentuali */
       #sameTrack {
@@ -119,15 +126,15 @@
         position: absolute;
         z-index: 9999;
         top: 2%;
-        right: 3%;
+        right: 2%;
       }
       /* Bottone per Blind Mode */
       #blindToggle {
-        font-size: 1em; /* Dimensione relativa */
-        padding: 0.5em 0.8em; /* Padding relativo */
+        font-size: 0.9em; /* Dimensione relativa */
+      
         position: absolute;
         z-index: 9999;
-        bottom: 0.4%;
+        bottom: 2%;
         left: 90%;
         transform: translateX(-50%);
         cursor: pointer;
@@ -496,11 +503,11 @@
         <img src="stopwatch.png" alt="Chrono" style="width:1.3em; height:1.3em;" />
       </button>
       <button id="quit" title="Close">
-        <img src="close.png" alt="Close" style="width:1.2em; height:1.2em;" />
+        <img src="close.png" alt="Close" style="width:1.3em; height:1.3em;" />
       </button>
       <!-- Bottone per Blind Mode -->
       <button id="blindToggle" title="Toggle Blind Mode">
-        <img id="blindIcon" src="view.png" alt="View Mode" style="width:1.5em; height:1.5em;" />
+        <img id="blindIcon" src="view.png" alt="View Mode" style="width:1.2em; height:1.2em;" />
       </button>
       
       <!-- Overlay CHRONO (Top 5) -->
@@ -644,7 +651,7 @@
       const LONG_PRESS_MOVE_THRESHOLD = 10; // Pixels
       let touchStartPos = { x: 0, y: 0 };
       let touchMoved = false;
-      
+      let expectedGate = 1;
       // Impostazione di partenza/arrivo
       let startPoint = { x: 150, y: 30 };
       let finishRect = { x: 130, y: 490, width: 40, height: 10 };
@@ -827,33 +834,36 @@
         const t = generateTrees(g);
         return { gates: g, trees: t };
       }
-      function generateGates(count) {
-        const startWithRed = Math.random() < 0.5;
-        let isRed = startWithRed;
-        let arr = [];
-        for (let i = 0; i < count; i++) {
-          const dir = isRed ? 1 : -1;
-          const x =
-            isRed
-              ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
-              : Math.random() * (canvas.width / 2 - 35) + 35;
-          const y = 60 + i * ((canvas.height - 120) / count);
-          const color = isRed ? "red" : "blue";
-          arr.push({
-            x,
-            y,
-            color,
-            line: {
-              x1: x,
-              y1: y,
-              x2: x + dir * 200,
-              y2: y
-            }
-          });
-          isRed = !isRed;
-        }
-        return arr;
+ function generateGates(count) {
+  const startWithRed = Math.random() < 0.5;
+  let isRed = startWithRed;
+  let arr = [];
+  for (let i = 0; i < count; i++) {
+    const dir = isRed ? 1 : -1;
+    const x =
+      isRed
+        ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
+        : Math.random() * (canvas.width / 2 - 35) + 35;
+    // Qui la posizione y è calcolata in modo diverso rispetto alla versione World Cup
+    const y = 60 + i * ((canvas.height - 120) / count);
+    const color = isRed ? "red" : "blue";
+    arr.push({
+      x: x,
+      y: y,
+      color: color,
+      number: i + 1, // <-- Qui assegni il numero del gate (1, 2, 3, …)
+      line: {
+        x1: x,
+        y1: y,
+        x2: x + dir * 200, // NOTA: qui il valore 200 è fisso nella versione World Cup
+        y2: y
       }
+    });
+    isRed = !isRed;
+  }
+  return arr;
+}
+
       function generateTrees(gArr) {
         const treeCount = Math.floor(Math.random() * 3) + 6;
         let arr = [];
@@ -1032,6 +1042,8 @@
         pointsPath = [];
         startTime = performance.now();
         didFinishOrFailThisRun = false;
+ // --- NUOVA LOGICA ---
+  expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
         ctx.beginPath();
         pointsPath.push({ x, y, t: 0 });
         ctx.moveTo(x, y);
@@ -1083,6 +1095,7 @@
         pointsPath.push({ x, y, t: 0 });
         ctx.moveTo(x, y);
         didFinishOrFailThisRun = false;
+expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
       }
       function handleTouchMoveGame(e) {
         e.preventDefault();
@@ -1594,24 +1607,30 @@ document.addEventListener("touchend", (e) => {
             }
           }
       
-          // Intersezione con le porte
-          for (const [idx, gate] of gates.entries()) {
-            if (
-              linesIntersect(
-                p1.x,
-                p1.y,
-                p2.x,
-                p2.y,
-                gate.line.x1,
-                gate.line.y1,
-                gate.line.x2,
-                gate.line.y2
-              )
-            ) {
-              intersectedGates.add(idx);
-            }
-          }
-      
+    // --- NUOVA LOGICA PER I GATE ---
+for (const gate of gates) {
+  if (
+    linesIntersect(
+      p1.x, p1.y, p2.x, p2.y,
+      gate.line.x1, gate.line.y1, gate.line.x2, gate.line.y2
+    )
+  ) {
+    // Se il gate intersecato ha un numero inferiore a quello atteso, lo ignoro.
+    if (gate.number < expectedGate) {
+      continue;
+    }
+    // Se il numero del gate corrisponde a quello atteso, è corretto.
+    if (gate.number === expectedGate) {
+      expectedGate++;  // Ora il prossimo gate atteso sarà incrementato.
+    } else {
+      // Se il numero è maggiore, vuol dire che si è saltato un gate.
+      didFinishOrFailThisRun = true;
+      failAttempt("You missed a gate!");
+      return;
+    }
+  }
+}
+ 
           // Controllo per il "finish"
           if (
             p1.y < finishRect.y &&
@@ -1623,8 +1642,8 @@ document.addEventListener("touchend", (e) => {
           }
       
           if (isSegmentInFinishArea(p1, p2, finishRect)) {
-            if (intersectedGates.size === gates.length) {
-              finishRun();
+           if (expectedGate === gates.length + 1) {
+    finishRun();
             } else {
               failAttempt("You missed a gate!");
             }
@@ -2123,7 +2142,7 @@ document.addEventListener("touchend", (e) => {
           <h2>Attention!</h2>
           <p class="slide-content">${message}</p>
           <div class="popup-button-container" style="margin-top: 15px;">
-            <button class="nav-button" id="popupConfirmButton">OK</button>
+<button class="nav-button" id="popupConfirmButton" style="color: #007bff; font-weight: bold;">OK</button>
           </div>`;
       
         champOverlay.classList.remove("hidden");
