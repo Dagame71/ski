@@ -142,14 +142,10 @@ button:hover {
 
       }
       #homeBtn {
-        position: absolute;
-        top: 1.92%;
-        left: 1.92%;
+
       }
       #chronoButton {
-        position: absolute;
-        top: 1.92%;
-        right: 1.92%;
+
       }
       #viewBtn {
   
@@ -510,6 +506,31 @@ gap: 5px; /* Spazio fisso minore fra i bottoni */
   aspect-ratio: 1 / 1;
   padding: 4px 6px;  /* Riduci il padding se necessario */
 }
+.top-buttons {
+  position: absolute;      /* Posiziona il contenitore relativamente al div .container */
+  top: 1.92%;              /* Mantiene la stessa distanza dall'alto (come prima) */
+  left: 0;
+  right: 0;
+  display: flex;           /* Usa Flexbox per gestire il layout */
+  justify-content: space-between; /* Uno a sinistra e uno a destra */
+  align-items: center;
+  padding: 0 5%;           /* Aggiunge uno spazio laterale; puoi modificare il 5% se necessario */
+  z-index: 10;             /* Assicurati che sia sopra il canvas */
+}
+.top-buttons button {
+  position: static;  
+  width: 30%;
+  max-width: 35px;
+  aspect-ratio: 1 / 1;
+  padding: 4px 6px;
+}
+
+#homeBtn {
+
+}
+#chronoButton {
+
+}
 
     </style>
   </head>
@@ -520,13 +541,15 @@ gap: 5px; /* Spazio fisso minore fra i bottoni */
 <div class="container" id="gameContainer">
   <canvas id="canvas"></canvas>
   
-  <!-- Bottoni in alto (non modificarli) -->
+<!-- Contenitore per i bottoni in alto -->
+<div class="top-buttons">
   <button id="homeBtn" title="Home">
     <img src="home.png" alt="Home" style="width:19px; height:19px;" />
   </button>
   <button id="chronoButton" title="Top 5">
     <img src="stopwatch.png" alt="Top 5" style="width:19px; height:19px;" />
   </button>
+</div>
   
   <!-- Raggruppamento dei bottoni in basso -->
   <div class="bottom-buttons">
@@ -856,7 +879,7 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
         startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
         finishRect = {
           x: canvas.width / 2 - 20,
-          y: canvas.height - 30,
+          y: canvas.height - 48,
           width: 40,
           height: 10
         };
