@@ -1,4 +1,4 @@
-const CACHE_NAME = "skizag-cache-v4.4";
+const CACHE_NAME = "skizag-cache-v4.5";
 const urlsToCache = [
   "index.html",
   "training.html",
