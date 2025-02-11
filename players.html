@@ -48,19 +48,19 @@
         flex-direction: column;
         align-items: center;
       }
-      .container {
-        position: relative;
-        width: 90vw; /* 90% della larghezza della viewport */
-        max-width: 600px; /* Limite massimo per schermi grandi */
-        aspect-ratio: 300 / 520; /* Mantiene il rapporto di aspetto */
-        background: #e1dffc url("sfondo.png") no-repeat center center;
-        background-size: cover;
-        border: 0px solid #ffffff;
-        border-radius: 10px;
-        margin-top: 10px;
-        box-sizing: border-box;
-        overflow: hidden;
-      }
+.container {
+  position: relative;
+  width: 90%;
+  max-width: 90vw;
+  aspect-ratio: 300 / 520;
+  background: #e1dffc url("sfondo.png") no-repeat center center;
+  background-size: cover;
+  border: 0px solid #ffffff;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
       canvas {
         position: absolute;
         top: 0;
@@ -155,7 +155,7 @@ button:hover {
         max-width: 500px;
         margin: 2px auto;
         padding: 1px;
-        margin-top: -10px; /* Valore negativo per alzare il blocco */
+        margin-top: -3px; /* Valore negativo per alzare il blocco */
         border: 0px solid #9cc1e2;
         border-radius: 10px;
         background: rgba(255, 255, 255, 0.2); /* opzione per uno sfondo leggero */
@@ -457,6 +457,44 @@ button:hover {
       .end-buttons button:hover {
         background-color: #0056b3;
       }
+/* Contenitore per i bottoni in alto */
+.top-buttons {
+  position: absolute;      /* Posizionato relativamente al container */
+  top: 1.92%;              /* Distanza fissa dall'alto, come nella versione principale */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between; /* Un bottone a sinistra, l'altro a destra */
+  align-items: center;
+  padding: 0 5%;           /* Padding laterale: regola il 5% se necessario */
+  z-index: 10;             /* Deve essere sopra il canvas */
+}
+/* Contenitore per i bottoni in basso */
+.bottom-buttons {
+  position: absolute;       /* Posizionato relativamente al container */
+  bottom: 1.15%;            /* Distanza fissa dal fondo (come nelle altre versioni) */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;  /* I bottoni saranno centrati; se preferisci un’altra distribuzione usa space-between o space-around */
+  gap: 10px;                /* Spazio fisso tra i bottoni; regola questo valore per avvicinarli o distanziarli */
+  align-items: center;
+  z-index: 10;
+}
+.bottom-buttons button {
+  position: static;
+  width: 30%;           /* La percentuale può essere regolata in base al layout desiderato */
+  max-width: 35px;      /* Regola il max-width per ottenere la dimensione corretta */
+  aspect-ratio: 1 / 1;  /* Assicura che siano quadrati */
+  padding: 4px 6px;     /* Regola il padding per non alterare la dimensione complessiva */
+}
+.top-buttons button {
+  position: static;  
+  width: 30%;
+  max-width: 35px;
+  aspect-ratio: 1 / 1;
+  padding: 4px 6px;
+}
       
       /* Media Queries */
       @media (min-width: 600px) {
@@ -506,19 +544,25 @@ button:hover {
       <canvas id="canvas"></canvas>
       <!-- Bottoni di controllo -->
       <button id="sameTrack" title="Same Run" hidden>🔁</button>
-      <button id="replayButton" title="Replay">
-        <img src="replay.png" alt="Replay" style="width:1.3em; height:1.3em;" />
-      </button>
-      <button id="chronoButton" title="Chrono">
-        <img src="stopwatch.png" alt="Chrono" style="width:1.3em; height:1.3em;" />
-      </button>
-      <button id="quit" title="Close">
-        <img src="close.png" alt="Close" style="width:1.3em; height:1.3em;" />
-      </button>
-      <!-- Bottone per Blind Mode -->
-      <button id="blindToggle" title="Toggle Blind Mode">
-        <img id="blindIcon" src="view.png" alt="View Mode" style="width:1.2em; height:1.2em;" />
-      </button>
+   
+<!-- Contenitore per i bottoni in alto -->
+<div class="top-buttons">
+  <button id="quit" title="Close">
+    <img src="close.png" alt="Close" style="width:19px; height:19px;" />
+  </button>
+  <button id="chronoButton" title="Chrono">
+    <img src="stopwatch.png" alt="Chrono" style="width:19px; height:19px;" />
+  </button>
+</div>
+<!-- Contenitore per i bottoni in basso -->
+<div class="bottom-buttons">
+  <button id="replayButton" title="Replay">
+    <img src="replay.png" alt="Replay" style="width:1.3em; height:1.3em;" />
+  </button>
+  <button id="blindToggle" title="Toggle Blind Mode">
+    <img id="blindIcon" src="view.png" alt="View Mode" style="width:19px; height:19px;" />
+  </button>
+</div>
       
       <!-- Overlay CHRONO (Top 5) -->
       <div id="chronoOverlay" class="overlay hidden">
@@ -707,7 +751,7 @@ button:hover {
         startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
         finishRect = {
           x: canvas.width / 2 - 20,
-          y: canvas.height - 30,
+          y: canvas.height - 48,
           width: 40,
           height: 10
         };
