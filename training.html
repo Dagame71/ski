@@ -130,24 +130,16 @@ button:hover {
 
       /* Posizionamento bottoni di controllo con percentuali */
       #sameTrack {
-        position: absolute;
-        bottom: 1.15%;
-        right: 16%;
+   
       }
       #challengeButton {
-        position: absolute;
-        bottom: 1.15%;
-        right: 30%;
+    
       }
       #replayButton {
-        position: absolute;
-        bottom: 1.15%;
-        left: 1.92%;
+
       }
       #quit {
-        position: absolute;
-        bottom: 1.15%;
-        right: 1.92%;
+
       }
       #homeBtn {
         position: absolute;
@@ -160,15 +152,10 @@ button:hover {
         right: 1.92%;
       }
       #viewBtn {
-        position: absolute;
-        bottom: 1.15%;
-        left: 33.33%;
-        transform: translateX(-50%);
+  
       }
       #saveResultBtn {
-        position: absolute;
-        bottom: 1.15%;
-        left: 15.8%;
+
       }
 
       /* Contenitore delle info */
@@ -471,6 +458,58 @@ button:hover {
 #popupConfirmButton:hover {
     text-decoration: underline; /* Sottolinea al passaggio del mouse */
 }
+/* Nuovo contenitore per i bottoni in basso */
+.bottom-buttons {
+  position: absolute;       /* Posiziona il contenitore rispetto al div .container */
+  bottom: 1.15%;            /* Lo fissa a 1.15% dal fondo del container (lo stesso valore usato prima) */
+  left: 0;
+  right: 0;
+  display: flex;            /* Utilizza Flexbox per distribuire i bottoni */
+  justify-content: space-around;  /* Spazio uguale tra i bottoni */
+gap: 5px; /* Spazio fisso minore fra i bottoni */
+  align-items: center;
+  z-index: 10;              /* Deve essere sopra il canvas; puoi mantenere lo stesso z-index dei bottoni */
+}
+/* Nuovo contenitore per i bottoni in basso */
+/* Contenitore principale per i bottoni in basso */
+.bottom-buttons {
+  position: absolute;
+  bottom: 1.15%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;  /* Distribuisce lo spazio tra i gruppi */
+  align-items: center;
+  z-index: 10;
+  padding: 0 5%;  /* Questo padding crea uno spazio di base laterale */
+}
+
+/* Gruppo Sinistro */
+.left-bottom-group {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 45%;
+  margin-left: -5%;  /* Sposta il gruppo sinistro più verso il bordo sinistro */
+}
+
+/* Gruppo Destro */
+.right-bottom-group {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 45%;
+  margin-right: -5%;  /* Sposta il gruppo destro più verso il bordo destro */
+}
+
+}
+.bottom-buttons button {
+  position: static;
+  width: 30%;
+  max-width: 35px;  /* Modifica questo valore per ridurre la dimensione */
+  aspect-ratio: 1 / 1;
+  padding: 4px 6px;  /* Riduci il padding se necessario */
+}
 
     </style>
   </head>
@@ -478,37 +517,47 @@ button:hover {
     <!-- Canvas NEVE a pagina intera -->
     <canvas id="snowCanvas" class="hidden"></canvas>
     <!-- CONTENITORE DI GIOCO -->
-    <div class="container" id="gameContainer">
-      <canvas id="canvas"></canvas>
-      <!-- Canvas per l'effetto neve -->
-      <!-- Bottoni di controllo -->
-      <!-- Il tasto sameTrack ora viene usato per abilitare/disabilitare la neve -->
-      <button id="sameTrack" title="Toggle Snow">
-        <img src="snowflake.png" alt="Toggle Snow" style="width:19px; height:19px;" />
-      </button>
+<div class="container" id="gameContainer">
+  <canvas id="canvas"></canvas>
+  
+  <!-- Bottoni in alto (non modificarli) -->
+  <button id="homeBtn" title="Home">
+    <img src="home.png" alt="Home" style="width:19px; height:19px;" />
+  </button>
+  <button id="chronoButton" title="Top 5">
+    <img src="stopwatch.png" alt="Top 5" style="width:19px; height:19px;" />
+  </button>
+  
+  <!-- Raggruppamento dei bottoni in basso -->
+  <div class="bottom-buttons">
+    <!-- Gruppo Sinistro: da sinistra verso il centro -->
+    <div class="left-bottom-group">
       <button id="replayButton" title="Replay">
         <img src="replay.png" alt="Replay" style="width:19px; height:19px;" />
-      </button>
-      <button id="quit" title="New Track">
-        <img src="new.png" alt="New Track" style="width:19px; height:19px;" />
-      </button>
-      <!-- Bottone Home -->
-      <button id="homeBtn" title="Home">
-        <img src="home.png" alt="Home" style="width:19px; height:19px;" />
-      </button>
-      <button id="chronoButton" title="Top 5">
-        <img src="stopwatch.png" alt="Top 5" style="width:19px; height:19px;" />
-      </button>
-      <button id="viewBtn" title="View / Save Track">
-        <img src="save.png" alt="View / Save" style="width:19px; height:19px;" />
       </button>
       <button id="saveResultBtn" title="Save Result">
         <img src="cup.png" alt="Save Result" style="width:19px; height:19px;" />
       </button>
-      <button id="challengeButton" title="Challenge Mode">
-        <img src="medal.png" alt="Medal" style="width:19px; height:19px;" />
+      <button id="viewBtn" title="Save Track">
+        <img src="save.png" alt="Save Track" style="width:19px; height:19px;" />
       </button>
     </div>
+    <!-- Gruppo Destro: dal centro verso destra -->
+    <div class="right-bottom-group">
+      <button id="challengeButton" title="Challenge Mode">
+        <img src="medal.png" alt="Challenge" style="width:19px; height:19px;" />
+      </button>
+      <button id="sameTrack" title="Toggle Snow">
+        <img src="snowflake.png" alt="Toggle Snow" style="width:19px; height:19px;" />
+      </button>
+      <button id="quit" title="New Run">
+        <img src="new.png" alt="New Run" style="width:19px; height:19px;" />
+      </button>
+    </div>
+  </div>
+</div>
+
+
     <!-- UNICA RIGA PER TUTTI I MESSAGGI (tempo + avvisi) -->
     <div class="info-container">
       <p id="infoLine">
