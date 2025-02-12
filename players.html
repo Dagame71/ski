@@ -459,6 +459,7 @@ button:hover {
       }
 /* Contenitore per i bottoni in alto */
 .top-buttons {
+ pointer-events: none;
   position: absolute;      /* Posizionato relativamente al container */
   top: 1%;              /* Distanza fissa dall'alto, come nella versione principale */
   left: 0;
@@ -489,6 +490,7 @@ button:hover {
   padding: 4px 6px;     /* Regola il padding per non alterare la dimensione complessiva */
 }
 .top-buttons button {
+pointer-events: auto;
   position: static;  
   width: 30%;
   max-width: 35px;
@@ -557,7 +559,7 @@ button:hover {
 <!-- Contenitore per i bottoni in basso -->
 <div class="bottom-buttons">
   <button id="replayButton" title="Replay">
-    <img src="replay.png" alt="Replay" style="width:1.3em; height:1.3em;" />
+    <img src="replay.png" alt="Replay" style="width:19px; height:19px;" />
   </button>
   <button id="blindToggle" title="Toggle Blind Mode">
     <img id="blindIcon" src="view.png" alt="View Mode" style="width:19px; height:19px;" />
