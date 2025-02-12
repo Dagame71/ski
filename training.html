@@ -507,6 +507,7 @@ gap: 5px; /* Spazio fisso minore fra i bottoni */
   padding: 4px 6px;  /* Riduci il padding se necessario */
 }
 .top-buttons {
+ pointer-events: none;
   position: absolute;      /* Posiziona il contenitore relativamente al div .container */
   top: 1%;              /* Mantiene la stessa distanza dall'alto (come prima) */
   left: 0;
@@ -518,6 +519,7 @@ gap: 5px; /* Spazio fisso minore fra i bottoni */
   z-index: 10;             /* Assicurati che sia sopra il canvas */
 }
 .top-buttons button {
+pointer-events: auto;
   position: static;  
   width: 30%;
   max-width: 35px;
