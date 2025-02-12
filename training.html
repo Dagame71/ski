@@ -811,7 +811,8 @@ let expectedGate = 1;
       let isGeneratingChallenge = false; // Flag per la generazione della sfida
       let challengePoints = 0; // Punti totali accumulati
       let leaderboard = []; // Classifica globale per la modalità sfida
-      const baseSpeed = 3.5; // Velocità iniziale
+
+     const baseSpeed = 3.5; // Velocità iniziale
       let speed = baseSpeed; // Velocità attuale
       const speedDecrement = 0.05; // Riduzione velocità per ogni livello
       let currentLevel = 1; // Livello corrente
@@ -881,7 +882,7 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
         startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
         finishRect = {
           x: canvas.width / 2 - 20,
-          y: canvas.height - 48,
+          y: canvas.height - 50,
           width: 40,
           height: 10
         };
@@ -1416,24 +1417,21 @@ function showChallengeEndOverlay(failReason = "") {
     <p>Title unlocked: <strong>${titleText}</strong></p>
     <hr>`;
 
-  // **Se la partita è stata caricata da un salvataggio**
-  if (currentChallengeSaveName) {
-    html += `<p>Your game has been saved as: <strong>${currentChallengeSaveName}</strong></p>`;
-  } 
-  // **Se invece la partita NON era stata salvata, permette di salvarla**
-  else if (challengePoints > 0) {
-   html += `<div style="margin-bottom: 15px;">
-           <label style="display: block; font-weight: bold; margin-bottom: 8px;">Save your game:</label>
-           <input type="text" id="challengeSaveName" placeholder="Enter a name">
-           <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
-         </div>`;
-
+  // Se ci sono punti, mostra l'area per il salvataggio
+  if (challengePoints > 0) {
+    html += `<div style="margin:10px 0;"><label>Save your game:</label><br>`;
+    if (currentChallengeSaveName) {
+      // Se il nome del salvataggio è già presente, salvataggio automatico
+      html += `<p>Your game will be automatically saved as: <strong>${currentChallengeSaveName}</strong></p>`;
+    } else {
+      // Altrimenti, mostra il campo input e il pulsante per il salvataggio manuale
+      html += `<input type="text" id="challengeSaveName" placeholder="Enter a name">
+               <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>`;
+    }
+    html += `</div>
+    <div id="challengeSavedGamesList" style="margin:10px 0;"></div>
+    <hr>`;
   }
-
-  // **Sezione con la lista dei giochi salvati, senza il doppio titolo**
-  html += `<hr>
-           <div id="challengeSavedGamesList" style="margin:10px 0;"></div>
-           <hr>`;
 
   html += `
     <div class="centered-button">
@@ -1443,8 +1441,6 @@ function showChallengeEndOverlay(failReason = "") {
 
   content.innerHTML = html;
   overlay.classList.remove("hidden");
-
-  // **Aggiungi il listener per il tasto "New Game"**
   document.getElementById("challengeNewGameBtn").addEventListener("click", function() {
     currentChallengeSaveName = ""; // Resetta il nome per una nuova partita
     resetChallenge();
@@ -1452,32 +1448,33 @@ function showChallengeEndOverlay(failReason = "") {
     startNewChallenge();
   });
 
-  // **Aggiungi il listener per il tasto "Quit"**
   document.getElementById("challengeQuitBtn").addEventListener("click", function() {
     currentChallengeSaveName = ""; // Resetta il nome del salvataggio attivo
     isChallengeMode = false;
     challengeAttempts = 0;
-    setMainLabel("⏰0'00\"000'''");
+    setMainLabel("⏰1'00\"000'''");
     toggleButtonState(false);
     resetRun();
     overlay.classList.add("hidden");
   });
-
-  // **Se la partita NON era salvata, permette di salvarla manualmente**
-  if (!currentChallengeSaveName && challengePoints > 0) {
+  // Se c'è un salvataggio già attivo, esegui il salvataggio automatico
+  if (challengePoints > 0 && currentChallengeSaveName) {
+    saveChallengeGame(currentChallengeSaveName, {
+      level: currentLevel,
+      points: challengePoints,
+      title: currentTitleUnlocked,
+      attemptsLeft: challengeAttempts,
+      speed: speed
+    });
+    alert("Game saved automatically as: " + currentChallengeSaveName);
+  } else if (challengePoints > 0) {
+    // Se non è presente un salvataggio attivo, aggiungi l'evento per il salvataggio manuale
     document.getElementById("challengeSaveBtn").addEventListener("click", () => {
       let name = (document.getElementById("challengeSaveName").value || "").trim();
       if (!name) {
         alert("Please enter a valid name for your saved game.");
         return;
       }
-
-      let saves = getChallengeSaves();
-      if (saves.hasOwnProperty(name)) {
-        alert("A game with this name already exists. Please choose a different name.");
-        return;
-      }
-
       saveChallengeGame(name, {
         level: currentLevel,
         points: challengePoints,
@@ -1485,15 +1482,34 @@ function showChallengeEndOverlay(failReason = "") {
         attemptsLeft: challengeAttempts,
         speed: speed
       });
-
       currentChallengeSaveName = name; // Imposta il nome del salvataggio attivo
       renderSavedGamesList();
       document.getElementById("challengeSaveName").value = "";
     });
   }
 
-  // **Mostra la lista dei giochi salvati**
-  renderSavedGamesList();
+  // Imposta i listener per i pulsanti "New Game" e "Quit"
+  document.getElementById("challengeNewGameBtn").addEventListener("click", () => {
+    currentChallengeSaveName = ""; // Resetta il nome per una nuova partita
+    resetChallenge();
+    overlay.classList.add("hidden");
+    startNewChallenge();
+  });
+
+  document.getElementById("challengeQuitBtn").addEventListener("click", () => {
+    isChallengeMode = false;
+    challengeAttempts = 0;
+    currentChallengeSaveName = ""; // Resetta il nome del salvataggio attivo
+    setMainLabel("⏰1'00\"000'''");
+    toggleButtonState(false);
+    resetRun();
+    overlay.classList.add("hidden");
+  });
+
+  // Mostra la lista dei salvataggi (se presente)
+  if (challengePoints > 0) {
+    renderSavedGamesList();
+  }
 }
 
 
@@ -1536,7 +1552,7 @@ function showChallengeEndOverlay(failReason = "") {
       /**
        * Funzione chiamata quando clicchiamo su un salvataggio nella lista
        */
-  function onLoadSavedGame(name) {
+function onLoadSavedGame(name) {
   if (loadChallengeGame(name)) {
     currentChallengeSaveName = name; // Salviamo il nome del salvataggio attivo
     alert("Loaded saved game: " + name);
@@ -1546,6 +1562,7 @@ function showChallengeEndOverlay(failReason = "") {
     alert("Error: saved game not found.");
   }
 }
+
 
 
       /**
@@ -2140,11 +2157,11 @@ document.getElementById("closeChallengeIntroButton").addEventListener("click", f
 document.getElementById("saveResultConfirmBtn").addEventListener("click", () => {
     let name = document.getElementById("resultNameInput").value.trim();
     if (name === "") {
-        alert("Inserisci un nome!");
+        alert("Enter your name!");
         return;
     }
     if (typeof window.lastFinalTime !== "number" || window.lastFinalTime === 0) {
-        alert("Nessun tempo valido registrato!");
+        alert("No valid time recorded!");
         return;
     }
 
