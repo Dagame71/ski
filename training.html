@@ -107,7 +107,7 @@ button:hover {
         border: 0px solid #aaa; /* Bordo scuro per simulare effetto premuto */
         color: transparent; /* Colore del testo */
         cursor: not-allowed; /* Cambia il cursore */
-        opacity: 0.7; /* Rende il pulsante meno evidente */
+        opacity: 0.4; /* Rende il pulsante meno evidente */
       }
       .button-disabled:hover {
         opacity: 0.7;
@@ -533,7 +533,13 @@ pointer-events: auto;
 #chronoButton {
 
 }
-
+.saved-item-text {
+  cursor: pointer;
+  color: #007bff;         /* Testo blu */
+  text-decoration: underline;
+  font-size: 16px;        /* Puoi modificare la dimensione se vuoi */
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
     </style>
   </head>
   <body>
@@ -942,7 +948,7 @@ function generateGates(count) {
     let x = isRed 
             ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2 
             : Math.random() * (canvas.width / 2 - 35) + 35;
-    let y = (60 / 520) * canvas.height +
+    let y = (80 / 520) * canvas.height +
             i * ((canvas.height - (120 / 520) * canvas.height) / count);
     let color = isRed ? "red" : "blue";
     arr.push({
@@ -973,8 +979,8 @@ function generateGates(count) {
         while (arr.length < treeCount) {
           let tx = margin + Math.random() * (canvas.width - 2 * margin);
           let ty =
-            (40 / 520) * canvas.height +
-            Math.random() * (canvas.height - (40 / 520) * canvas.height - margin);
+            (60 / 520) * canvas.height +
+            Math.random() * ((canvas.height - 40) - (60 / 520) * canvas.height);
           let closeGate = gArr.some((g) => Math.hypot(tx - g.x, ty - g.y) < minGate);
           let closeTrees = arr.some((t) => Math.hypot(tx - t.x, ty - t.y) < minTree);
           let closeFinish = isNearFinish(tx, ty, finishRect, minFinish);
@@ -1418,20 +1424,21 @@ function showChallengeEndOverlay(failReason = "") {
     <hr>`;
 
   // Se ci sono punti, mostra l'area per il salvataggio
-  if (challengePoints > 0) {
-    html += `<div style="margin:10px 0;"><label>Save your game:</label><br>`;
-    if (currentChallengeSaveName) {
-      // Se il nome del salvataggio è già presente, salvataggio automatico
-      html += `<p>Your game will be automatically saved as: <strong>${currentChallengeSaveName}</strong></p>`;
-    } else {
-      // Altrimenti, mostra il campo input e il pulsante per il salvataggio manuale
-      html += `<input type="text" id="challengeSaveName" placeholder="Enter a name">
-               <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>`;
-    }
-    html += `</div>
-    <div id="challengeSavedGamesList" style="margin:10px 0;"></div>
-    <hr>`;
+if (challengePoints > 0) {
+  if (currentChallengeSaveName) {
+    // Se il salvataggio è automatico, mostra solo il messaggio di conferma
+    html += `<p>Your game has been saved as:<strong>${currentChallengeSaveName}</strong></p>`;
+  } else {
+    // Altrimenti, mostra il prompt per salvare
+    html += `<div style="margin:10px 0;">
+               <label>Save your game:</label><br>
+               <input type="text" id="challengeSaveName" placeholder="Enter a name">
+               <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
+             </div>`;
   }
+  html += `<div id="challengeSavedGamesList" style="margin:10px 0;"></div>
+           <hr>`;
+}
 
   html += `
     <div class="centered-button">
@@ -1534,12 +1541,11 @@ function showChallengeEndOverlay(failReason = "") {
           // Mostra info minime
           html += `
             <li style="margin-bottom:8px;">
-              <span style="cursor:pointer; color:blue; text-decoration:underline;"
+               <span class="saved-item-text"
                     onclick="onLoadSavedGame('${name}')">
                 ${name} (Lv ${data.level}, ${data.points} pts)
               </span>
-              <button style="margin-left:10px; font-size:0.8em;"
-                      onclick="onDeleteSavedGame('${name}')">
+              <button class="deleteBtn" onclick="onDeleteSavedGame('${name}')">
                 Delete
               </button>
             </li>
@@ -1590,14 +1596,11 @@ function onLoadSavedGame(name) {
             let data = saves[name];
             html += `
               <li style="margin-bottom:8px;">
-                <span style="cursor:pointer; color:blue; text-decoration:underline;"
-                      onclick="onLoadSavedGame('${name}')">
+                <span class="saved-item-text" onclick="onLoadSavedGame('${name}')">
                   ${name} (Lv ${data.level}, ${data.points} pts)
                 </span>
-                <button style="margin-left:10px; font-size:0.8em;"
-                        onclick="onDeleteSavedGame('${name}')">
-                  Delete
-                </button>
+            <button class="deleteBtn" onclick="onDeleteSavedGame('${name}')">Delete</button>
+
               </li>`;
           });
           html += `</ul>
@@ -2322,9 +2325,7 @@ li.innerHTML = `${entry.name} - ${formatTime(entry.time)} <img src="replay.png" 
           container.style.margin = "5px 0";
   let span = document.createElement("span");
 span.textContent = name;
-span.style.cursor = "pointer";
-span.style.color = "#007bff"; // Testo blu
-span.style.textDecoration = "underline"; // Testo sottolineato
+span.classList.add("saved-item-text");
 span.addEventListener("click", () => {
     let saved = savedTracks[name];
     currentTrack = saved.track;
