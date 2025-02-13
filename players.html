@@ -250,7 +250,10 @@ button:hover {
         box-shadow: inset 4px 4px 2px rgba(175, 219, 245, 0.8),
           inset -4px -4px 2px rgba(255, 255, 255, 0.8);
       }
-      
+      .overlay-text {
+  font-size: 14px; /* Riduci la dimensione del testo */
+  line-height: 1.3; /* Mantieni leggibile */
+}
       .popup-button-container {
         display: flex;
         justify-content: center;
@@ -335,7 +338,7 @@ button:hover {
         font-size: 1em; /* Dimensione relativa */
       }
       .slide-title {
-        margin-top: 0;
+        margin-top: 20;
         margin-bottom: 10px;
         font-size: 1.5em; /* Dimensione relativa */
       }
@@ -2219,43 +2222,51 @@ for (const gate of gates) {
       ======================================= */
       slidesIntro = [
         {
-          title: "Ski-Zag! World Cup",
-          content:
-            `Enter the players!<br>
-          <div id="playersInputContainer"></div>
-          <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
-          <button id="removePlayerBtn">Remove Player</button>`
-        },
-        {
-          title: "Race Format",
-          content:
-            `There will be <b>3 distinct races</b> <i>(Giant, Special, SuperG)</i>.<br>
-❄ Each race has <b>2 runs</b> <i>(manches)</i>, and in each run every participant has <b>3 consecutive attempts.</b><br>
-❄ At the end of each race, the <b>top 5 best times</b> are awarded points <i><b>(9, 7, 5, 3, 1).</b></i>`
-        },
-        {
-          title: "Editing the Track",
-          content:
-            `Before each of the three races, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
-❄ With a <b>long press</b> (holding your finger still for one second), you can create <b>one new tree</b> at a time and then <b>move it freely</b>.<br>
-❄ With a <b>double tap</b>, the track is <b>confirmed</b>, the race begins, and all runs and manches of the race will be held on the created track.<br>
-<i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i>`
-        },
-        {
-          title: "Blind Mode<br>& Penalties",
-          content:
-            `❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
-❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br>
-<img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
- If you activate <b>Blind Mode</b>, you must complete the run without seeing your trajectory.<br>
-If you achieve a Top 5 time in Blind Mode, you earn a <b>3-point bonus</b>, but if you fail, your opponents receive the <b>3-point bonus</b> instead!`
-        },
-        {
-          title: "Final Victory",
-          content:
-            `At the end of the 3rd race, whoever has the most points wins the championship!<br>
-Have fun with Ski-Zag!<br><b>Enjoy the slope!</b>`
-        }
+          title: "World Cup Mode",
+        content: `
+        <p class="overlay-text">Enter the players!</p>
+        <div id="playersInputContainer"></div>
+        <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
+        <button id="removePlayerBtn">Remove Player</button>
+        `
+    },
+    {
+        title: "Race Format",
+        content: `
+        <p class="overlay-text">There will be <b>3 distinct races</b> <i>(Giant, Special, SuperG)</i>.<br>
+        <p class="overlay-text">❄ Each race has <b>2 runs</b> <i>(manches)</i>, and in each run every participant has <b>3 consecutive attempts.</b><br>
+        <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points <i><b>(9, 7, 5, 3, 1).</b></i></p>
+        `
+    },
+    {
+        title: "Editing the Track",
+        content: `
+        <p class="overlay-text">Before each of the three races, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
+        <p class="overlay-text">❄ With a <b>long press</b> (holding your finger still for one second), you can create <b>one new tree</b> at a time and then <b>move it freely</b>.<br>
+        <p class="overlay-text">❄ With a <b>double tap</b>, the track is <b>confirmed</b>, the race begins, and all runs and manches of the race will be held on the created track.<br>
+        <p class="overlay-text"><i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i></p>
+        `
+    },
+    {
+        title: "Blind Mode<br>& Penalties",
+        content: `
+        <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
+        <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br>
+        <p class="overlay-text">
+            <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
+            If you activate <b>Blind Mode</b>, you must complete the run without seeing your trajectory.
+        <br>
+        <p class="overlay-text">If you achieve a Top 5 time in Blind Mode, you earn a <b>3-point bonus</b>, but if you fail, your opponents receive the <b>3-point bonus</b> instead!</p>
+        `
+    },
+    {
+        title: "Final Victory",
+        content: `
+        <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!</p>
+        <p class="overlay-text">Have fun with Ski-Zag!</p>
+        <p class="overlay-text"><b>Enjoy the slope!</b></p>
+        `
+    }
       ];
       let currentTutorialIndex = 0;
       let draftParticipants = [];
