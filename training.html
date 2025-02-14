@@ -544,7 +544,11 @@ pointer-events: auto;
   font-size: 16px;        /* Puoi modificare la dimensione se vuoi */
   font-family: "Helvetica Neue", Arial, sans-serif;
 }
-
+/* Riduce i margini verticali e imposta una line-height più compatta */
+.overlay-content p {
+  margin: 4px 0;       /* Riduci qui per stringere lo spazio tra paragrafi */
+  line-height: 1.2;    /* E riduci leggermente l’interlinea */
+}
     </style>
   </head>
   <body>
@@ -657,16 +661,16 @@ pointer-events: auto;
     <h2>Welcome to the Challenge Mode!</h2>
 <p class="overlay-text">
   <strong>Beat the best time, level up, and achieve the highest score!</strong>
-</p>
+<hr style="border:none; border-top:1px solid red; margin:8px 0;">
 <p class="overlay-text">
   ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!
-</p>
+<hr style="border:none; border-top:1px solid red; margin:8px 0;">
 <p class="overlay-text">
   ❄ <strong>Beat the level:</strong><br>
   <strong>1st try</strong> → points x3<br>
   <strong>2nd</strong> → points x2<br>
   <strong>3rd</strong> → points x1
-</p>
+
 
     <!-- Il pulsante "Play!" rimane invariato -->
     <button id="closeChallengeIntroOverlay" class="play-button">Play!</button>
@@ -848,12 +852,135 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
       ];
       let currentTitleUnlocked = "";
       function getTitleForLevel(level) {
-        const index = Math.floor(level / 5);
-        if (index >= 1 && index <= 5) {
-          return challengeTitles[index - 1];
-        }
-        return "";
-      }
+  // Nessun titolo se siamo sotto al livello 3
+  if (level < 3) {
+    return "";
+  }
+
+  // I titoli base (ognuno copre 9 livelli: 3 Bronze, 3 Silver, 3 Gold)
+  const baseTitles = [
+    "Snowflake Apprentice", // (Livelli 3..11)
+    "Frosty Daredevil",     // (Livelli 12..20)
+    "Blizzard Tamer",       // (Livelli 21..29)
+    "Polar Maestro",        // (Livelli 30..38)
+    "Avalanche Overlord"    // (Livelli 39..47)
+  ];
+
+  // Sottotitoli: 3 “step” per ciascun blocco di 9 livelli
+  const subTitles = ["Bronze", "Silver", "Gold"];
+
+  // Slittamento di 2 livelli: 
+  // Livello 3 => adjusted = 1 (inizia il primo blocco Bronze)
+  // Livello 4 => adjusted = 2, Livello 5 => adjusted=3 -> ... e così via
+  let adjusted = level - 2;
+
+  // Calcoliamo l'indice del titolo base (ogni blocco è di 9 livelli)
+  // Esempio: 
+  //   Livelli 3..11  => baseIndex=0 (Snowflake Apprentice)
+  //   Livelli 12..20 => baseIndex=1 (Frosty Daredevil)
+  //   Livelli 21..29 => baseIndex=2 (Blizzard Tamer)
+  //   Livelli 30..38 => baseIndex=3 (Polar Maestro)
+  //   Livelli 39..47 => baseIndex=4 (Avalanche Overlord)
+  let baseIndex = Math.floor((adjusted - 1) / 9);
+
+  // Se abbiamo sforato oltre l'ultimo titolo (baseIndex >= 5),
+  // restiamo fissi su "Avalanche Overlord Gold"
+  if (baseIndex >= baseTitles.length) {
+    return baseTitles[baseTitles.length - 1] + " Gold";
+  }
+
+  // Se paradossalmente baseIndex < 0 (non dovrebbe succedere con level>=3),
+  // possiamo ritornare "" o il primo titolo Bronze
+  if (baseIndex < 0) {
+    return "";
+  }
+
+  // Recuperiamo il titolo base
+  let baseTitle = baseTitles[baseIndex];
+
+  // Sottotitolo: ogni 3 livelli cambia in Bronze, Silver, Gold
+  // Esempio: adjusted=1..3 => subIndex=0 => "Bronze"
+  //          adjusted=4..6 => subIndex=1 => "Silver"
+  //          adjusted=7..9 => subIndex=2 => "Gold"
+  let subIndex = Math.floor(((adjusted - 1) % 9) / 3);
+
+  // Nel caso fosse >=3 (non dovrebbe mai accadere, ma per sicurezza)
+  if (subIndex >= subTitles.length) {
+    subIndex = subTitles.length - 1;
+  }
+
+  let subTitle = subTitles[subIndex];
+
+  // Restituiamo "NomeTitolo SubTitolo", es. "Snowflake Apprentice Bronze"
+  return baseTitle + " " + subTitle;
+}
+function getTitleImageForLevel(level) {
+  // Sotto al livello 3 => nessuna immagine
+  if (level < 3) {
+    return "";
+  }
+
+  // Ogni titolo base avrà 3 immagini (Bronze, Silver, Gold)
+  // Quindi 5 (titoli) x 3 (sottolivelli) = 15 immagini totali
+  // (Metti i nomi esatti di ogni file .png che hai nella stessa cartella dell’index)
+
+  const titleImages = [
+    // Snowflake Apprentice
+    [
+      "snowflake_apprentice_bronze.png",
+      "snowflake_apprentice_silver.png",
+      "snowflake_apprentice_gold.png"
+    ],
+    // Frosty Daredevil
+    [
+      "frosty_daredevil_bronze.png",
+      "frosty_daredevil_silver.png",
+      "frosty_daredevil_gold.png"
+    ],
+    // Blizzard Tamer
+    [
+      "blizzard_tamer_bronze.png",
+      "blizzard_tamer_silver.png",
+      "blizzard_tamer_gold.png"
+    ],
+    // Polar Maestro
+    [
+      "polar_maestro_bronze.png",
+      "polar_maestro_silver.png",
+      "polar_maestro_gold.png"
+    ],
+    // Avalanche Overlord
+    [
+      "avalanche_overlord_bronze.png",
+      "avalanche_overlord_silver.png",
+      "avalanche_overlord_gold.png"
+    ]
+  ];
+
+  // "Slittiamo" di 2 livelli, perché il primo titolo parte dal livello 3
+  let adjusted = level - 2;
+
+  // Ogni titolo base vale 9 livelli (3 Bronze, 3 Silver, 3 Gold)
+  // baseIndex=0 => Snowflake, baseIndex=1 => Frosty, ecc.
+  let baseIndex = Math.floor((adjusted - 1) / 9);
+
+  // Se superiamo l’ultimo (Avalanche Overlord), rimani fisso su Overlord Gold
+  if (baseIndex >= titleImages.length) {
+    return titleImages[titleImages.length - 1][2]; // indice 2 = Gold
+  }
+  // Se (level >= 3) ma finiamo sotto zero (caso raro),
+  // restituisci stringa vuota
+  if (baseIndex < 0) {
+    return "";
+  }
+
+  // subIndex: 0=Bronze, 1=Silver, 2=Gold
+  let subIndex = Math.floor(((adjusted - 1) % 9) / 3);
+
+  // Ritorna il nome del file .png corrispondente
+  return titleImages[baseIndex][subIndex];
+}
+
 
       // Tutorial slides
     let tutorialSlides = [
@@ -861,9 +988,9 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
       title: "Welcome to Ski-Zag!",
       content:
         `<p class="overlay-text">
-        <b><i>Start at the hut and ski to the finish!</i></b><br><br>
-        ❄ Draw your path with your finger, pass through the gates, avoid the trees, cross the finish line and achieve <b>the best time!</b><br><br>
-        ❄ <b>Red gates</b> must be passed on the <b>right</b>, and <b>blue gates</b> on the <b>left</b>.<br><br>
+        <b><i>Start at the hut and ski to the finish!</i></b><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        ❄ Draw your path with your finger, pass through the gates, avoid the trees, cross the finish line and achieve <b>the best time!</b><br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        ❄ <b>Red gates</b> must be passed on the <b>right</b>, and <b>blue gates</b> on the <b>left</b>.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
         ❄ You can save your favorite tracks, enter your time in the Top 5, review your runs with replay, and remove the snow to train better.
         </p>`
     },
@@ -872,8 +999,8 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
       content:
         `<p class="overlay-text">
         <i><b>Beat the best time, level up, and achieve the highest score!</b></i><br>
-<br>
-        ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!<br><br>
+<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
         ❄ <strong>Beat the level:</strong><br>
         <strong>1st try</strong> → points x3<br>
         <strong>2nd</strong> → points x2<br> 
@@ -881,16 +1008,16 @@ let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous"
         </p>`
     },
     {
-      title: "Buttons:",
+      title: "Buttons",
       content:
         `<div class="overlay-text controls-slide">
-          <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay <i>(review run)</i><br><br>
-          <img src="cup.png" class="tutorial-icon" alt="Save Result"> Save your result<br><br>
-          <img src="save.png" class="tutorial-icon" alt="View / Save Track"> Save/load track<br></p>
-          <img src="medal.png" class="tutorial-icon" alt="Medal">Challenge Mode In/Out<br><br>
-          <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Snow On/Off<br><br>
-          <img src="new.png" class="tutorial-icon" alt="New Track"> New Track<br><br>
-          <img src="stopwatch.png" class="tutorial-icon" alt="Top 5">Top 5 <i>(view best times)</i><br><br>
+          <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+          <img src="cup.png" class="tutorial-icon" alt="Save Result"> Save your result<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+          <img src="save.png" class="tutorial-icon" alt="View / Save Track"> Save/load track<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+          <img src="medal.png" class="tutorial-icon" alt="Medal">Challenge Mode In/Out<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+          <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Snow On/Off<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+          <img src="new.png" class="tutorial-icon" alt="New Track"> New Track<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+          <img src="stopwatch.png" class="tutorial-icon" alt="Top 5">Top 5 <i>(view best times)</i><hr style="border:none; border-top:1px solid red; margin:8px 0;">
           <img src="home.png" class="tutorial-icon" alt="homeBtn">Quit/Home
         </div>`
     },
@@ -1457,9 +1584,12 @@ if (challengePoints > 0) {
   } else {
     // Altrimenti, mostra il prompt per salvare
     html += `<div style="margin:10px 0;">
-               <label>Save your game:</label><br>
-               <input type="text" id="challengeSaveName" placeholder="Enter a name">
-               <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
+               <label style="display:block; margin-bottom:10px;">
+  Save your game:
+</label>
+<input type="text" id="challengeSaveName" placeholder="Enter a name" />
+<button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
+
              </div>`;
   }
   html += `<div id="challengeSavedGamesList" style="margin:10px 0;"></div>
@@ -1550,36 +1680,62 @@ if (challengePoints > 0) {
        * Funzione che legge i salvataggi (getChallengeSaves()) e li mostra
        * in #challengeSavedGamesList. Cliccando su un nome, carichi la partita.
        */
-      function renderSavedGamesList() {
-        const listDiv = document.getElementById("challengeSavedGamesList");
-        let saves = getChallengeSaves();
-        let keys = Object.keys(saves);
+function renderSavedGamesList() {
+  // 1. Recupera il contenitore in cui inserire l’elenco
+  const listDiv = document.getElementById("challengeSavedGamesList");
+  // Svuota eventuali contenuti precedenti
+  listDiv.innerHTML = "";
 
-        if (keys.length === 0) {
-          listDiv.innerHTML = "<p>No saved games.</p>";
-          return;
-        }
+  // 2. Leggi i salvataggi da localStorage
+  let saves = getChallengeSaves();
+  let keys = Object.keys(saves);
 
-        let html = "<p><strong>Saved games:</strong></p>";
-        html += "<ul style='list-style: none; padding:0;'>";
-        keys.forEach((name) => {
-          let data = saves[name];
-          // Mostra info minime
-          html += `
-            <li style="margin-bottom:8px;">
-               <span class="saved-item-text"
-                    onclick="onLoadSavedGame('${name}')">
-                ${name} (Lv ${data.level}, ${data.points} pts)
-              </span>
-              <button class="deleteBtn" onclick="onDeleteSavedGame('${name}')">
-                Delete
-              </button>
-            </li>
-          `;
-        });
-        html += "</ul>";
-        listDiv.innerHTML = html;
-      }
+  // 3. Se non ci sono salvataggi, mostra un testo e termina
+  if (keys.length === 0) {
+    listDiv.innerHTML = "<p>No saved games.</p>";
+    return;
+  }
+
+  // 4. (Opzionale) Aggiungi un titolo “Saved games:” con <p>
+  let label = document.createElement("p");
+  label.innerHTML = "<strong>Saved games:</strong>";
+  listDiv.appendChild(label);
+
+  // 5. Crea un div “riga” per ogni salvataggio
+  keys.forEach((name) => {
+    let data = saves[name];
+
+    // Crea il contenitore flessibile
+    let container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.justifyContent = "space-between";
+    container.style.margin = "5px 0";  // Margine verticale ridotto
+
+    // Crea lo span testuale cliccabile
+    let span = document.createElement("span");
+    span.classList.add("saved-item-text");
+    span.textContent = `${name} (Lv ${data.level}, ${data.points} pts)`;
+    span.addEventListener("click", () => {
+      onLoadSavedGame(name);
+    });
+
+    // Crea il pulsante Delete
+    let delBtn = document.createElement("button");
+    delBtn.className = "deleteBtn";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener("click", () => {
+      onDeleteSavedGame(name);
+    });
+
+    // Assembla nel container
+    container.appendChild(span);
+    container.appendChild(delBtn);
+    // e infine append al listDiv
+    listDiv.appendChild(container);
+  });
+}
+
 
       /**
        * Funzione chiamata quando clicchiamo su un salvataggio nella lista
@@ -1749,57 +1905,86 @@ function showConfirmPopup(message, onConfirm, onCancel) {
         speed = Math.max(1.0, speed - speedDecrement); // Riduce la velocità ma non scende sotto 1.0
       }
 
-      function showPointsPopup(points) {
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
+function showPointsPopup(points) {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
 
-        const content = document.createElement("div");
-        content.className = "overlay-content";
+  const content = document.createElement("div");
+  content.className = "overlay-content";
 
-        // 1) Calcoliamo il titolo relativo a currentLevel
-        let newTitle = getTitleForLevel(currentLevel);
-        let titleHtml = "";
+  // Calcoliamo il titolo per l’attuale livello
+  let newTitle = getTitleForLevel(currentLevel);
 
-        if (newTitle !== "") {
-          // Abbiamo un titolo
-          if (newTitle !== currentTitleUnlocked) {
-            // È un NUOVO titolo sbloccato
-            titleHtml = `<span style="color:blue; font-size:1.1em;">
-              You are now <br><b>${newTitle}</b>!
-            </span>`;
-            currentTitleUnlocked = newTitle; // Aggiorniamo la variabile globale
-          } else {
-            // Titolo già ottenuto
-            titleHtml = `<span style="color:grey; font-size:0.9em;">
-              Current title: <br><b>${newTitle}</b>
-            </span>`;
-          }
-        } else {
-          // newTitle === "" => non hai ancora sbloccato un titolo
-          titleHtml = ""; // Mostra nulla (oppure "No Title")
-        }
+  // Verifichiamo se è un "nuovo" titolo
+  let isNewTitleUnlocked = false;
+  if (newTitle !== "" && newTitle !== currentTitleUnlocked) {
+    currentTitleUnlocked = newTitle; // Aggiorna il titolo sbloccato
+    isNewTitleUnlocked = true;
+  }
 
-        // 2) Adesso costruiamo l'HTML inserendo <p id="titleLine"> con titleHtml
-        content.innerHTML = `
-          <h2>Level #${currentLevel} Complete!</h2>
-          <p>You earned <strong>${points}</strong> points!</p>
-          <p>Total Points: <strong>${challengePoints}</strong></p>
-          <p id="titleLine">${titleHtml}</p>
-          <button class="play-button">Next Level</button>
-        `;
+  // HTML di base per il popup
+  content.innerHTML = `
+    <h2>Level #${currentLevel} Complete!</h2>
+    <p>You earned <strong>${points}</strong> points!</p>
+    <p>Total Points: <strong>${challengePoints}</strong></p>
 
-        // 3) Listener del pulsante "Next Level"
-        content.querySelector("button").addEventListener("click", () => {
-          document.body.removeChild(overlay);
-          // Incrementiamo e passiamo al livello successivo come prima
-          currentLevel++;
-          adjustSpeedForNextLevel();
-          startNewChallenge();
-        });
+    <!-- Qui sotto mostreremo testo e/o immagine relativi al titolo -->
+    <div id="titleArea" style="margin: 10px 0;"></div>
 
-        overlay.appendChild(content);
-        document.body.appendChild(overlay);
-      }
+    <button class="play-button">Next Level</button>
+  `;
+
+  // Sezione in cui inseriamo testo/immagine in base al caso
+  const titleArea = content.querySelector("#titleArea");
+
+  if (isNewTitleUnlocked) {
+    // 1) Se hai appena sbloccato un titolo nuovo
+    let unlockMsg = document.createElement("p");
+    unlockMsg.style.color = "blue";
+    unlockMsg.style.fontWeight = "bold";
+    unlockMsg.textContent = "You've unlocked a new title!";
+    titleArea.appendChild(unlockMsg);
+
+    // Mostra l’immagine del titolo, se esiste un file associato
+    let imgName = getTitleImageForLevel(currentLevel);
+    if (imgName !== "") {
+      let img = document.createElement("img");
+      img.src = imgName;
+      img.alt = "Current Title";
+      img.style.width = "200px";
+      img.style.height = "auto";
+      img.style.display = "block";
+      img.style.margin = "5px auto";
+      titleArea.appendChild(img);
+    }
+  } else {
+    // 2) Altrimenti, se NON c’è un nuovo titolo sbloccato,
+    //    mostriamo il titolo attuale (o "No title" se sotto al livello 3)
+    let currentTitleText = currentTitleUnlocked
+      ? `Your current title:<br><b>${currentTitleUnlocked}</b>`
+      : "No title unlocked yet."; // se < livello 3 (ad es.)
+
+    let p = document.createElement("p");
+    p.style.margin = "5px 0";
+    p.innerHTML = currentTitleText;
+    titleArea.appendChild(p);
+  }
+
+  // Listener del pulsante "Next Level"
+  content.querySelector("button").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+    currentLevel++;
+    adjustSpeedForNextLevel();
+    startNewChallenge();
+  });
+
+  // Mostriamo l’overlay
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+
+
 
 function failRun(msg) {
     drawing = false;
