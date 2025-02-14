@@ -2006,21 +2006,33 @@ for (const gate of gates) {
             if (runNumber === 1) {
               runNumber = 2;
               currentIndex = 0;
-              showPopup(
-                `Starting the<br> <b>2nd manche</b><br> of <b>race #${raceNumber}!</b>`,
-                () => {
-                  resetTrack(currentTrack);
-                  callParticipant();
-                }
-              );
+       showPopup(
+  `
+    <div style="font-size: 20px; text-align: center;">
+      Starting the<br>
+      <b>2nd manche</b><br>
+      of <b>race #${raceNumber}!</b>
+    </div>
+  `,
+  () => {
+    resetTrack(currentTrack);
+    callParticipant();
+  }
+);
             } else {
               endRace();
             }
           } else {
             const nxt = participants[currentIndex];
-            showPopup(`Now it's <b>${nxt}</b>'s turn!`, () => {
-              resetTrack(currentTrack);
-              callParticipant();
+           showPopup(
+  `
+    <div style="font-size:20px; text-align:center;">
+      Now it's <b>${nxt}</b>'s turn!
+    </div>
+  `,
+  () => {
+    resetTrack(currentTrack);
+    callParticipant();
             });
           }
         } else {
@@ -2038,9 +2050,9 @@ for (const gate of gates) {
         }
         let msg = 
           `<span style="color: black;">${currentPlayer}</span> ` +
-          `<span style="color: rgba(0,0,0,0.3);">Race#${raceNumber}</span> ` +
-          `<span style="color: rgba(0,0,0,0.6);">Manche${runNumber}</span> ` +
-          `<span style="color: black;">Run${att}</span> ` +
+          `<span style="color: rgba(0,0,0,0.3);">R#${raceNumber}</span> ` +
+          `<span style="color: rgba(0,0,0,0.6);">M#${runNumber}</span> ` +
+          `<span style="color: black;">Run#${att}</span> ` +
           `<span style="color: red;">${penaltyDisplay}</span>`;
         setMainLabel(msg);
         let newWeatherState = chooseWeatherState(weatherState);
@@ -2233,37 +2245,37 @@ for (const gate of gates) {
     {
         title: "Race Format",
         content: `
-        <p class="overlay-text">There will be <b>3 distinct races</b> <i>(Giant, Special, SuperG)</i>.<br>
-        <p class="overlay-text">❄ Each race has <b>2 runs</b> <i>(manches)</i>, and in each run every participant has <b>3 consecutive attempts.</b><br>
+        <p class="overlay-text">There will be <b>3 distinct races</b> <i>(Giant, Special, SuperG)</i>.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        <p class="overlay-text">❄ Each race has <b>2 runs</b> <i>(manches)</i>, and in each run every participant has <b>3 consecutive attempts.</b><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
         <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points <i><b>(9, 7, 5, 3, 1).</b></i></p>
         `
     },
     {
         title: "Editing the Track",
         content: `
-        <p class="overlay-text">Before each of the three races, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
-        <p class="overlay-text">❄ With a <b>long press</b> (holding your finger still for one second), you can create <b>one new tree</b> at a time and then <b>move it freely</b>.<br>
-        <p class="overlay-text">❄ With a <b>double tap</b>, the track is <b>confirmed</b>, the race begins, and all runs and manches of the race will be held on the created track.<br>
+        <p class="overlay-text">Before each of the three races, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        <p class="overlay-text">❄ With a <b>long press</b> (holding your finger still for one second), you can create <b>one new tree</b> at a time and then <b>move it freely</b>.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        <p class="overlay-text">❄ With a <b>double tap</b>, the track is <b>confirmed</b>, the race begins, and all runs and manches of the race will be held on the created track.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
         <p class="overlay-text"><i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i></p>
         `
     },
     {
         title: "Blind Mode<br>& Penalties",
         content: `
-        <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
-        <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br>
+        <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+        <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
         <p class="overlay-text">
             <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
             If you activate <b>Blind Mode</b>, you must complete the run without seeing your trajectory.
-        <br>
+        <br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
         <p class="overlay-text">If you achieve a Top 5 time in Blind Mode, you earn a <b>3-point bonus</b>, but if you fail, your opponents receive the <b>3-point bonus</b> instead!</p>
         `
     },
     {
         title: "Final Victory",
         content: `
-        <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!</p>
-        <p class="overlay-text">Have fun with Ski-Zag!</p>
+        <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!<span style="display:block; border-top:1px solid red; margin:8px 0;"></span></p>
+       
         <p class="overlay-text"><b>Enjoy the slope!</b></p>
         `
     }
