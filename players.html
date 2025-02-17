@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Collegamento al Manifest -->
+    <!-- PWA / Meta per dispositivi Apple -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Icona per dispositivi Apple -->
     <link rel="apple-touch-icon" href="icon192.png">
-    
-    <!-- Disabilita la barra URL in Safari quando aperto dalla Home -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    
-    <!-- Nome visualizzato nella Home Screen -->
     <meta name="apple-mobile-web-app-title" content="Ski-Zag!">
-    
-    <!-- Colore della barra di stato -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- Registra il Service Worker -->
+
+    <!-- Registrazione del Service Worker -->
     <script>
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("service-worker.js")
@@ -25,15 +17,19 @@
           .catch(error => console.log("Errore nel Service Worker:", error));
       }
     </script>
-    <meta charset="UTF-8" />
+
+    <meta charset="UTF-8">
     <!-- Disabilita pinch-to-zoom / doppio tap -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ski-Zag! World Cup</title>
+
+    <!-- =====================================================
+         STILI CSS
+         ===================================================== -->
     <style>
-      /* Stili di base */
+      /* -------------------------------
+         Stili di base e layout generale
+      ------------------------------- */
       html,
       body {
         margin: 0;
@@ -48,19 +44,19 @@
         flex-direction: column;
         align-items: center;
       }
-.container {
-  position: relative;
-  width: 90%;
-  max-width: 90vw;
-  aspect-ratio: 300 / 520;
-  background: #e1dffc url("sfondo.png") no-repeat center center;
-  background-size: cover;
-  border: 0px solid #ffffff;
-  border-radius: 10px;
-  margin-top: 10px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
+      .container {
+        position: relative;
+        width: 90%;
+        max-width: 90vw;
+        aspect-ratio: 300 / 520;
+        background: #e1dffc url("sfondo.png") no-repeat center center;
+        background-size: cover;
+        border: 0px solid #ffffff;
+        border-radius: 10px;
+        margin-top: 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
       canvas {
         position: absolute;
         top: 0;
@@ -69,47 +65,47 @@
         height: 100%;
         cursor: crosshair;
       }
-      
-      /* Canvas per l'effetto neve */
+
+      /* -------------------------------
+         Canvas per l'effetto neve
+      ------------------------------- */
       #snowCanvas {
-        position: fixed; /* per coprire tutto lo schermo */
+        position: fixed; /* Copre l'intero schermo */
         top: 0;
         left: 0;
-        width: 100vw; /* copre l'intera larghezza finestra */
-        height: 100vh; /* copre l'intera altezza finestra */
-        pointer-events: none; /* la neve non intercetta clic/touch */
-        z-index: 5; /* layer medio */
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none; /* La neve non intercetta eventi */
+        z-index: 5; /* Layer intermedio */
       }
-      
-      /* Bottoni */
-button {
-border: none !important; /* Rimuove qualsiasi bordo */
-    outline: none; /* Rimuove il contorno del focus */
-border-radius: 8px; /* Angoli arrotondati */
-    background: rgba(255, 255, 255, 0.3); /* Sfondo bianco semitrasparente */
-    box-shadow: 
-        inset 1px 1px 2px rgba(255, 255, 255, 0.8), /* Effetto embossed (rilievo) */
-        inset -1px -1px 2px #434d74, /* Effetto ombra interna */
-        1px 1px 2px #434d74; /* Ombra esterna per effetto 3D */
-    padding: 6px 8px; /* Spazio interno per un aspetto più bilanciato */
-    transition: all 0.2s ease-in-out; /* Effetto di transizione fluido */
-}
 
-button:hover {
-    background: rgba(255, 255, 255, 0.5); /* Aumenta la trasparenza al passaggio del mouse */
-    box-shadow: 
-        inset 1px 1px 3px rgba(255, 255, 255, 0.8), 
-        inset -1px -1px 3px #434d74,
-        2px 2px 4px #434d74;
-}
-      
-      /* Posizionamento bottoni con percentuali */
-      #sameTrack {
-        position: absolute;
-        z-index: 9999;
-        bottom: 2%;
-        left: 3%;
+      /* -------------------------------
+         Bottoni (stile generale)
+      ------------------------------- */
+      button {
+        border: none !important;
+        outline: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 
+          inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+          inset -1px -1px 2px #434d74,
+          1px 1px 2px #434d74;
+        padding: 6px 8px;
+        transition: all 0.2s ease-in-out;
       }
+      button:hover {
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 
+          inset 1px 1px 3px rgba(255, 255, 255, 0.8),
+          inset -1px -1px 3px #434d74,
+          2px 2px 4px #434d74;
+      }
+
+      /* -------------------------------
+         Posizionamento dei bottoni fissi
+      ------------------------------- */
+      #sameTrack,
       #replayButton {
         position: absolute;
         z-index: 9999;
@@ -128,95 +124,90 @@ button:hover {
         top: 2%;
         right: 3%;
       }
-      /* Bottone per Blind Mode */
+      /* Bottone Blind Mode */
       #blindToggle {
-    font-size: 0.9em; /* Dimensione relativa */
-    position: absolute;
-    z-index: 9999;
-    bottom: 2%;
-    left: 85%; /* Regola la posizione senza il bisogno di translateX */
-    cursor: pointer;
-    border-radius: 8px; /* Aggiungi lo stile per uniformarlo agli altri */
-    background: rgba(255, 255, 255, 0.3); /* Uniforma il background */
-    box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.8), inset -1px -1px 2px #434d74, 1px 1px 2px #434d74;
-    padding: 6px 8px; /* Uniforma il padding */
-    transition: all 0.2s ease-in-out; /* Effetto di transizione fluido */
-}
+        font-size: 0.9em;
+        position: absolute;
+        z-index: 9999;
+        bottom: 2%;
+        left: 85%;
+        cursor: pointer;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+                    inset -1px -1px 2px #434d74,
+                    1px 1px 2px #434d74;
+        padding: 6px 8px;
+        transition: all 0.2s ease-in-out;
+      }
+      #blindToggle:hover {
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 
+          inset 1px 1px 3px rgba(255, 255, 255, 0.8),
+          inset -1px -1px 3px #434d74,
+          1px 1px 3px #434d74;
+      }
 
-#blindToggle:hover {
-    background: rgba(255, 255, 255, 0.5); /* Aumenta la trasparenza al passaggio del mouse */
-    box-shadow: 
-        inset 1px 1px 3px rgba(255, 255, 255, 0.8), 
-        inset -1px -1px 3px #434d74,
-        1px 1px 3px #434d74;
-}
+      /* -------------------------------
+         Contenitore informazioni (messaggi)
+      ------------------------------- */
       .info-container {
         width: 90vw;
         max-width: 500px;
         margin: 2px auto;
         padding: 1px;
-        margin-top: -3px; /* Valore negativo per alzare il blocco */
+        margin-top: -3px;
         border: 0px solid #9cc1e2;
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.2); /* opzione per uno sfondo leggero */
+        background: rgba(255, 255, 255, 0.2);
         display: flex;
         box-shadow: 
-          inset 1px 1px 3px rgba(0, 0, 0, 0.2), 
+          inset 1px 1px 3px rgba(0, 0, 0, 0.2),
           inset -1px -1px 3px #9cc1e2;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         position: relative;
         z-index: 9999;
-      
-        /* Disabilita la selezione del testo */
-        user-select: none;
-        -webkit-user-select: none; /* Chrome, Safari, Opera */
-        -moz-user-select: none;    /* Firefox */
-        -ms-user-select: none;     /* IE/Edge */
-        -webkit-touch-callout: none; /* Disabilita il menu contestuale su iOS */
-      }
-      
-      /* UNICA RIGA di testo per tutti i messaggi */
-      #infoLine {
-        margin: 5px 0;
-        font-weight: bold;
-        font-size: 1.2em; /* Dimensione relativa */
-        min-height: 20px;
-        text-align: center;
-        color: black;
-      
-        /* Disabilita la selezione del testo */
         user-select: none;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         -webkit-touch-callout: none;
       }
-      
-      /* Animazioni */
+      /* Unica riga di testo per tutti i messaggi */
+      #infoLine {
+        margin: 5px 0;
+        font-weight: bold;
+        font-size: 1.2em;
+        min-height: 20px;
+        text-align: center;
+        color: black;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-touch-callout: none;
+      }
+
+      /* -------------------------------
+         Animazioni
+      ------------------------------- */
       @keyframes blink {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0;
-        }
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
       }
       .record {
         animation: blink 0.5s ease-in-out 3;
       }
       @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
-      
-      /* Overlay */
+
+      /* -------------------------------
+         Overlay generici
+      ------------------------------- */
       .overlay {
         position: fixed;
         top: 0;
@@ -237,27 +228,27 @@ button:hover {
         background-image: url("backpopup.png");
         background-repeat: no-repeat;
         background-position: center;
-        background-size: cover; /* Oppure "contain" se preferisci che l'intera immagine sia visibile */
-        background-color: #fff; /* Colore di fallback se l'immagine non viene caricata */
+        background-size: cover;
+        background-color: #fff;
         border-radius: 12px;
-        padding: 2%; /* Padding relativo */
-        width: 80%; /* Responsive width */
-        max-width: 300px; /* Limite massimo */
+        padding: 2%;
+        width: 80%;
+        max-width: 300px;
         box-sizing: border-box;
         position: relative;
         text-align: center;
         color: #333;
         box-shadow: inset 4px 4px 2px rgba(175, 219, 245, 0.8),
-          inset -4px -4px 2px rgba(255, 255, 255, 0.8);
+                    inset -4px -4px 2px rgba(255, 255, 255, 0.8);
       }
       .overlay-text {
-  font-size: 14px; /* Riduci la dimensione del testo */
-  line-height: 1.3; /* Mantieni leggibile */
-}
+        font-size: 14px;
+        line-height: 1.3;
+      }
       .popup-button-container {
         display: flex;
         justify-content: center;
-        gap: 20px; /* Aggiunge uno spazio di 20px tra i pulsanti */
+        gap: 20px;
         margin-top: 15px;
       }
       #popupOkButton {
@@ -274,15 +265,14 @@ button:hover {
       #popupOkButton:hover {
         background: #bdc9fb;
       }
-      
-      /* Bottoni per chiudere gli overlay */
+      /* Bottone per chiudere l'overlay */
       #closeOverlay {
         position: absolute;
         top: 10px;
         left: 10px;
         background-color: #8fa2f7;
-        font-size: 0.875em; /* Dimensione relativa */
-        padding: 0.5em 1em; /* Padding relativo */
+        font-size: 0.875em;
+        padding: 0.5em 1em;
         color: white;
         border: none;
         border-radius: 5px;
@@ -291,18 +281,17 @@ button:hover {
       #closeOverlay:hover {
         background-color: #bdc9fb;
       }
-      
       /* Animazione lampeggiante */
       @keyframes blinker {
-        50% {
-          opacity: 0;
-        }
+        50% { opacity: 0; }
       }
       .blinking {
         animation: blinker 1s linear infinite;
       }
-      
-      /* Leaderboard */
+
+      /* -------------------------------
+         Leaderboard & Classifica
+      ------------------------------- */
       .leaderboard-container {
         display: block;
         width: 100%;
@@ -315,7 +304,7 @@ button:hover {
       .leaderboard h2 {
         text-align: center;
         margin: 10px 0;
-        font-size: 1.2em; /* Dimensione relativa */
+        font-size: 1.2em;
       }
       ol {
         border: 1px solid #999bf2;
@@ -327,20 +316,22 @@ button:hover {
       }
       li {
         padding: 5px 0;
-        font-size: 1em; /* Dimensione relativa */
+        font-size: 1em;
       }
-      
-      /* Slider del tutorial */
+
+      /* -------------------------------
+         Slider / Tutorial
+      ------------------------------- */
       .intro-overlay {}
       .slide-content {
         margin-bottom: 20px;
         line-height: 1.4;
-        font-size: 1em; /* Dimensione relativa */
+        font-size: 1em;
       }
       .slide-title {
         margin-top: 20;
         margin-bottom: 10px;
-        font-size: 1.5em; /* Dimensione relativa */
+        font-size: 1.5em;
       }
       .slides-nav {
         display: flex;
@@ -353,8 +344,8 @@ button:hover {
         color: #fff;
         border: none;
         border-radius: 8px;
-        padding: 0.5em 1em; /* Padding relativo */
-        font-size: 1em; /* Dimensione relativa */
+        padding: 0.5em 1em;
+        font-size: 1em;
         cursor: pointer;
       }
       .slides-nav .nav-button:disabled {
@@ -393,8 +384,10 @@ button:hover {
       .close-button:hover {
         background-color: #bdc9fb;
       }
-      
-      /* Tabella del campionato */
+
+      /* -------------------------------
+         Tabella del Campionato
+      ------------------------------- */
       .champ-table {
         margin: 15px 0;
         border: 1px solid #999bf2;
@@ -411,17 +404,20 @@ button:hover {
       .champ-table td {
         padding: 8px;
         border-bottom: 1px solid #999bf2;
-        font-size: 1em; /* Dimensione relativa */
+        font-size: 1em;
       }
       .champ-table th {
         background: #8fa2f7;
         font-weight: bold;
-        color: white; /* Testo bianco */
+        color: white;
       }
       .champ-table tr:last-child td {
         border-bottom: none;
       }
       
+      /* -------------------------------
+         Input per i nomi dei giocatori
+      ------------------------------- */
       .player-name-input {
         background: #ffffff;
         border: 1px solid #bdc9fb;
@@ -430,7 +426,7 @@ button:hover {
         width: 80%;
         margin-bottom: 8px;
         box-shadow: inset 3px 3px 4px rgba(0, 0, 0, 0.2),
-          inset -3px -3px 4px rgba(255, 255, 255, 0.7);
+                    inset -3px -3px 4px rgba(255, 255, 255, 0.7);
         outline: none;
         font-size: 1em;
         transition: all 0.2s ease-in-out;
@@ -438,10 +434,12 @@ button:hover {
       .player-name-input:focus {
         background: #ffffff;
         box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),
-          inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+                    inset -2px -2px 4px rgba(255, 255, 255, 0.8);
       }
       
-      /* Bottoni alla fine */
+      /* -------------------------------
+         Bottoni finali (per la gara)
+      ------------------------------- */
       .end-buttons {
         display: flex;
         justify-content: center;
@@ -460,48 +458,52 @@ button:hover {
       .end-buttons button:hover {
         background-color: #0056b3;
       }
-/* Contenitore per i bottoni in alto */
-.top-buttons {
- pointer-events: none;
-  position: absolute;      /* Posizionato relativamente al container */
-  top: 1%;              /* Distanza fissa dall'alto, come nella versione principale */
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between; /* Un bottone a sinistra, l'altro a destra */
-  align-items: center;
-  padding: 0 5%;           /* Padding laterale: regola il 5% se necessario */
-  z-index: 10;             /* Deve essere sopra il canvas */
-}
-/* Contenitore per i bottoni in basso */
-.bottom-buttons {
-  position: absolute;       /* Posizionato relativamente al container */
-  bottom: 1.15%;            /* Distanza fissa dal fondo (come nelle altre versioni) */
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;  /* I bottoni saranno centrati; se preferisci un’altra distribuzione usa space-between o space-around */
-  gap: 10px;                /* Spazio fisso tra i bottoni; regola questo valore per avvicinarli o distanziarli */
-  align-items: center;
-  z-index: 10;
-}
-.bottom-buttons button {
-  position: static;
-  width: 30%;           /* La percentuale può essere regolata in base al layout desiderato */
-  max-width: 35px;      /* Regola il max-width per ottenere la dimensione corretta */
-  aspect-ratio: 1 / 1;  /* Assicura che siano quadrati */
-  padding: 4px 6px;     /* Regola il padding per non alterare la dimensione complessiva */
-}
-.top-buttons button {
-pointer-events: auto;
-  position: static;  
-  width: 30%;
-  max-width: 35px;
-  aspect-ratio: 1 / 1;
-  padding: 4px 6px;
-}
       
-      /* Media Queries */
+      /* -------------------------------
+         Posizionamento dei bottoni in alto e in basso
+      ------------------------------- */
+      .top-buttons {
+        pointer-events: none;
+        position: absolute;
+        top: 1%;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 5%;
+        z-index: 10;
+      }
+      .top-buttons button {
+        pointer-events: auto;
+        position: static;
+        width: 30%;
+        max-width: 35px;
+        aspect-ratio: 1 / 1;
+        padding: 4px 6px;
+      }
+      .bottom-buttons {
+        position: absolute;
+        bottom: 1.15%;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        align-items: center;
+        z-index: 10;
+      }
+      .bottom-buttons button {
+        position: static;
+        width: 30%;
+        max-width: 35px;
+        aspect-ratio: 1 / 1;
+        padding: 4px 6px;
+      }
+
+      /* -------------------------------
+         Media Queries per layout responsive
+      ------------------------------- */
       @media (min-width: 600px) {
         .container {
           max-width: 900px; /* Aumentato da 600px a 900px */
@@ -519,9 +521,9 @@ pointer-events: auto;
         }
       }
       
-      /* =======================
-         IMMAGINE LOGO IN BASSO
-         ======================= */
+      /* -------------------------------
+         Logo in basso
+      ------------------------------- */
       .bottom-space {
         width: 100%;
         height: 80px;
@@ -529,8 +531,6 @@ pointer-events: auto;
         background-size: contain;
         flex-shrink: 0;
       }
-      
-      /* Se l'altezza dello schermo è sotto i 700px, nascondi la .bottom-space */
       @media (max-height: 700px) {
         .bottom-space {
           display: none;
@@ -539,37 +539,39 @@ pointer-events: auto;
     </style>
   </head>
   <body>
-    <!-- Calibrazione -->
+    <!-- Elemento per la calibrazione (misurazione in pollici) -->
     <div id="calibrationTest" style="width:1in; position:absolute; left:-1000px; top:-1000px;"></div>
     
-    <!-- Canvas NEVE a pagina intera -->
+    <!-- Canvas per l'effetto neve (a pagina intera) -->
     <canvas id="snowCanvas" class="hidden"></canvas>
     
+    <!-- Container principale del gioco -->
     <div class="container">
       <canvas id="canvas"></canvas>
-      <!-- Bottoni di controllo -->
+      <!-- Bottone "Same Run" (nascosto, usato in modalità World Cup) -->
       <button id="sameTrack" title="Same Run" hidden>🔁</button>
-   
-<!-- Contenitore per i bottoni in alto -->
-<div class="top-buttons">
-  <button id="quit" title="Close">
-    <img src="close.png" alt="Close" style="width:19px; height:19px;" />
-  </button>
-  <button id="chronoButton" title="Chrono">
-    <img src="stopwatch.png" alt="Chrono" style="width:19px; height:19px;" />
-  </button>
-</div>
-<!-- Contenitore per i bottoni in basso -->
-<div class="bottom-buttons">
-  <button id="replayButton" title="Replay">
-    <img src="replay.png" alt="Replay" style="width:19px; height:19px;" />
-  </button>
-  <button id="blindToggle" title="Toggle Blind Mode">
-    <img id="blindIcon" src="view.png" alt="View Mode" style="width:19px; height:19px;" />
-  </button>
-</div>
       
-      <!-- Overlay CHRONO (Top 5) -->
+      <!-- Bottoni in alto: Quit e Chrono -->
+      <div class="top-buttons">
+        <button id="quit" title="Close">
+          <img src="close.png" alt="Close" style="width:19px; height:19px;">
+        </button>
+        <button id="chronoButton" title="Chrono">
+          <img src="stopwatch.png" alt="Chrono" style="width:19px; height:19px;">
+        </button>
+      </div>
+      
+      <!-- Bottoni in basso: Replay e Blind Toggle -->
+      <div class="bottom-buttons">
+        <button id="replayButton" title="Replay">
+          <img src="replay.png" alt="Replay" style="width:19px; height:19px;">
+        </button>
+        <button id="blindToggle" title="Toggle Blind Mode">
+          <img id="blindIcon" src="view.png" alt="View Mode" style="width:19px; height:19px;">
+        </button>
+      </div>
+      
+      <!-- Overlay CHRONO (Top 5 e Points Standings) -->
       <div id="chronoOverlay" class="overlay hidden">
         <div class="overlay-content">
           <button id="closeOverlay">X</button>
@@ -579,7 +581,7 @@ pointer-events: auto;
               <ol id="leaderboardList"></ol>
             </div>
           </div>
-          <!-- Sezione Classifica Punti -->
+          <!-- Sezione per la classifica punti -->
           <div class="leaderboard-container">
             <div class="leaderboard">
               <h2>Points Standings</h2>
@@ -602,37 +604,40 @@ pointer-events: auto;
       </div>
     </div>
     
-    <!-- UNICA RIGA PER TUTTI I MESSAGGI -->
+    <!-- Contenitore dei messaggi -->
     <div class="info-container">
       <p id="infoLine"></p>
     </div>
     
-    <!-- OVERLAY INTRO E SLIDES -->
+    <!-- Overlay INTRO / SLIDES -->
     <div id="slidesOverlay" class="overlay hidden">
       <div id="slidesContent" class="overlay-content intro-overlay">
         <button id="closeIntroOverlay" class="close-button">X</button>
-        <!-- Il resto del contenuto introduttivo -->
+        <!-- Il contenuto introduttivo verrà inserito dinamicamente -->
       </div>
     </div>
     
-    <!-- OVERLAY ANNUNCI E CLASSIFICHE -->
+    <!-- Overlay per annunci e classifiche (championship) -->
     <div id="champOverlay" class="overlay hidden">
       <div id="champContent" class="overlay-content"></div>
     </div>
     
+    <!-- =====================================================
+         SCRIPT: VARIABILI, FUNZIONI E GESTIONE EVENTI
+         ===================================================== -->
     <script>
       /* ==============================================
-         VARIABILI GLOBALI
+         VARIABILI GLOBALI E IMPOSTAZIONI
       ============================================== */
       const PATH_LENGTH_SCALING = 500;
       const PENALTY_WEIGHT = 0.5;
-      const BORDER_THRESHOLD = 5; // Considera "al bordo" se la traiettoria sta entro 5px dal limite del canvas.
+      const BORDER_THRESHOLD = 5; // Considera "al bordo" se la traiettoria sta entro 5px dal bordo
       const MIN_VERTICAL_GAP = 30; // Distanza minima in pixel tra bandiere
-      
+
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
-      
-      // === Unificazione messaggi in un solo <p> ===
+
+      // Unifica tutti i messaggi in un solo elemento <p>
       const infoLine = document.getElementById("infoLine");
       let mainLabel = "";
       function setMainLabel(label) {
@@ -665,8 +670,8 @@ pointer-events: auto;
           setMainLabel(oldLabel);
         }, duration);
       }
-      // === Fine unificazione ===
-      
+
+      // Bottoni di controllo e overlay
       const sameTrackButton = document.getElementById("sameTrack");
       const replayButton = document.getElementById("replayButton");
       const chronoButton = document.getElementById("chronoButton");
@@ -676,7 +681,7 @@ pointer-events: auto;
       const slidesContent = document.getElementById("slidesContent");
       const champOverlay = document.getElementById("champOverlay");
       const champContent = document.getElementById("champContent");
-      
+
       // Variabili di gioco e stato
       let treeHits = {};
       let bestTimes = [];
@@ -704,31 +709,31 @@ pointer-events: auto;
       let showSnow = false;
       let globalWind = Math.random() * 1 - 0.5;
       let replaySnowState = false;
-      // Variabili per il long press e per il touch
+      // Variabili per gestione touch/long press
       let longPressTimer = null;
       const LONG_PRESS_DURATION = 700; // 700 ms
-      const LONG_PRESS_MOVE_THRESHOLD = 10; // Pixels
+      const LONG_PRESS_MOVE_THRESHOLD = 10; // in pixel
       let touchStartPos = { x: 0, y: 0 };
       let touchMoved = false;
       let expectedGate = 1;
-      // Impostazione di partenza/arrivo
+      // Impostazioni di partenza e arrivo
       let startPoint = { x: 150, y: 30 };
       let finishRect = { x: 130, y: 490, width: 40, height: 10 };
       let lastSnowActive = false;
       let outPenaltyCount = 0;
       let isOut = false;
-      // === Variabili per l'editor ===
+      // Variabili per modalità editor
       let interactionInProgress = false;
       let editingMode = false;
       let draggedElement = null;
       let isDragging = false;
       let isLongPressActive = false;
       let pulseTime = 0;
-      const PULSE_SPEED = 0.05; // Più è alto, più veloce oscilla
-      
-      /* =======================================
-         Funzione di interpolazione per il bordo
-      ======================================= */
+      const PULSE_SPEED = 0.05; // Velocità oscillazione
+
+      /* ==============================================
+         FUNZIONE DI INTERPOLAZIONE PER IL BORDO
+      ============================================== */
       function checkInterpolationForBorder(p1, p2) {
         const stepLength = 2;
         const dx = p2.x - p1.x;
@@ -745,10 +750,10 @@ pointer-events: auto;
         }
         return false;
       }
-      
-      /* =======================================
-         Resize Canvas Responsivo
-      ======================================= */
+
+      /* ==============================================
+         RESIZE DEL CANVAS (RESPONSIVO)
+      ============================================== */
       function resizeCanvas() {
         const container = document.querySelector(".container");
         canvas.width = container.clientWidth;
@@ -761,25 +766,25 @@ pointer-events: auto;
           height: 10
         };
       }
-      
-      /* =======================================
-         Clear Canvas
-      ======================================= */
+
+      /* ==============================================
+         CLEAR DEL CANVAS
+      ============================================== */
       function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
-      
-      /* =======================================
-         Calibrazione
-      ======================================= */
+
+      /* ==============================================
+         Calibrazione (misura in pollici)
+      ============================================== */
       window.addEventListener("load", () => {
         const cal = document.getElementById("calibrationTest");
         window.conversionFactor = cal.offsetWidth / 96;
       });
-      
-      /* =======================================
-         Impostazione delle icone e risorse
-      ======================================= */
+
+      /* ==============================================
+         Impostazione delle risorse (icone, immagini)
+      ============================================== */
       const gateIcons = {
         red: new Image(),
         blue: new Image()
@@ -799,10 +804,10 @@ pointer-events: auto;
       treeImg.onerror = () => {
         console.error("Errore nel caricamento di tree.svg");
       };
-      
-      /* =======================================
-         Funzioni Meteo
-      ======================================= */
+
+      /* ==============================================
+         FUNZIONI METEO
+      ============================================== */
       function chooseWeatherState(prevState) {
         const r = Math.random() * 100;
         switch (prevState) {
@@ -843,10 +848,10 @@ pointer-events: auto;
         weatherState = state;
         return snowIntensity > 0;
       }
-      
-      /* =======================================
-         Sistema neve: inizializza e aggiorna le particelle
-      ======================================= */
+
+      /* ==============================================
+         GESTIONE DELLA NEVE
+      ============================================== */
       const snowCanvasElem = document.getElementById("snowCanvas");
       const snowCtx = snowCanvasElem.getContext("2d");
       let snowflakes = [];
@@ -881,10 +886,10 @@ pointer-events: auto;
         });
         requestAnimationFrame(updateSnow);
       }
-      
-      /* =======================================
-         Generazione della Pista
-      ======================================= */
+
+      /* ==============================================
+         GENERAZIONE DELLA PISTA
+      ============================================== */
       function createTrackForRace(rn) {
         let gc = 8;
         if (rn === 2) gc = 10;
@@ -893,45 +898,44 @@ pointer-events: auto;
         const t = generateTrees(g);
         return { gates: g, trees: t };
       }
- function generateGates(count) {
-  const startWithRed = Math.random() < 0.5;
-  let isRed = startWithRed;
-  let arr = [];
-  for (let i = 0; i < count; i++) {
-    const dir = isRed ? 1 : -1;
-    const x =
-      isRed
-        ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
-        : Math.random() * (canvas.width / 2 - 35) + 35;
-    // Qui la posizione y è calcolata in modo diverso rispetto alla versione World Cup
-    const y = 60 + i * ((canvas.height - 120) / count);
-    const color = isRed ? "red" : "blue";
-    arr.push({
-      x: x,
-      y: y,
-      color: color,
-      number: i + 1, // <-- Qui assegni il numero del gate (1, 2, 3, …)
-      line: {
-        x1: x,
-        y1: y,
-        x2: x + dir * 200, // NOTA: qui il valore 200 è fisso nella versione World Cup
-        y2: y
+      function generateGates(count) {
+        const startWithRed = Math.random() < 0.5;
+        let isRed = startWithRed;
+        let arr = [];
+        for (let i = 0; i < count; i++) {
+          const dir = isRed ? 1 : -1;
+          const x =
+            isRed
+              ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
+              : Math.random() * (canvas.width / 2 - 35) + 35;
+          // La posizione y è calcolata in modo differente per la World Cup
+          const y = 60 + i * ((canvas.height - 120) / count);
+          const color = isRed ? "red" : "blue";
+          arr.push({
+            x: x,
+            y: y,
+            color: color,
+            number: i + 1, // Numero del gate
+            line: {
+              x1: x,
+              y1: y,
+              x2: x + dir * 200, // Valore fisso nella versione World Cup
+              y2: y
+            }
+          });
+          isRed = !isRed;
+        }
+        return arr;
       }
-    });
-    isRed = !isRed;
-  }
-  return arr;
-}
-
       function generateTrees(gArr) {
         const treeCount = Math.floor(Math.random() * 3) + 6;
         let arr = [];
         const margin = 15;
         const minGate = 50,
-          minTree = 30,
-          minFinish = 50,
-          minStart = 40,
-          minTop = 60;
+              minTree = 30,
+              minFinish = 50,
+              minStart = 40,
+              minTop = 60;
         while (arr.length < treeCount) {
           const tx = margin + Math.random() * (canvas.width - 2 * margin);
           const ty = minTop + Math.random() * (canvas.height - minTop - margin);
@@ -945,10 +949,10 @@ pointer-events: auto;
         }
         return arr;
       }
-      
-      /* =======================================
-         Disegno della Pista e degli Elementi
-      ======================================= */
+
+      /* ==============================================
+         DISEGNO DELLA PISTA E DEGLI ELEMENTI
+      ============================================== */
       function drawTrack(track) {
         clearCanvas();
         gates = track.gates;
@@ -983,24 +987,20 @@ pointer-events: auto;
       }
       function drawGates(gArr) {
         gArr.forEach((g) => {
-          // [OPZIONALE] Alone respirante SOLO in editingMode
+          // Se in modalità editor, disegna anche un alone pulsante (opzionale)
           if (editingMode) {
             ctx.save();
-            // Raggio base: 14 px (puoi variare)
             const baseRadius = 14;
-            // La sinusoide va da -1 a +1, qui la moltiplichiamo per 2 (raggio +/-2)
             const pulse = Math.sin(pulseTime) * 2;
             const radius = baseRadius + pulse;
-      
-            ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; // giallo semitrasparente
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.4)";
             ctx.lineWidth = 6;
             ctx.beginPath();
             ctx.arc(g.x, g.y, radius, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.restore();
           }
-      
-          // Ora disegna l’icona del gate
+          // Disegna l'icona del gate
           const icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
           const iconWidth = (16 / 300) * canvas.width;
           const iconHeight = (16 / 520) * canvas.height;
@@ -1008,10 +1008,9 @@ pointer-events: auto;
         });
       }
       function drawTrees(tArr) {
-        if (!treeImg.complete) return; // Immagine non ancora caricata
-      
+        if (!treeImg.complete) return; // Se l'immagine non è ancora caricata, esci
         tArr.forEach((t) => {
-          // Se siamo in editing, disegna l’alone “respirante”
+          // Se in modalità editor, disegna anche un alone pulsante intorno all'albero
           if (editingMode) {
             ctx.save();
             const baseRadius = 14;
@@ -1020,41 +1019,33 @@ pointer-events: auto;
             ctx.strokeStyle = "rgba(255, 255, 0, 0.6)";
             ctx.lineWidth = 6;
             ctx.beginPath();
-      
             const treeWidth = (12 / 300) * canvas.width;
             const treeHeight = (20 / 520) * canvas.height;
-      
             ctx.arc(t.x, t.y - treeHeight / 2, radius, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.restore();
           }
-      
           const treeWidth = (12 / 300) * canvas.width;
           const treeHeight = (20 / 520) * canvas.height;
-          ctx.drawImage(
-            treeImg,
-            t.x - treeWidth / 2,
-            t.y - treeHeight,
-            treeWidth,
-            treeHeight
-          );
+          ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
         });
       }
-      
+
+      /* ==============================================
+         Animazione in Modalità Editor (pulsazione)
+      ============================================== */
       function animate() {
         pulseTime += PULSE_SPEED;
-      
         if (editingMode && currentTrack) {
           clearCanvas();
           drawTrack(currentTrack);
         }
-      
         requestAnimationFrame(animate);
       }
-      
-      /* =======================================
-         Eventi Mouse / Touch (Unificati)
-      ======================================= */
+
+      /* ==============================================
+         GESTIONE EVENTI MOUSE / TOUCH (GAME e Editor)
+      ============================================== */
       function getMouseCoords(e) {
         const rect = canvas.getBoundingClientRect();
         const cx = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1068,6 +1059,9 @@ pointer-events: auto;
         return Math.hypot(x - startPoint.x, y - startPoint.y) <= (20 / 520) * canvas.height;
       }
       
+      /* -------------------------------
+         Gestione degli eventi in modalità GAME
+      ------------------------------- */
       function handleMouseDownGame(e) {
         const { x, y } = getMouseCoords(e);
         if (!isNearStartPoint(x, y)) {
@@ -1101,8 +1095,8 @@ pointer-events: auto;
         pointsPath = [];
         startTime = performance.now();
         didFinishOrFailThisRun = false;
- // --- NUOVA LOGICA ---
-  expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
+        // --- NUOVA LOGICA: Dopo lo start, il prossimo gate atteso è il 1.
+        expectedGate = 1;
         ctx.beginPath();
         pointsPath.push({ x, y, t: 0 });
         ctx.moveTo(x, y);
@@ -1122,12 +1116,10 @@ pointer-events: auto;
         }
         const now = performance.now() - startTime;
         pointsPath.push({ x, y, t: now });
-        if (!isBlind) {
-          ctx.lineTo(x, y);
-          ctx.strokeStyle = "#a4b8eb";
-          ctx.lineWidth = (2 / 520) * canvas.height;
-          ctx.stroke();
-        }
+  ctx.lineTo(x, y);
+ctx.strokeStyle = "#a4b8eb";
+ctx.lineWidth = (2 / 520) * canvas.height;
+ctx.stroke();
         checkIntersections();
       }
       function handleMouseUpGame(e) {
@@ -1154,7 +1146,7 @@ pointer-events: auto;
         pointsPath.push({ x, y, t: 0 });
         ctx.moveTo(x, y);
         didFinishOrFailThisRun = false;
-expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
+        expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
       }
       function handleTouchMoveGame(e) {
         e.preventDefault();
@@ -1172,12 +1164,10 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
         }
         const now = performance.now() - startTime;
         pointsPath.push({ x, y, t: now });
-        if (!isBlind) {
-          ctx.lineTo(x, y);
-          ctx.strokeStyle = "#a4b8eb";
-          ctx.lineWidth = (2 / 520) * canvas.height;
-          ctx.stroke();
-        }
+   ctx.lineTo(x, y);
+ctx.strokeStyle = "#a4b8eb";
+ctx.lineWidth = (2 / 520) * canvas.height;
+ctx.stroke();
         checkIntersections();
       }
       function handleTouchEndGame(e) {
@@ -1188,8 +1178,11 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           failAttempt("Run interrupted!");
         }
       }
-      
-      // Dispatcher per Mouse/Touch in Editor o Game
+
+      /* -------------------------------
+         Dispatcher: se editingMode è attivo chiama le funzioni per l'editor,
+         altrimenti quelle per il gioco.
+      ------------------------------- */
       function handleMouseDown(e) {
         if (editingMode) {
           handleMouseDownEditor(e);
@@ -1241,15 +1234,14 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           handleTouchEndGame(e);
         }
       }
-      
-      // IMPORTANTE: aggiungiamo il listener per "touchcancel"
+      // Listener per "touchcancel"
       canvas.addEventListener("touchcancel", handleTouchEnd, false);
       
-      // Le funzioni Editor (handleMouseDownEditor, handleMouseMoveEditor, handleMouseUpEditor,
-      // handleTouchStartEditor, handleTouchMoveEditor, handleTouchEndEditor, findNearestGate,
-      // findNearestTree, addTree, checkEditorConstraints, isValidGatePosition, isValidTreePosition,
-      // getVerticalLimits) sono incluse qui (rimangono invariate rispetto alla versione originale)
-      
+      /* ==============================================
+         FUNZIONI PER LA MODALITÀ EDITOR
+         (handleMouseDownEditor, handleMouseMoveEditor, etc.)
+         Rimangono invariate rispetto all'originale.
+      ============================================== */
       function handleMouseDownEditor(e) {
         const { x, y } = getMouseCoords(e);
         longPressTimer = setTimeout(() => {
@@ -1314,7 +1306,6 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           const { x, y } = getMouseCoords(e);
           const dragX = x + draggedElement.offsetX;
           const dragY = y + draggedElement.offsetY;
-      
           if (draggedElement.type === "gate") {
             const gate = gates[draggedElement.index];
             const { minY, maxY } = getVerticalLimits(draggedElement.index);
@@ -1346,7 +1337,6 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           interactionInProgress = false;
           return;
         }
-      
         checkEditorConstraints(draggedElement);
         draggedElement = null;
         drawTrack(currentTrack);
@@ -1356,10 +1346,8 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
       function handleTouchStartEditor(e) {
         e.preventDefault();
         const { x, y } = getMouseCoords(e);
-      
         isDragging = false;
         isLongPressActive = false;
-      
         longPressTimer = setTimeout(() => {
           if (!touchMoved) {
             isLongPressActive = true;
@@ -1367,10 +1355,8 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           }
           longPressTimer = null;
         }, LONG_PRESS_DURATION);
-      
         touchStartPos = { x, y };
         touchMoved = false;
-      
         let foundG = findNearestGate(x, y, 20);
         if (foundG) {
           let g = gates[foundG.index];
@@ -1408,12 +1394,10 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
       
       function handleTouchMoveEditor(e) {
         e.preventDefault();
-      
         if (!draggedElement) {
           const { x, y } = getMouseCoords(e);
           const dx = Math.abs(x - touchStartPos.x);
           const dy = Math.abs(y - touchStartPos.y);
-      
           if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
             isDragging = true;
             touchMoved = true;
@@ -1424,7 +1408,6 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           const { x, y } = getMouseCoords(e);
           const dragX = x + draggedElement.offsetX;
           const dragY = y + draggedElement.offsetY;
-      
           if (draggedElement.type === "gate") {
             const gate = gates[draggedElement.index];
             const { minY, maxY } = getVerticalLimits(draggedElement.index);
@@ -1449,12 +1432,10 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
       
       function handleTouchEndEditor(e) {
         e.preventDefault();
-      
         if (longPressTimer) {
           clearTimeout(longPressTimer);
           longPressTimer = null;
         }
-      
         if (isDragging) {
           isDragging = false;
           checkEditorConstraints(draggedElement);
@@ -1462,12 +1443,10 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
           drawTrack(currentTrack);
           return;
         }
-      
         if (isLongPressActive) {
           isLongPressActive = false;
           return;
         }
-      
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTap;
         if (tapLength > 0 && tapLength < 300) {
@@ -1488,32 +1467,30 @@ expectedGate = 1; // Dopo lo start, il prossimo gate atteso è il 1.
         showTemporaryMessage("New tree added!", 1500);
       }
       
-if (!document._eventsAttached) {
-  canvas.addEventListener("mousedown", handleMouseDown);
-  canvas.addEventListener("mousemove", handleMouseMove);
-  document.addEventListener("mouseup", handleMouseUp);
-
-  canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
-  canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
-  canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
-  canvas.addEventListener("touchcancel", handleTouchEnd, { passive: false });
-// Aggiungiamo un listener al document per catturare il "touchend" anche fuori dal canvas
-document.addEventListener("touchend", (e) => {
-  // Se non sei in modalità editor e un disegno era in corso, forza la fine della run
-  if (!editingMode && drawing) {
-    handleTouchEndGame(e);
-  }
-}, { passive: false });
-
-  let closeIntroOverlay = document.getElementById("closeIntroOverlay");
-  if (closeIntroOverlay) {
-    closeIntroOverlay.addEventListener("click", function() {
-      window.location.href = "index.html";
-    });
-  }
-  document._eventsAttached = true;
-}
-
+      if (!document._eventsAttached) {
+        canvas.addEventListener("mousedown", handleMouseDown);
+        canvas.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+      
+        canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+        canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+        canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+        canvas.addEventListener("touchcancel", handleTouchEnd, { passive: false });
+        // Listener per catturare "touchend" anche fuori dal canvas
+        document.addEventListener("touchend", (e) => {
+          if (!editingMode && drawing) {
+            handleTouchEndGame(e);
+          }
+        }, { passive: false });
+      
+        let closeIntroOverlay = document.getElementById("closeIntroOverlay");
+        if (closeIntroOverlay) {
+          closeIntroOverlay.addEventListener("click", function() {
+            window.location.href = "index.html";
+          });
+        }
+        document._eventsAttached = true;
+      }
       
       function findNearestGate(x, y, maxDist) {
         let foundIndex = null;
@@ -1635,16 +1612,15 @@ document.addEventListener("touchend", (e) => {
         }
         return { minY, maxY };
       }
-      
-      /* =======================================
-         Gestione delle Collisioni
-      ======================================= */
+
+      /* ==============================================
+         GESTIONE DELLE COLLISIONI E DEL FINISH
+      ============================================== */
       function checkIntersections() {
         for (let i = 1; i < pointsPath.length; i++) {
           const p1 = pointsPath[i - 1],
                 p2 = pointsPath[i];
-      
-          // Collisione con alberi (hardMode)
+          // Collisione con alberi in modalità hardMode
           if (hardMode) {
             for (const tree of trees) {
               const steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
@@ -1665,32 +1641,27 @@ document.addEventListener("touchend", (e) => {
               }
             }
           }
-      
-    // --- NUOVA LOGICA PER I GATE ---
-for (const gate of gates) {
-  if (
-    linesIntersect(
-      p1.x, p1.y, p2.x, p2.y,
-      gate.line.x1, gate.line.y1, gate.line.x2, gate.line.y2
-    )
-  ) {
-    // Se il gate intersecato ha un numero inferiore a quello atteso, lo ignoro.
-    if (gate.number < expectedGate) {
-      continue;
-    }
-    // Se il numero del gate corrisponde a quello atteso, è corretto.
-    if (gate.number === expectedGate) {
-      expectedGate++;  // Ora il prossimo gate atteso sarà incrementato.
-    } else {
-      // Se il numero è maggiore, vuol dire che si è saltato un gate.
-      didFinishOrFailThisRun = true;
-      failAttempt("You missed a gate!");
-      return;
-    }
-  }
-}
- 
-          // Controllo per il "finish"
+          // --- NUOVA LOGICA PER I GATE ---
+          for (const gate of gates) {
+            if (
+              linesIntersect(
+                p1.x, p1.y, p2.x, p2.y,
+                gate.line.x1, gate.line.y1, gate.line.x2, gate.line.y2
+              )
+            ) {
+              if (gate.number < expectedGate) {
+                continue;
+              }
+              if (gate.number === expectedGate) {
+                expectedGate++;
+              } else {
+                didFinishOrFailThisRun = true;
+                failAttempt("You missed a gate!");
+                return;
+              }
+            }
+          }
+          // Controllo per il finish
           if (
             p1.y < finishRect.y &&
             p2.y >= finishRect.y &&
@@ -1699,10 +1670,9 @@ for (const gate of gates) {
             failAttempt("Run interrupted!");
             return;
           }
-      
           if (isSegmentInFinishArea(p1, p2, finishRect)) {
-           if (expectedGate === gates.length + 1) {
-    finishRun();
+            if (expectedGate === gates.length + 1) {
+              finishRun();
             } else {
               failAttempt("You missed a gate!");
             }
@@ -1738,10 +1708,10 @@ for (const gate of gates) {
           y <= rect.y + rect.height + minD
         );
       }
-      
-      /* =======================================
-         Gestione dei Tentativi
-      ======================================= */
+
+      /* ==============================================
+         GESTIONE DEI TENTATIVI / FINE RUN
+      ============================================== */
       function failAttempt(msg) {
         drawing = false;
         didFinishOrFailThisRun = true;
@@ -1749,17 +1719,18 @@ for (const gate of gates) {
           lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
           window.lastFinalTime = null;
         }
-        if (isBlind) {
-          setMainLabel("Blind failed! Penalty!");
-          for (let player in championScores) {
-            if (player !== participants[currentIndex]) {
-              championScores[player] += 3;
-            }
-          }
-          updatePointsLeaderboard();
-        } else {
-          setMainLabel(msg);
-        }
+       if (blindState === 1 || blindState === 2) {
+  let penalty = (blindState === 1) ? 3 : 5;
+  setMainLabel("Blind failed! Opponents get +" + penalty + " points!");
+  for (let player in championScores) {
+    if (player !== participants[currentIndex]) {
+      championScores[player] += penalty;
+    }
+  }
+  updatePointsLeaderboard();
+} else {
+  setMainLabel(msg);
+}
         attemptCount++;
         setTimeout(() => nextParticipant(), 2000);
       }
@@ -1791,7 +1762,7 @@ for (const gate of gates) {
         }
         attemptCount++;
         resetBlindMode();
-        setTimeout(() => nextParticipant(), 2500);
+        setTimeout(() => nextParticipant(), 2000);
       }
       function calculateDistance(arr) {
         let tot = 0;
@@ -1816,13 +1787,13 @@ for (const gate of gates) {
         const nameValue = participants[currentIndex];
         const replayData = JSON.parse(JSON.stringify(pointsPath));
       
-        const newResult = {
-          name: nameValue,
-          time: t,
-          replay: replayData,
-          blind: isBlind,
-          correctTime: t !== undefined ? t : null
-        };
+const newResult = {
+  name: nameValue,
+  time: t,
+  replay: replayData,
+  blind: blindState,  // Salva lo stato corrente: 0, 1 o 2
+  correctTime: t !== undefined ? t : null
+};
       
         bestTimes.push(newResult);
         bestTimes.sort((a, b) => a.time - b.time);
@@ -1852,7 +1823,6 @@ for (const gate of gates) {
             li.style.fontWeight = "bold";
             li.style.cursor = "pointer";
             li.title = "Click to watch the best replay";
-      
             li.addEventListener("click", () => {
               chronoOverlay.classList.add("hidden");
               replayTrajectory(entry.replay, entry.correctTime, entry.blind);
@@ -1863,7 +1833,6 @@ for (const gate of gates) {
           lb.appendChild(li);
         });
       }
-      
       function updatePointsLeaderboard() {
         const tableBody = document.getElementById("pointsLeaderboardBody");
         tableBody.innerHTML = "";
@@ -1881,9 +1850,10 @@ for (const gate of gates) {
           tableBody.appendChild(row);
         });
       }
-      /* =======================================
+      
+      /* ==============================================
          REPLAY della Traiettoria
-      ======================================= */
+      ============================================== */
       let lastCompleteRun = null;
       replayButton.addEventListener("click", () => {
         if (lastCompleteRun && lastCompleteRun.length >= 2) {
@@ -1892,27 +1862,27 @@ for (const gate of gates) {
           showTemporaryMessage("No run to replay!", 2000);
         }
       });
-      function replayTrajectory(customPoints, correctTime, wasBlind){
+      function replayTrajectory(customPoints, correctTime, wasBlind) {
         const savedMainLabel = mainLabel;
         if (!customPoints || customPoints.length < 2) {
           showTemporaryMessage("No run to replay!", 1000);
           return;
         }
-      
         const container = document.querySelector('.container');
         const originalBackground = container.style.background;
-      
         container.style.background = "url('sfondoreplay.png') no-repeat center center";
         container.style.backgroundSize = "cover";
-      
         const chronoIcon = '⏰';
-      
-        if (correctTime === null || window.lastFinalTime === null) {
-          setMainLabel(`${chronoIcon} No time to show`);
-        } else {
-          setMainLabel(`${chronoIcon} ${formatTime(correctTime !== undefined ? correctTime : window.lastFinalTime)}`);
-        }
-      
+  if (correctTime !== undefined && correctTime !== null) {
+  // 1) Ho un tempo passato come argomento: uso subito quello
+  setMainLabel(`${chronoIcon} ${formatTime(correctTime)}`);
+} else if (window.lastFinalTime !== undefined && window.lastFinalTime !== null) {
+  // 2) Se non avevo correctTime, ma ho lastFinalTime
+  setMainLabel(`${chronoIcon} ${formatTime(window.lastFinalTime)}`);
+} else {
+  // 3) Nessuno dei due è valido: No time da mostrare
+  setMainLabel(`${chronoIcon} No time to show`);
+}
         const preReplaySnowState = showSnow;
         if (lastSnowActive) {
           showSnow = true;
@@ -1924,20 +1894,17 @@ for (const gate of gates) {
         } else {
           snowCanvasElem.classList.add("hidden");
         }
-      
         clearCanvas();
         drawStartPoint();
         drawFinishArea();
         drawGates(gates);
         drawTrees(trees);
-      
         let i = 0;
         function step() {
           if (i >= customPoints.length - 1) {
             setTimeout(() => {
               clearCanvas();
               if (currentTrack) drawTrack(currentTrack);
-      
               if (preReplaySnowState) {
                 showSnow = true;
                 snowCanvasElem.classList.remove("hidden");
@@ -1949,54 +1916,57 @@ for (const gate of gates) {
                 showSnow = false;
                 snowCanvasElem.classList.add("hidden");
               }
-      
               container.style.background = originalBackground;
               setMainLabel(savedMainLabel);
             }, 500);
             return;
           }
-      
           ctx.beginPath();
           ctx.moveTo(customPoints[i].x, customPoints[i].y);
           ctx.lineTo(customPoints[i + 1].x, customPoints[i + 1].y);
           ctx.strokeStyle = wasBlind ? "#ff4d4d" : "#a4b8eb";
           ctx.lineWidth = (2 / 520) * canvas.height;
           ctx.stroke();
-      
           const dt = customPoints[i + 1].t - customPoints[i].t;
           i++;
           setTimeout(step, dt);
         }
-      
         setTimeout(step, 0);
       }
-      
-      /* =======================================
-         Blind Mode
-      ======================================= */
+
+      /* ==============================================
+         BLIND MODE
+      ============================================== */
       const blindToggleButton = document.getElementById("blindToggle");
-      let isBlind = false;
-      blindToggleButton.addEventListener("click", () => {
-        isBlind = !isBlind;
-        const blindIcon = document.getElementById("blindIcon");
-        if (isBlind) {
-          blindIcon.src = "hide.png";
-          blindIcon.alt = "Hide Mode";
-        } else {
-          blindIcon.src = "view.png";
-          blindIcon.alt = "View Mode";
-        }
-      });
-      function resetBlindMode() {
-        isBlind = false;
-        const blindIcon = document.getElementById("blindIcon");
-        blindIcon.src = "view.png";
-        blindIcon.alt = "View Mode";
-      }
-      
-      /* =======================================
-         Gestione Discesa, Manche e Gara
-      ======================================= */
+      // blindState: 0 = View Mode, 1 = Blind Mode (±3 pts), 2 = Blind2 Mode (±5 pts)
+      let blindState = 0;
+
+const blindIcon = document.getElementById("blindIcon");
+
+blindToggleButton.addEventListener("click", () => {
+  if (blindState === 0) {
+    blindState = 1;
+    blindIcon.src = "hide.png";      // Inserisci qui l'icona per Blind Mode (±3 pts)
+    blindIcon.alt = "Blind Mode (+/-3 pts)";
+  } else if (blindState === 1) {
+    blindState = 2;
+    blindIcon.src = "hide2.png";     // Inserisci qui l'icona per Blind2 Mode (±5 pts)
+    blindIcon.alt = "Blind2 Mode (+/-5 pts)";
+  } else if (blindState === 2) {
+    blindState = 0;
+    blindIcon.src = "view.png";       // Icona per View Mode
+    blindIcon.alt = "View Mode";
+  }
+});
+    function resetBlindMode() {
+  blindState = 0;
+  blindIcon.src = "view.png";
+  blindIcon.alt = "View Mode";
+}
+
+      /* ==============================================
+         GESTIONE DELLA GARA: Tentativi, Cambio partecipante, ecc.
+      ============================================== */
       function nextParticipant() {
         resetBlindMode();
         if (attemptCount >= 3) {
@@ -2006,34 +1976,35 @@ for (const gate of gates) {
             if (runNumber === 1) {
               runNumber = 2;
               currentIndex = 0;
-       showPopup(
-  `
-    <div style="font-size: 20px; text-align: center;">
-      Starting the<br>
-      <b>2nd manche</b><br>
-      of <b>race #${raceNumber}!</b>
-    </div>
-  `,
-  () => {
-    resetTrack(currentTrack);
-    callParticipant();
-  }
-);
+              showPopup(
+                `
+                <div style="font-size: 20px; text-align: center;">
+                  Starting the<br>
+                  <b>2nd manche</b><br>
+                  of <b>race #${raceNumber}!</b>
+                </div>
+                `,
+                () => {
+                  resetTrack(currentTrack);
+                  callParticipant();
+                }
+              );
             } else {
               endRace();
             }
           } else {
             const nxt = participants[currentIndex];
-           showPopup(
-  `
-    <div style="font-size:20px; text-align:center;">
-      Now it's <b>${nxt}</b>'s turn!
-    </div>
-  `,
-  () => {
-    resetTrack(currentTrack);
-    callParticipant();
-            });
+            showPopup(
+              `
+              <div style="font-size:20px; text-align:center;">
+                Now it's <b>${nxt}</b>'s turn!
+              </div>
+              `,
+              () => {
+                resetTrack(currentTrack);
+                callParticipant();
+              }
+            );
           }
         } else {
           resetTrack(currentTrack);
@@ -2080,19 +2051,21 @@ for (const gate of gates) {
         clearCanvas();
         if (track) drawTrack(track);
       }
-      function endRace() {
-        const sorted = [...bestTimes].sort((a, b) => a.time - b.time);
-        for (let i = 0; i < 5; i++) {
-          if (i < sorted.length) {
-            const entry = sorted[i];
-            championScores[entry.name] += CHAMPION_POINTS[i];
-            if (entry.blind) {
-              championScores[entry.name] += 3;
-            }
-          }
-        }
-        showRaceResults();
+function endRace() {
+  const sorted = [...bestTimes].sort((a, b) => a.time - b.time);
+  for (let i = 0; i < 5; i++) {
+    if (i < sorted.length) {
+      const entry = sorted[i];
+      championScores[entry.name] += CHAMPION_POINTS[i];
+      // Se il run è stato fatto in Blind o Blind2 mode, assegna il bonus
+      if (entry.blind === 1 || entry.blind === 2) {
+        let bonus = (entry.blind === 1) ? 3 : 5;
+        championScores[entry.name] += bonus;
       }
+    }
+  }
+  showRaceResults();
+}
       function showRaceResults() {
         let sortedTimes = [...bestTimes].sort((a, b) => a.time - b.time);
         let html =
@@ -2191,9 +2164,10 @@ for (const gate of gates) {
         container.style.backgroundSize = "cover";
         resetTrack(currentTrack);
       }
-      /* =======================================
-         Popup generico
-      ======================================= */
+
+      /* ==============================================
+         POPUP GENERICO
+      ============================================== */
       function showPopup(message, onOk) {
         champContent.innerHTML = `
           <h2>Attention!</h2>
@@ -2213,72 +2187,75 @@ for (const gate of gates) {
           <h2>Attention!</h2>
           <p class="slide-content">${message}</p>
           <div class="popup-button-container" style="margin-top: 15px;">
-<button class="nav-button" id="popupConfirmButton" style="color: #007bff; font-weight: bold;">OK</button>
+            <button class="nav-button" id="popupConfirmButton" style="color: #007bff; font-weight: bold;">OK</button>
           </div>`;
-      
         champOverlay.classList.remove("hidden");
-      
         document.getElementById("popupConfirmButton").addEventListener("click", () => {
           champOverlay.classList.add("hidden");
           if (onConfirm) onConfirm();
         });
-      
         document.getElementById("closePopup").addEventListener("click", () => {
           champOverlay.classList.add("hidden");
           if (onCancel) onCancel();
         });
       }
-      
-      /* =======================================
-         SLIDES INTRO & GESTIONE PLAYER
-      ======================================= */
+
+      /* ==============================================
+         SLIDES INTRO & GESTIONE DEI PLAYER
+      ============================================== */
       slidesIntro = [
         {
           title: "World Cup Mode",
-        content: `
-        <p class="overlay-text">Enter the players!</p>
-        <div id="playersInputContainer"></div>
-        <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
-        <button id="removePlayerBtn">Remove Player</button>
-        `
-    },
-    {
-        title: "Race Format",
-        content: `
-        <p class="overlay-text">There will be <b>3 distinct races</b> <i>(Giant, Special, SuperG)</i>.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">❄ Each race has <b>2 runs</b> <i>(manches)</i>, and in each run every participant has <b>3 consecutive attempts.</b><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points <i><b>(9, 7, 5, 3, 1).</b></i></p>
-        `
-    },
-    {
-        title: "Editing the Track",
-        content: `
-        <p class="overlay-text">Before each of the three races, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">❄ With a <b>long press</b> (holding your finger still for one second), you can create <b>one new tree</b> at a time and then <b>move it freely</b>.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">❄ With a <b>double tap</b>, the track is <b>confirmed</b>, the race begins, and all runs and manches of the race will be held on the created track.<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text"><i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i></p>
-        `
-    },
-    {
-        title: "Blind Mode<br>& Penalties",
-        content: `
-        <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">
-            <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
-            If you activate <b>Blind Mode</b>, you must complete the run without seeing your trajectory.
-        <br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        <p class="overlay-text">If you achieve a Top 5 time in Blind Mode, you earn a <b>3-point bonus</b>, but if you fail, your opponents receive the <b>3-point bonus</b> instead!</p>
-        `
-    },
-    {
-        title: "Final Victory",
-        content: `
-        <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!<span style="display:block; border-top:1px solid red; margin:8px 0;"></span></p>
-       
-        <p class="overlay-text"><b>Enjoy the slope!</b></p>
-        `
-    }
+          content: `
+            <p class="overlay-text">Enter the players!</p>
+            <div id="playersInputContainer"></div>
+            <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
+            <button id="removePlayerBtn">Remove Player</button>
+          `
+        },
+        {
+          title: "Race Format",
+          content: `
+            <p class="overlay-text">There will be <b>3 distinct races</b> <i>(Giant, Special, SuperG)</i>.<br>
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text">❄ Each race has <b>2 Manches</b>, and in each manche every participant has <b>3 consecutive attempts</b> <i>(Runs)</i>.<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points:<br><i><b>(9, 7, 5, 3, 1).</b></i></p>
+          `
+        },
+        {
+          title: "Editing the Track",
+          content: `
+            <p class="overlay-text">Before each race, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text">❄ <b>Press and hold</b> anywhere on the track for <b>one second</b> to create a <b>new tree</b>, then move it freely.<br>
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text">❄ <b>Double-tap</b> the infoline to <b>confirm</b> the track and <b>start the race!</b><br>
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text"><i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i></p>
+          `
+        },
+        {
+          title: "Blind Mode<br>& Penalties",
+          content: `
+            <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br>
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+            <p class="overlay-text">
+              <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
+              If you activate <b>Blind Mode</b>, you must complete the run without seeing your trajectory.
+            <br>
+            <p class="overlay-text">If you achieve a Top 5 time in Blind Mode, you earn a <b>3-point bonus</b>, but if you fail, your opponents receive the <b>3-point bonus</b> instead!</p>
+          `
+        },
+        {
+          title: "Final Victory",
+          content: `
+            <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!
+            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span></p>
+            <p class="overlay-text"><b>Enjoy the slope!</b></p>
+          `
+        }
       ];
       let currentTutorialIndex = 0;
       let draftParticipants = [];
@@ -2297,7 +2274,6 @@ for (const gate of gates) {
               <button class="nav-button" id="btnNext">→</button>
             </div>
           </div>`;
-      
         const dotsC = slidesContent.querySelector(".tutorial-dots");
         slidesIntro.forEach((s, i) => {
           const d = document.createElement("div");
@@ -2336,7 +2312,6 @@ for (const gate of gates) {
         if (currentTutorialIndex === 0) {
           renderPlayersInput();
         }
-      
         let closeIntroOverlay = document.getElementById("closeIntroOverlay");
         if (closeIntroOverlay) {
           closeIntroOverlay.addEventListener("click", function() {
@@ -2344,7 +2319,6 @@ for (const gate of gates) {
           });
         }
       }
-      
       function renderPlayersInput() {
         const cont = slidesContent.querySelector("#playersInputContainer");
         if (!cont) return;
@@ -2423,10 +2397,10 @@ for (const gate of gates) {
         runNumber = 1;
         setupRace();
       }
-      
-      /* =======================================
-         Gestione Quit
-      ======================================= */
+
+      /* ==============================================
+         GESTIONE DEL QUIT
+      ============================================== */
       document.getElementById("quit").addEventListener("click", () => {
         showConfirmPopup("Are you sure you want to quit?", 
           () => {
@@ -2458,10 +2432,10 @@ for (const gate of gates) {
       document.addEventListener("DOMContentLoaded", () => {
         animate();
       });
-      
-      /* =======================================
-         Fine Script
-      ======================================= */
+
+      /* ==============================================
+         FINE SCRIPT
+      ============================================== */
     </script>
     <div class="bottom-space"></div>
   </body>
