@@ -8,6 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Ski-Zag!">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-orientation" content="portrait">
 
     <!-- Registrazione del Service Worker -->
     <script>
@@ -198,7 +199,7 @@
         50% { opacity: 0; }
       }
       .record {
-        animation: blink 0.5s ease-in-out 3;
+        animation: blink 0.5s ease-in-out 6;
       }
       @keyframes fadeIn {
         from { opacity: 0; }
@@ -298,7 +299,7 @@
         margin-top: 10px;
       }
       .leaderboard {
-        width: 80%;
+        width: 100%;
         margin: 0 auto;
       }
       .leaderboard h2 {
@@ -318,7 +319,9 @@
         padding: 5px 0;
         font-size: 1em;
       }
-
+#pointsLeaderboardBody tr:first-child {
+  font-weight: bold !important;
+}
       /* -------------------------------
          Slider / Tutorial
       ------------------------------- */
@@ -414,6 +417,9 @@
       .champ-table tr:last-child td {
         border-bottom: none;
       }
+#leaderboardList li {
+  text-align: left;
+}
       
       /* -------------------------------
          Input per i nomi dei giocatori
@@ -730,7 +736,8 @@
       let isLongPressActive = false;
       let pulseTime = 0;
       const PULSE_SPEED = 0.05; // Velocità oscillazione
-
+let autoPopupOpened = false;
+let lastRunHighlight = null;
       /* ==============================================
          FUNZIONE DI INTERPOLAZIONE PER IL BORDO
       ============================================== */
@@ -1734,36 +1741,59 @@ ctx.stroke();
         attemptCount++;
         setTimeout(() => nextParticipant(), 2000);
       }
-      function finishRun() {
-        drawing = false;
-        didFinishOrFailThisRun = true;
-        const endTime = performance.now();
-        const elapsedTime = endTime - startTime;
-        const distPx = calculateDistance(pointsPath);
-        const realLength = distPx * (window.conversionFactor || 1);
-        let baseTime = calculateFinalTime(elapsedTime, realLength);
-        let currentPlayer = participants[currentIndex];
-        let extraPenalty = 0;
-        if (treeHits[currentPlayer]) {
-          extraPenalty = 0.02 * Math.pow(2, treeHits[currentPlayer] - 1);
-        }
-        let outPenaltyTotal = outPenaltyCount * 0.1;
-        const finalTime = baseTime + extraPenalty + outPenaltyTotal;
-        window.lastFinalTime = finalTime;
-        lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
-        lastSnowActive = showSnow;
-        let penaltyText = outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : "";
-        setMainLabel(`⏰${formatTime(finalTime)}${penaltyText}`);
-      
-        let wasFirst = updateTimes(finalTime);
-        if (wasFirst) {
-          infoLine.classList.add("record");
-          setTimeout(() => infoLine.classList.remove("record"), 2000);
-        }
-        attemptCount++;
-        resetBlindMode();
-        setTimeout(() => nextParticipant(), 2000);
-      }
+function finishRun() {
+  drawing = false;
+  didFinishOrFailThisRun = true;
+  const endTime = performance.now();
+  const elapsedTime = endTime - startTime;
+  const distPx = calculateDistance(pointsPath);
+  const realLength = distPx * (window.conversionFactor || 1);
+  let baseTime = calculateFinalTime(elapsedTime, realLength);
+  let currentPlayer = participants[currentIndex];
+  let extraPenalty = 0;
+  if (treeHits[currentPlayer]) {
+    extraPenalty = 0.02 * Math.pow(2, treeHits[currentPlayer] - 1);
+  }
+  let outPenaltyTotal = outPenaltyCount * 0.1;
+  const finalTime = baseTime + extraPenalty + outPenaltyTotal;
+  window.lastFinalTime = finalTime;
+  lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
+  lastSnowActive = showSnow;
+  let penaltyText = outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : "";
+  setMainLabel(`⏰${formatTime(finalTime)}${penaltyText}`);
+
+  // Aggiorna l'array bestTimes con il nuovo risultato
+  let wasFirst = updateTimes(finalTime);
+  if (wasFirst) {
+    infoLine.classList.add("record");
+    setTimeout(() => infoLine.classList.remove("record"), 2000);
+  }
+
+  // Ora controlla se il nuovo tempo rientra nei Top 5
+  let newRunInTop5 = bestTimes.some(entry => entry.name === currentPlayer && entry.time === finalTime);
+
+  attemptCount++;
+  resetBlindMode();
+
+  if (newRunInTop5) {
+    // Salva i dati del tempo appena fatto per l'evidenziazione
+    lastRunHighlight = { name: currentPlayer, time: finalTime };
+    // Aggiorna la leaderboard e la classifica punti
+    updateLeaderboard();
+    updateProvisionalScores();
+    // Apri automaticamente il popup dopo 0.5 secondi
+    setTimeout(() => {
+      chronoOverlay.classList.remove("hidden");
+      autoPopupOpened = true; // Imposta il flag per indicare che il popup è stato aperto in automatico
+    }, 500);
+  } else {
+    // Altrimenti, prosegui normalmente passando al partecipante successivo dopo 2 secondi
+    setTimeout(() => nextParticipant(), 2000);
+  }
+}
+
+
+
       function calculateDistance(arr) {
         let tot = 0;
         for (let i = 1; i < arr.length; i++) {
@@ -1804,53 +1834,123 @@ const newResult = {
       }
       
       chronoButton.addEventListener("click", () => {
-        updateLeaderboard();
-        updatePointsLeaderboard();
-        chronoOverlay.classList.remove("hidden");
-      });
-      closeOverlay.addEventListener("click", () => {
+  updateLeaderboard();      // Aggiorna la lista dei Top 5
+  updateProvisionalScores(); // Calcola e mostra il punteggio cumulativo aggiornato
+  chronoOverlay.classList.remove("hidden");
+});
+closeOverlay.addEventListener("click", () => {
+  chronoOverlay.classList.add("hidden");
+  if (autoPopupOpened) {
+    nextParticipant();
+    autoPopupOpened = false; // Resetta il flag
+    lastRunHighlight = null; // Resetta anche l'evidenziazione
+  }
+});
+function updateLeaderboard() {
+  const lb = document.getElementById("leaderboardList");
+  lb.innerHTML = "";
+  bestTimes.forEach((entry, i) => {
+    const li = document.createElement("li");
+    let blindMark = "";
+    if (entry.blind === 1) {
+      blindMark = "(+3)";
+    } else if (entry.blind === 2) {
+      blindMark = "(+5)";
+    }
+    if (i === 0) {
+      li.innerHTML = `${entry.name} - ${formatTime(entry.time)}${blindMark} 
+        <img src="replay.png" alt="Replay" style="width:1.2em; height:1.2em; cursor:pointer; transform: translateY(0.2em);">`;
+      li.style.fontWeight = "bold";
+      li.style.cursor = "pointer";
+      li.title = "Click to watch the best replay";
+      li.addEventListener("click", () => {
         chronoOverlay.classList.add("hidden");
+        replayTrajectory(entry.replay, entry.correctTime, entry.blind);
       });
-      function updateLeaderboard() {
-        const lb = document.getElementById("leaderboardList");
-        lb.innerHTML = "";
-        bestTimes.forEach((entry, i) => {
-          const li = document.createElement("li");
-          const blindMark = entry.blind ? " (B)" : "";
-          if (i === 0) {
-            li.innerHTML = `${entry.name} - ${formatTime(entry.time)}${blindMark} 
-              <img src="replay.png" alt="Replay" style="width:1.2em; height:1.2em; cursor:pointer; transform: translateY(0.2em);">`;
-            li.style.fontWeight = "bold";
-            li.style.cursor = "pointer";
-            li.title = "Click to watch the best replay";
-            li.addEventListener("click", () => {
-              chronoOverlay.classList.add("hidden");
-              replayTrajectory(entry.replay, entry.correctTime, entry.blind);
-            });
-          } else {
-            li.textContent = `${entry.name} - ${formatTime(entry.time)}${blindMark}`;
-          }
-          lb.appendChild(li);
-        });
-      }
-      function updatePointsLeaderboard() {
-        const tableBody = document.getElementById("pointsLeaderboardBody");
-        tableBody.innerHTML = "";
-        const sortedPlayers = Object.keys(championScores).sort(
-          (a, b) => championScores[b] - championScores[a]
-        );
-        sortedPlayers.forEach((player) => {
-          const row = document.createElement("tr");
-          const nameCell = document.createElement("td");
-          const pointsCell = document.createElement("td");
-          nameCell.textContent = player;
-          pointsCell.textContent = championScores[player];
-          row.appendChild(nameCell);
-          row.appendChild(pointsCell);
-          tableBody.appendChild(row);
-        });
-      }
-      
+    } else {
+      li.textContent = `${entry.name} - ${formatTime(entry.time)}${blindMark}`;
+    }
+    
+    // Se questo entry corrisponde al tempo appena fatto, aggiungi la classe per farlo lampeggiare
+    if (
+      lastRunHighlight &&
+      entry.name === lastRunHighlight.name &&
+      entry.time === lastRunHighlight.time
+    ) {
+      li.classList.add("record");
+    }
+    
+    lb.appendChild(li);
+  });
+}
+    function updatePointsLeaderboard() {
+  const tableBody = document.getElementById("pointsLeaderboardBody");
+  tableBody.innerHTML = "";
+  const sortedPlayers = Object.keys(championScores).sort(
+    (a, b) => championScores[b] - championScores[a]
+  );
+  sortedPlayers.forEach((player, i) => {
+    const row = document.createElement("tr");
+    const nameCell = document.createElement("td");
+    const pointsCell = document.createElement("td");
+    nameCell.textContent = player;
+    pointsCell.textContent = championScores[player];
+    if (i === 0) {
+      row.style.fontWeight = "bold"; // Il giocatore in testa
+    }
+    row.appendChild(nameCell);
+    row.appendChild(pointsCell);
+    tableBody.appendChild(row);
+  });
+}
+      // Questa funzione calcola i punteggi cumulativi provvisori.
+// championScores contiene i punteggi finalizzati delle gare precedenti.
+// bestTimes contiene le run della gara in corso.
+function updateProvisionalScores() {
+  // Inizializza il punteggio provvisorio con i punteggi già finalizzati
+  let provisionalScores = {};
+  participants.forEach(p => {
+    provisionalScores[p] = championScores[p] || 0;
+  });
+
+  // Ordina i tempi della gara corrente (bestTimes) in ordine crescente (migliore tempo al primo posto)
+  let sorted = [...bestTimes].sort((a, b) => a.time - b.time);
+  
+  // Per i primi 5 tempi, assegna i punti corrispondenti (es. [9,7,5,3,1])
+  // aggiungendo il bonus se la run è in Blind Mode (blind===1) o Blind2 Mode (blind===2)
+  for (let i = 0; i < sorted.length && i < 5; i++) {
+    let pointsAwarded = CHAMPION_POINTS[i]; // CHAMPION_POINTS è l'array con [9, 7, 5, 3, 1]
+    if (sorted[i].blind === 1) {
+      pointsAwarded += 3;
+    } else if (sorted[i].blind === 2) {
+      pointsAwarded += 5;
+    }
+    provisionalScores[sorted[i].name] += pointsAwarded;
+  }
+  
+  // Aggiorna la visualizzazione della classifica punti con i punteggi provvisori
+  updatePointsLeaderboardWithScores(provisionalScores);
+}
+
+// Questa funzione aggiorna l'elemento della classifica punti (Points Standings)
+// usando un oggetto scores passato come parametro.
+function updatePointsLeaderboardWithScores(scores) {
+  const tableBody = document.getElementById("pointsLeaderboardBody");
+  tableBody.innerHTML = "";
+  // Ordina i giocatori per punteggio (decrescente)
+  const sortedPlayers = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+  sortedPlayers.forEach(player => {
+    const row = document.createElement("tr");
+    const nameCell = document.createElement("td");
+    const pointsCell = document.createElement("td");
+    nameCell.textContent = player;
+    pointsCell.textContent = scores[player];
+    row.appendChild(nameCell);
+    row.appendChild(pointsCell);
+    tableBody.appendChild(row);
+  });
+}
+
       /* ==============================================
          REPLAY della Traiettoria
       ============================================== */
@@ -2067,17 +2167,22 @@ function endRace() {
   showRaceResults();
 }
       function showRaceResults() {
-        let sortedTimes = [...bestTimes].sort((a, b) => a.time - b.time);
-        let html =
-          `<h2>Final Times (Top 5)</h2>
-          <div class="champ-table">
-            <table>
-              <tr><th>Player</th><th>Time</th></tr>`;
-        sortedTimes.forEach((e) => {
-          const blindMark = e.blind ? " (B)" : "";
-          html += `<tr><td>${e.name}</td><td>${formatTime(e.time)}${blindMark}</td></tr>`;
-        });
-        html += `</table></div>`;
+  let sortedTimes = [...bestTimes].sort((a, b) => a.time - b.time);
+  let html =
+    `<h2>Final Times (Top 5)</h2>
+    <div class="champ-table">
+      <table>
+        <tr><th>Player</th><th>Time</th></tr>`;
+  sortedTimes.forEach((e) => {
+    let blindMark = "";
+    if (e.blind === 1) {
+      blindMark = "(+3)";
+    } else if (e.blind === 2) {
+      blindMark = "(+5)";
+    }
+    html += `<tr><td>${e.name}</td><td>${formatTime(e.time)}${blindMark}</td></tr>`;
+  });
+  html += `</table></div>`;
         const sortedPlayers = Object.keys(championScores).sort(
           (a, b) => championScores[b] - championScores[a]
         );
@@ -2106,38 +2211,31 @@ function endRace() {
         champContent.querySelector(".nav-button").addEventListener("click", action);
         champOverlay.classList.remove("hidden");
       }
-      function showFinalResults() {
-        let sortedPlayers = Object.keys(championScores).sort(
-          (a, b) => championScores[b] - championScores[a]
-        );
-        const winner = sortedPlayers[0];
-        let html =
-          `<h2>Final Standings</h2>
-          <div class="champ-table">
-            <table>
-              <tr><th>Player</th><th>Punti</th></tr>`;
-        sortedPlayers.forEach((n) => {
-          html += `<tr><td>${n}</td><td>${championScores[n]}</td></tr>`;
-        });
-        html += `</table></div>`;
-        html += `<h3>Wins ${winner}!!!</h3>`;
-        html +=
-          `<div class="end-buttons">
-            <button id="btnReplayChamp">Play Again!</button>
-            <button id="btnSolo">Play Solo</button>
-          </div>`;
-        champContent.innerHTML = html;
-        champContent.querySelector("#btnReplayChamp").addEventListener("click", () => {
-          champOverlay.classList.add("hidden");
-          slidesOverlay.classList.remove("hidden");
-          currentSlideIndex = 0;
-          renderSlide();
-        });
-        champContent.querySelector("#btnSolo").addEventListener("click", () => {
-          window.location.href = "index.html";
-        });
-        champOverlay.classList.remove("hidden");
-      }
+    function showFinalResults() {
+  let sortedPlayers = Object.keys(championScores).sort(
+    (a, b) => championScores[b] - championScores[a]
+  );
+  const winner = sortedPlayers[0];
+  let html =
+    `<h2>Final Standings</h2>
+    <div class="champ-table">
+      <table>
+        <tr><th>Player</th><th>Punti</th></tr>`;
+  sortedPlayers.forEach((n, i) => {
+    if (i === 0) {
+      html += `<tr style="font-weight:bold;"><td>${n}</td><td>${championScores[n]}</td></tr>`;
+    } else {
+      html += `<tr><td>${n}</td><td>${championScores[n]}</td></tr>`;
+    }
+  });
+  html += `</table></div>`;
+  html += `<h3>Wins ${winner}!!!</h3>`;
+  // Mostra il popup con il contenuto 'html'
+  champContent.innerHTML = html;
+  // Aggiungi eventuali listener ai pulsanti del popup
+  champOverlay.classList.remove("hidden");
+}
+
       function setupRace() {
         lastCompleteRun = null;
         setMainLabel(`⏰1'00"000'''`);
@@ -2235,7 +2333,7 @@ function endRace() {
           `
         },
         {
-          title: "Blind Mode<br>& Penalties",
+          title: "Brave Mode<br>& Penalties",
           content: `
             <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
             <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2243,9 +2341,9 @@ function endRace() {
             <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
             <p class="overlay-text">
               <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
-              If you activate <b>Blind Mode</b>, you must complete the run without seeing your trajectory.
-            <br>
-            <p class="overlay-text">If you achieve a Top 5 time in Blind Mode, you earn a <b>3-point bonus</b>, but if you fail, your opponents receive the <b>3-point bonus</b> instead!</p>
+              By clicking the <b>Brave Mode</b> button, you choose to take a risk!
+If, by the end of the race, your time is among the Top 5, you earn a <b>3 or 5 point bonus</b>.<br>
+<b>But if you fail to make the Top 5</b>, your opponents receive those 3 or 5 points instead!</p>
           `
         },
         {
