@@ -671,7 +671,7 @@
         <div id="savedTracksList"></div>
         <hr />
         <h3>Save current track</h3>
-        <input type="text" id="trackNameInput" placeholder="Enter track name" />
+        <input type="text" id="trackNameInput" placeholder="Enter track name" maxlength="15" />
         <button id="saveTrackBtn">Save Track</button>
       </div>
     </div>
@@ -681,7 +681,7 @@
       <div class="overlay-content">
         <button id="closeSaveResultOverlay">X</button>
         <h2>Save Your Result</h2>
-        <input type="text" id="resultNameInput" placeholder="Enter your name" />
+        <input type="text" id="resultNameInput" placeholder="Enter your name" maxlength="6" />
         <button id="saveResultConfirmBtn">Save Result</button>
       </div>
     </div>
@@ -1620,7 +1620,7 @@
           } else {
             html += `<div style="margin:10px 0;">
                <label style="display:block; margin-bottom:10px;">Save your game:</label>
-               <input type="text" id="challengeSaveName" placeholder="Enter a name" />
+               <input type="text" id="challengeSaveName" placeholder="Enter a name" maxlength="6" />
                <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
              </div>`;
           }
