@@ -1767,7 +1767,7 @@ canvas.addEventListener("touchstart", function() {
         }
        if (blindState === 1 || blindState === 2) {
   let penalty = (blindState === 1) ? 3 : 5;
-  setMainLabel("Blind failed! Opponents get +" + penalty + " points!");
+  setMainLabel("You failed! Opponents get +" + penalty + " points!");
   for (let player in championScores) {
     if (player !== participants[currentIndex]) {
       championScores[player] += penalty;
