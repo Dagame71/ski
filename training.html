@@ -84,6 +84,21 @@
         pointer-events: none; /* la neve non intercetta clic/touch */
         z-index: 5; /* layer intermedio */
       }
+#start-ring {
+  position: absolute;
+  border: 4px solid yellow;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: blink 1s infinite;
+  /* Queste dimensioni e posizionamento andranno aggiornati in base alla posizione dell'icona start */
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 
       /* Bottoni */
       button {
@@ -597,6 +612,7 @@
     <!-- CONTENITORE DI GIOCO -->
     <div class="container" id="gameContainer">
       <canvas id="canvas"></canvas>
+<div id="start-ring"></div>
 
       <!-- Contenitore per i bottoni in alto -->
       <div class="top-buttons">
@@ -1203,7 +1219,14 @@
         drawGates(gates);
         drawTrees(trees);
       }
-
+function positionStartRing() {
+  const ring = document.getElementById("start-ring");
+  if (!ring) return;
+  // Imposta la posizione usando startPoint (assicurati che startPoint sia già calcolato)
+  ring.style.left = startPoint.x + "px";
+  ring.style.top = startPoint.y + "px";
+  ring.style.display = "block";  // Rende visibile l’anello
+}
       /* Gestione Neve */
       let snowflakes = [];
 
@@ -1253,7 +1276,14 @@
         canvas.addEventListener("touchend", handleTouchEnd);
         canvas._eventsAttached = true;
       }
+// Quando inizia il disegno, nascondi l'anello
+canvas.addEventListener("mousedown", function() {
+  document.getElementById("start-ring").style.display = "none";
+});
 
+canvas.addEventListener("touchstart", function() {
+  document.getElementById("start-ring").style.display = "none";
+});
       /* Restituisce le coordinate del mouse/touch corrette in base al canvas */
       function getMouseCoords(e) {
         let rect = canvas.getBoundingClientRect();
@@ -1566,6 +1596,7 @@
                   drawTrack(currentTrack);
                   updateWeatherForChallenge();
                   setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+positionStartRing();
                 }, 1500);
               } else {
                 setMainLabel("Failed! Retry!");
@@ -1575,7 +1606,7 @@
                 }, 1500);
               }
             }
-          }, 2000);
+          }, 1000);
         } else {
           // Modalità normale
           setMainLabel(
@@ -1594,7 +1625,7 @@
         if (!isChallengeMode) {
           setTimeout(() => {
             resetRun();
-          }, 1000);
+          }, 2000);
         }
       }
 
@@ -2061,26 +2092,27 @@
       }
 
       /* Attiva/Disattiva Challenge Mode */
-      function toggleChallengeMode() {
-        if (isChallengeMode) {
-          showConfirmPopup(
-            "Are you sure you want to quit Challenge Mode?",
-            function () {
-              isChallengeMode = false;
-              challengeAttempts = 0;
-              setMainLabel("⏰0'00\"000'''");
-              toggleButtonState(false);
-            },
-            function () {
-              console.log("Quit Challenge Mode canceled");
-            }
-          );
-        } else {
-          document.getElementById("challengeIntroOverlay").classList.remove("hidden");
-          lastCompleteRun = null;
-          window.lastFinalTime = 0;
-        }
+function toggleChallengeMode() {
+  if (isChallengeMode) {
+    showConfirmPopup(
+      "Are you sure you want to quit Challenge Mode?",
+      function () {
+        isChallengeMode = false;
+        challengeAttempts = 0;
+        setMainLabel("⏰0'00\"000'''");
+        toggleButtonState(false);
+        resetRun(); // resetRun() richiama positionStartRing() internamente
+      },
+      function () {
+        console.log("Quit Challenge Mode canceled");
       }
+    );
+  } else {
+    document.getElementById("challengeIntroOverlay").classList.remove("hidden");
+    lastCompleteRun = null;
+    window.lastFinalTime = 0;
+  }
+}
 
       document.getElementById("challengeButton").addEventListener("click", toggleChallengeMode);
 
@@ -2105,41 +2137,47 @@
       }
 
       /* Avvia una nuova Challenge */
-      function startNewChallenge() {
-        if (isGeneratingChallenge) return;
-        isGeneratingChallenge = true;
 
-        adjustSpeedForNextLevel();
-        currentTrack = createTrack();
-        drawTrack(currentTrack);
-        let numTrees = currentTrack.trees.length;
-        let factor = 1.0;
-        if (numTrees === 6) {
-          factor = 1.10;
-        } else if (numTrees === 7) {
-          factor = 1.20;
-        } else if (numTrees >= 8) {
-          factor = 1.30;
-        }
-        updateWeatherForChallenge();
-        let idealLength = calculateIdealPath(currentTrack.gates);
-        if (isNaN(idealLength) || idealLength <= 0) {
-          idealLength = 300;
-        }
-        idealLength *= factor;
-        challengeBestTime = calculateFinalTime(
-          idealLength * 6.5 * (speed / baseSpeed),
-          idealLength
-        );
-        if (isNaN(challengeBestTime) || challengeBestTime <= 0) {
-          challengeBestTime = 66.542;
-        }
-        challengeAttempts = 3;
-        setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
-        setTimeout(() => {
-          isGeneratingChallenge = false;
-        }, 500);
-      }
+function startNewChallenge() {
+  if (isGeneratingChallenge) return;
+  isGeneratingChallenge = true;
+
+  adjustSpeedForNextLevel();
+  currentTrack = createTrack();
+  drawTrack(currentTrack);
+  
+  // Posiziona e mostra l'anello all'inizio del nuovo livello Challenge
+  positionStartRing();
+
+  let numTrees = currentTrack.trees.length;
+  let factor = 1.0;
+  if (numTrees === 6) {
+    factor = 1.10;
+  } else if (numTrees === 7) {
+    factor = 1.20;
+  } else if (numTrees >= 8) {
+    factor = 1.30;
+  }
+  updateWeatherForChallenge();
+  let idealLength = calculateIdealPath(currentTrack.gates);
+  if (isNaN(idealLength) || idealLength <= 0) {
+    idealLength = 300;
+  }
+  idealLength *= factor;
+  challengeBestTime = calculateFinalTime(
+    idealLength * 6.5 * (speed / baseSpeed),
+    idealLength
+  );
+  if (isNaN(challengeBestTime) || challengeBestTime <= 0) {
+    challengeBestTime = 66.542;
+  }
+  challengeAttempts = 3;
+  setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+  setTimeout(() => {
+    isGeneratingChallenge = false;
+  }, 500);
+}
+
 
       /* Calcola la "lunghezza ideale" della pista guardando i gates */
       function calculateIdealPath(gates) {
@@ -2168,62 +2206,67 @@
       }
 
       /* Replay di una traiettoria salvata */
-      function replayTrajectory(customPoints) {
-        let container = document.getElementById("gameContainer");
-        let originalBackground = container.style.background;
-        container.style.background = '#c4d3fc url("sfondoreplay.png") no-repeat center center';
-        container.style.backgroundSize = "cover";
+function replayTrajectory(customPoints) {
+  // Nascondi l'anello se presente
+  document.getElementById("start-ring").style.display = "none";
+  
+  let container = document.getElementById("gameContainer");
+  let originalBackground = container.style.background;
+  container.style.background = '#c4d3fc url("sfondoreplay.png") no-repeat center center';
+  container.style.backgroundSize = "cover";
 
-        let rp = customPoints && customPoints.length >= 2 ? customPoints : lastCompleteRun;
-        let replayTime = window.lastFinalTime;
+  let rp = customPoints && customPoints.length >= 2 ? customPoints : lastCompleteRun;
+  let replayTime = window.lastFinalTime;
 
-        if (customPoints && bestTimes.length > 0) {
-          let bestReplay = bestTimes.find(entry => entry.replay === customPoints);
-          if (bestReplay) {
-            replayTime = bestReplay.time;
-          }
-        }
+  if (customPoints && bestTimes.length > 0) {
+    let bestReplay = bestTimes.find(entry => entry.replay === customPoints);
+    if (bestReplay) {
+      replayTime = bestReplay.time;
+    }
+  }
 
-        setMainLabel(`⏰${formatTime(replayTime)}`);
-        if (!rp || rp.length < 2) {
-          showTemporaryMessage("No run to replay!", 1000);
-          setTimeout(() => {
-            setMainLabel("⏰0'00\"000'''");
-            container.style.background = originalBackground;
-          }, 1000);
-          return;
-        }
+  setMainLabel(`⏰${formatTime(replayTime)}`);
+  if (!rp || rp.length < 2) {
+    showTemporaryMessage("No run to replay!", 1000);
+    setTimeout(() => {
+      setMainLabel("⏰0'00\"000'''");
+      container.style.background = originalBackground;
+      positionStartRing(); // Riposiziona l'anello dopo il replay
+    }, 1000);
+    return;
+  }
 
+  clearCanvas();
+  drawStartPoint();
+  drawFinishArea();
+  drawGates(gates);
+  drawTrees(trees);
+
+  let i = 0;
+  function step() {
+    if (i >= rp.length - 1) {
+      setTimeout(() => {
         clearCanvas();
-        drawStartPoint();
-        drawFinishArea();
-        drawGates(gates);
-        drawTrees(trees);
+        drawTrack(currentTrack);
+        container.style.background = originalBackground;
+        setMainLabel("⏰0'00\"000'''");
+        positionStartRing(); // Riposiziona l'anello al termine del replay
+      }, 1000);
+      return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(rp[i].x, rp[i].y);
+    ctx.lineTo(rp[i + 1].x, rp[i + 1].y);
+    ctx.strokeStyle = "#a4b8eb";
+    ctx.lineWidth = (2 / 520) * canvas.height;
+    ctx.stroke();
 
-        let i = 0;
-        function step() {
-          if (i >= rp.length - 1) {
-            setTimeout(() => {
-              clearCanvas();
-              drawTrack(currentTrack);
-              container.style.background = originalBackground;
-              setMainLabel("⏰0'00\"000'''");
-            }, 1000);
-            return;
-          }
-          ctx.beginPath();
-          ctx.moveTo(rp[i].x, rp[i].y);
-          ctx.lineTo(rp[i + 1].x, rp[i + 1].y);
-          ctx.strokeStyle = "#a4b8eb";
-          ctx.lineWidth = (2 / 520) * canvas.height;
-          ctx.stroke();
-
-          let dt = rp[i + 1].t - rp[i].t;
-          i++;
-          setTimeout(step, dt);
-        }
-        setTimeout(step, 0);
-      }
+    let dt = rp[i + 1].t - rp[i].t;
+    i++;
+    setTimeout(step, dt);
+  }
+  setTimeout(step, 0);
+}
 
       /* Gestione click bottoni principali */
       sameTrackButton.addEventListener("click", () => {
@@ -2326,29 +2369,33 @@
       });
 
       /* Funzione per ripristinare lo stato pre-run */
-      function resetRun() {
-        drawing = false;
-        didFinishOrFail = false;
-        pointsPath = [];
-        setMainLabel("⏰0'00\"000'''");
-        clearCanvas();
-        drawTrack(currentTrack);
-        globalWind = Math.random() * 1 - 0.5;
-        weatherState = chooseWeatherState(weatherState);
-        applyWeatherState(weatherState);
+function resetRun() {
+  drawing = false;
+  didFinishOrFail = false;
+  pointsPath = [];
+  setMainLabel("⏰0'00\"000'''");
+  clearCanvas();
+  drawTrack(currentTrack);
+  globalWind = Math.random() * 1 - 0.5;
+  weatherState = chooseWeatherState(weatherState);
+  applyWeatherState(weatherState);
 
-        if (snowLocked) {
-          snowCanvas.classList.add("hidden");
-        } else {
-          if (showSnow) {
-            snowCanvas.classList.remove("hidden");
-            initSnow();
-            updateSnow();
-          } else {
-            snowCanvas.classList.add("hidden");
-          }
-        }
-      }
+  if (snowLocked) {
+    snowCanvas.classList.add("hidden");
+  } else {
+    if (showSnow) {
+      snowCanvas.classList.remove("hidden");
+      initSnow();
+      updateSnow();
+    } else {
+      snowCanvas.classList.add("hidden");
+    }
+  }
+  
+  // Posiziona e mostra l'anello di partenza
+  positionStartRing();
+}
+
 
       /* Aggiorna la lista Top 5 */
       function updateLeaderboard() {
