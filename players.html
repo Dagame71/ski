@@ -66,6 +66,17 @@
         height: 100%;
         cursor: crosshair;
       }
+#start-ring {
+  position: absolute;
+  width: 40px;              /* Regola la dimensione in base alla tua grafica */
+  height: 40px;
+  border: 4px solid yellow; /* Bordo giallo */
+  border-radius: 50%;
+  pointer-events: none;     /* L'anello non intercetta eventi */
+  transform: translate(-50%, -50%); /* Per centrare il div sul punto */
+  animation: blink 1s infinite;
+  z-index: 10;              /* Assicurati che stia sopra il canvas */
+}
 
       /* -------------------------------
          Canvas per l'effetto neve
@@ -554,6 +565,7 @@
     <!-- Container principale del gioco -->
     <div class="container">
       <canvas id="canvas"></canvas>
+<div id="start-ring"></div>
       <!-- Bottone "Same Run" (nascosto, usato in modalità World Cup) -->
       <button id="sameTrack" title="Same Run" hidden>🔁</button>
       
@@ -654,7 +666,7 @@
         );
         mainLabel = replacedText;
         infoLine.innerHTML = replacedText;
-        if (replacedText.includes("Double tap to start!")) {
+        if (replacedText.includes("Double-tap here to start!")) {
           infoLine.classList.add("blinking");
         } else {
           infoLine.classList.remove("blinking");
@@ -916,7 +928,7 @@ let lastRunHighlight = null;
               ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2
               : Math.random() * (canvas.width / 2 - 35) + 35;
           // La posizione y è calcolata in modo differente per la World Cup
-          const y = 60 + i * ((canvas.height - 120) / count);
+          const y = 100 + i * ((canvas.height - 160) / count);
           const color = isRed ? "red" : "blue";
           arr.push({
             x: x,
@@ -937,7 +949,7 @@ let lastRunHighlight = null;
       function generateTrees(gArr) {
         const treeCount = Math.floor(Math.random() * 3) + 6;
         let arr = [];
-        const margin = 15;
+        const margin = 30;
         const minGate = 50,
               minTree = 30,
               minFinish = 50,
@@ -1037,6 +1049,19 @@ let lastRunHighlight = null;
           ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
         });
       }
+function positionStartRing() {
+  // Se siamo in modalità editor, non mostrare l'anello
+  if (editingMode) {
+    const ring = document.getElementById("start-ring");
+    if (ring) ring.style.display = "none";
+    return;
+  }
+  const ring = document.getElementById("start-ring");
+  if (!ring) return;
+  ring.style.left = startPoint.x + "px";
+  ring.style.top = startPoint.y + "px";
+  ring.style.display = "block"; // Mostra l'anello solo se non siamo in editor
+}
 
       /* ==============================================
          Animazione in Modalità Editor (pulsazione)
@@ -1498,7 +1523,14 @@ ctx.stroke();
         }
         document._eventsAttached = true;
       }
-      
+      canvas.addEventListener("mousedown", function() {
+  const ring = document.getElementById("start-ring");
+  if (ring) ring.style.display = "none";
+});
+canvas.addEventListener("touchstart", function() {
+  const ring = document.getElementById("start-ring");
+  if (ring) ring.style.display = "none";
+});
       function findNearestGate(x, y, maxDist) {
         let foundIndex = null;
         let bestDist = Infinity;
@@ -1528,18 +1560,20 @@ ctx.stroke();
         return foundIndex !== null ? { index: foundIndex } : null;
       }
       
-      function handleDoubleConfirm() {
-        if (editingMode && !draggedElement) {
-          editingMode = false;
-          callParticipant();
-          showTemporaryMessage("Slope confirmed! Race starting...", 2000);
-          clearCanvas();
-          drawTrack(currentTrack);
-          const container = document.querySelector('.container');
-          container.style.background = "url('sfondo.png') no-repeat center center";
-          container.style.backgroundSize = "cover";
-        }
-      }
+ function handleDoubleConfirm() {
+  if (editingMode && !draggedElement) {
+    editingMode = false;
+    // Resetta la pista: questa funzione richiamerà positionStartRing()
+    resetTrack(currentTrack);
+    callParticipant();
+    showTemporaryMessage("Slope confirmed! Race starting...", 2000);
+    const container = document.querySelector('.container');
+    container.style.background = "url('sfondo.png') no-repeat center center";
+    container.style.backgroundSize = "cover";
+    // Assicuriamoci che l'anello venga posizionato subito
+    positionStartRing();
+  }
+}
       
       function checkEditorConstraints(dragged) {
         if (dragged.type === "gate") {
@@ -1963,76 +1997,79 @@ function updatePointsLeaderboardWithScores(scores) {
         }
       });
       function replayTrajectory(customPoints, correctTime, wasBlind) {
-        const savedMainLabel = mainLabel;
-        if (!customPoints || customPoints.length < 2) {
-          showTemporaryMessage("No run to replay!", 1000);
-          return;
-        }
-        const container = document.querySelector('.container');
-        const originalBackground = container.style.background;
-        container.style.background = "url('sfondoreplay.png') no-repeat center center";
-        container.style.backgroundSize = "cover";
-        const chronoIcon = '⏰';
+  // Nascondi subito l'anello per evitare che venga visualizzato durante il replay
+  const ring = document.getElementById("start-ring");
+  if (ring) {
+    ring.style.display = "none";
+  }
+  
+  const savedMainLabel = mainLabel;
+  if (!customPoints || customPoints.length < 2) {
+    showTemporaryMessage("No run to replay!", 1000);
+    return;
+  }
+  const container = document.querySelector('.container');
+  const originalBackground = container.style.background;
+  container.style.background = "url('sfondoreplay.png') no-repeat center center";
+  container.style.backgroundSize = "cover";
+  
+  // Mostra il tempo sul display
+  const chronoIcon = '⏰';
   if (correctTime !== undefined && correctTime !== null) {
-  // 1) Ho un tempo passato come argomento: uso subito quello
-  setMainLabel(`${chronoIcon} ${formatTime(correctTime)}`);
-} else if (window.lastFinalTime !== undefined && window.lastFinalTime !== null) {
-  // 2) Se non avevo correctTime, ma ho lastFinalTime
-  setMainLabel(`${chronoIcon} ${formatTime(window.lastFinalTime)}`);
-} else {
-  // 3) Nessuno dei due è valido: No time da mostrare
-  setMainLabel(`${chronoIcon} No time to show`);
-}
-        const preReplaySnowState = showSnow;
-        if (lastSnowActive) {
-          showSnow = true;
-          snowCanvasElem.classList.remove("hidden");
-          snowCanvasElem.width = canvas.width;
-          snowCanvasElem.height = canvas.height;
-          initSnow();
-          updateSnow();
-        } else {
-          snowCanvasElem.classList.add("hidden");
-        }
+    setMainLabel(`${chronoIcon} ${formatTime(correctTime)}`);
+  } else if (window.lastFinalTime !== undefined && window.lastFinalTime !== null) {
+    setMainLabel(`${chronoIcon} ${formatTime(window.lastFinalTime)}`);
+  } else {
+    setMainLabel(`${chronoIcon} No time to show`);
+  }
+  
+  // Configura (e, se necessario, attiva) la neve in base allo stato precedente
+  const preReplaySnowState = showSnow;
+  if (lastSnowActive) {
+    showSnow = true;
+    snowCanvasElem.classList.remove("hidden");
+    snowCanvasElem.width = canvas.width;
+    snowCanvasElem.height = canvas.height;
+    initSnow();
+    updateSnow();
+  } else {
+    snowCanvasElem.classList.add("hidden");
+  }
+  
+  clearCanvas();
+  drawStartPoint();
+  drawFinishArea();
+  drawGates(gates);
+  drawTrees(trees);
+  
+  let i = 0;
+  function step() {
+    if (i >= customPoints.length - 1) {
+      setTimeout(() => {
         clearCanvas();
-        drawStartPoint();
-        drawFinishArea();
-        drawGates(gates);
-        drawTrees(trees);
-        let i = 0;
-        function step() {
-          if (i >= customPoints.length - 1) {
-            setTimeout(() => {
-              clearCanvas();
-              if (currentTrack) drawTrack(currentTrack);
-              if (preReplaySnowState) {
-                showSnow = true;
-                snowCanvasElem.classList.remove("hidden");
-                snowCanvasElem.width = canvas.width;
-                snowCanvasElem.height = canvas.height;
-                initSnow();
-                updateSnow();
-              } else {
-                showSnow = false;
-                snowCanvasElem.classList.add("hidden");
-              }
-              container.style.background = originalBackground;
-              setMainLabel(savedMainLabel);
-            }, 500);
-            return;
-          }
-          ctx.beginPath();
-          ctx.moveTo(customPoints[i].x, customPoints[i].y);
-          ctx.lineTo(customPoints[i + 1].x, customPoints[i + 1].y);
-          ctx.strokeStyle = wasBlind ? "#ff4d4d" : "#a4b8eb";
-          ctx.lineWidth = (2 / 520) * canvas.height;
-          ctx.stroke();
-          const dt = customPoints[i + 1].t - customPoints[i].t;
-          i++;
-          setTimeout(step, dt);
-        }
-        setTimeout(step, 0);
-      }
+        if (currentTrack) drawTrack(currentTrack);
+        // Ripristina lo sfondo originale
+        container.style.background = originalBackground;
+        // Ripristina il label originale
+        setMainLabel(savedMainLabel);
+        // Ora, uscendo dal replay, riposiziona l'anello (lo vedrai nel gioco)
+        positionStartRing();
+      }, 500);
+      return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(customPoints[i].x, customPoints[i].y);
+    ctx.lineTo(customPoints[i + 1].x, customPoints[i + 1].y);
+    ctx.strokeStyle = wasBlind ? "#ff4d4d" : "#a4b8eb";
+    ctx.lineWidth = (2 / 520) * canvas.height;
+    ctx.stroke();
+    const dt = customPoints[i + 1].t - customPoints[i].t;
+    i++;
+    setTimeout(step, dt);
+  }
+  setTimeout(step, 0);
+}
+
 
       /* ==============================================
          BLIND MODE
@@ -2138,19 +2175,21 @@ blindToggleButton.addEventListener("click", () => {
           snowCanvasElem.classList.add("hidden");
         }
       }
-      function resetTrack(track) {
-        drawing = false;
-        pointsPath = [];
-        intersectedGates.clear();
-        if (editingMode) {
-          setMainLabel("Double tap to start!");
-        } else {
-          setMainLabel(`⏰1'00"000'''`);
-        }
-        resetBlindMode();
-        clearCanvas();
-        if (track) drawTrack(track);
-      }
+  function resetTrack(track) {
+  drawing = false;
+  pointsPath = [];
+  intersectedGates.clear();
+  if (editingMode) {
+    setMainLabel("Double-tap here to start!");
+  } else {
+    setMainLabel(`⏰1'00"000'''`);
+  }
+  resetBlindMode();
+  clearCanvas();
+  if (track) drawTrack(track);
+  // Mostra l'anello all'inizio della run
+  positionStartRing();
+}
 function endRace() {
   const sorted = [...bestTimes].sort((a, b) => a.time - b.time);
   for (let i = 0; i < 5; i++) {
@@ -2450,7 +2489,7 @@ If, by the end of the race, your time is among the Top 5, you earn a <b>3 or 5 p
           <input type="text" class="player-name-input"
             placeholder="Player name"
             value="${def}"
-            maxlength="8"
+            maxlength="6"
           />`;
         container.appendChild(d);
       }
