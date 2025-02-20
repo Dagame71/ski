@@ -1021,9 +1021,9 @@ let lastRunHighlight = null;
           }
           // Disegna l'icona del gate
           const icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
-          const iconWidth = (16 / 300) * canvas.width;
-          const iconHeight = (16 / 520) * canvas.height;
-          ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
+const iconWidth = (16 / 300) * canvas.width * 1.05;
+const iconHeight = (16 / 520) * canvas.height * 1.05;
+ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
         });
       }
       function drawTrees(tArr) {
@@ -1044,9 +1044,9 @@ let lastRunHighlight = null;
             ctx.stroke();
             ctx.restore();
           }
-          const treeWidth = (12 / 300) * canvas.width;
-          const treeHeight = (20 / 520) * canvas.height;
-          ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
+const treeWidth = (12 / 300) * canvas.width * 1.30;
+const treeHeight = (20 / 520) * canvas.height * 1.30;
+ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
         });
       }
 function positionStartRing() {
@@ -1663,25 +1663,30 @@ canvas.addEventListener("touchstart", function() {
                 p2 = pointsPath[i];
           // Collisione con alberi in modalità hardMode
           if (hardMode) {
-            for (const tree of trees) {
-              const steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
-              for (let j = 0; j <= steps; j++) {
-                const ix = p1.x + ((p2.x - p1.x) * j) / steps;
-                const iy = p1.y + ((p2.y - p1.y) * j) / steps;
-                const dist = Math.hypot(ix - tree.x, iy - (tree.y - 10));
-                if (dist < (10 / 520) * canvas.height) {
-                  let currentPlayer = participants[currentIndex];
-                  if (!treeHits[currentPlayer]) {
-                    treeHits[currentPlayer] = 1;
-                  } else {
-                    treeHits[currentPlayer]++;
-                  }
-                  failAttempt("You hit a tree!");
-                  return;
-                }
-              }
-            }
-          }
+  for (const tree of trees) {
+    const steps = Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 5);
+    // Calcola l'offset relativo in base all'altezza del canvas
+    const treeCollisionOffset = (10 / 520) * canvas.height;
+    const collisionThreshold = treeCollisionOffset; // soglia di collisione relativa
+    for (let j = 0; j <= steps; j++) {
+      const ix = p1.x + ((p2.x - p1.x) * j) / steps;
+      const iy = p1.y + ((p2.y - p1.y) * j) / steps;
+      const dist = Math.hypot(ix - tree.x, iy - (tree.y - treeCollisionOffset));
+      if (dist < collisionThreshold) {
+        // Gestisci la collisione con l'albero
+        let currentPlayer = participants[currentIndex];
+        if (!treeHits[currentPlayer]) {
+          treeHits[currentPlayer] = 1;
+        } else {
+          treeHits[currentPlayer]++;
+        }
+        failAttempt("You hit a tree!");
+        return;
+      }
+    }
+  }
+}
+
           // --- NUOVA LOGICA PER I GATE ---
           for (const gate of gates) {
             if (
