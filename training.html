@@ -1188,9 +1188,9 @@
       function drawGates(gArr) {
         gArr.forEach((g) => {
           let icon = g.color === "red" ? gateIcons.red : gateIcons.blue;
-          let iconWidth = (16 / 300) * canvas.width;
-          let iconHeight = (16 / 520) * canvas.height;
-          ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
+          const iconWidth = (16 / 300) * canvas.width * 1.05;
+const iconHeight = (16 / 520) * canvas.height * 1.05;
+ctx.drawImage(icon, g.x - iconWidth / 2, g.y - iconHeight / 2, iconWidth, iconHeight);
         });
       }
 
@@ -1201,9 +1201,9 @@
           return;
         }
         tArr.forEach((t) => {
-          const treeWidth = (12 / 300) * canvas.width;
-          const treeHeight = (20 / 520) * canvas.height;
-          ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
+const treeWidth = (12 / 300) * canvas.width * 1.30;
+const treeHeight = (20 / 520) * canvas.height * 1.30;
+ctx.drawImage(treeImg, t.x - treeWidth / 2, t.y - treeHeight, treeWidth, treeHeight);
         });
       }
 
