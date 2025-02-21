@@ -2256,29 +2256,38 @@ function endRace() {
         champOverlay.classList.remove("hidden");
       }
     function showFinalResults() {
-  let sortedPlayers = Object.keys(championScores).sort(
-    (a, b) => championScores[b] - championScores[a]
-  );
-  const winner = sortedPlayers[0];
-  let html =
-    `<h2>Final Standings</h2>
-    <div class="champ-table">
-      <table>
-        <tr><th>Player</th><th>Punti</th></tr>`;
-  sortedPlayers.forEach((n, i) => {
-    if (i === 0) {
-      html += `<tr style="font-weight:bold;"><td>${n}</td><td>${championScores[n]}</td></tr>`;
-    } else {
-      html += `<tr><td>${n}</td><td>${championScores[n]}</td></tr>`;
-    }
-  });
-  html += `</table></div>`;
-  html += `<h3>Wins ${winner}!!!</h3>`;
-  // Mostra il popup con il contenuto 'html'
-  champContent.innerHTML = html;
-  // Aggiungi eventuali listener ai pulsanti del popup
-  champOverlay.classList.remove("hidden");
-}
+        let sortedPlayers = Object.keys(championScores).sort(
+          (a, b) => championScores[b] - championScores[a]
+        );
+        const winner = sortedPlayers[0];
+        let html =
+          `<h2>Final Standings</h2>
+          <div class="champ-table">
+            <table>
+              <tr><th>Player</th><th>Punti</th></tr>`;
+        sortedPlayers.forEach((n) => {
+          html += `<tr><td>${n}</td><td>${championScores[n]}</td></tr>`;
+        });
+        html += `</table></div>`;
+        html += `<h3>Wins ${winner}!!!</h3>`;
+        html +=
+          `<div class="end-buttons">
+            <button id="btnReplayChamp">Play Again!</button>
+            <button id="btnSolo">Play Solo</button>
+          </div>`;
+        champContent.innerHTML = html;
+        champContent.querySelector("#btnReplayChamp").addEventListener("click", () => {
+          champOverlay.classList.add("hidden");
+          slidesOverlay.classList.remove("hidden");
+          currentSlideIndex = 0;
+          renderSlide();
+        });
+        champContent.querySelector("#btnSolo").addEventListener("click", () => {
+          window.location.href = "index.html";
+        });
+        champOverlay.classList.remove("hidden");
+      }
+
 
       function setupRace() {
         lastCompleteRun = null;
