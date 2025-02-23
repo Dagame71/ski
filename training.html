@@ -668,17 +668,44 @@
     </div>
 
     <!-- OVERLAY TOP 5 -->
-    <div id="chronoOverlay" class="overlay hidden">
-      <div class="overlay-content">
-        <button id="closeChronoOverlay">X</button>
-        <div class="leaderboard-container">
-          <div class="leaderboard">
-            <h2>Top 5</h2>
-            <ol id="leaderboardList"></ol>
-          </div>
-        </div>
+<!-- OVERLAY TOP 5 -->
+<div id="chronoOverlay" class="overlay hidden">
+  <div class="overlay-content">
+    <button id="closeChronoOverlay">X</button>
+    
+    <!-- La lista TOP5 è SEMPRE visibile -->
+    <div class="leaderboard-container">
+      <div class="leaderboard">
+        <h2>Top 5</h2>
+        <ol id="leaderboardList"></ol>
       </div>
     </div>
+    
+    <!-- Sezione di naming stile “Save Your Result”, nascosta se non serve -->
+    <div 
+  id="top5NamingContainer" 
+  style="display: none; margin-top: 5px; border-top:1px solid #999; padding-top:5px;"
+>
+  <h2 style="margin: 0; padding: 0;">Name this time</h2>
+  <p style="margin: 0; padding: 0;">Your time: <span id="autoTimeValue"></span></p>
+  <input 
+    type="text" 
+    id="autoNameInput"
+    placeholder="Enter your name" 
+    maxlength="6"
+    style="width: 80%; border-radius: 16px; padding: 10px; margin-bottom: 8px;"
+  />
+  <button 
+    id="autoNameConfirmBtn"
+    style="color: #007bff; font-weight: bold; background: transparent; border: none; cursor: pointer;"
+  >
+    Save Result
+  </button>
+</div>
+    
+  </div>
+</div>
+
 
     <!-- OVERLAY View: per salvare e CARICARE le piste -->
     <div id="viewOverlay" class="overlay hidden">
@@ -878,6 +905,8 @@
       let bestTimes = [];       // Array dei migliori tempi (Top 5)
       let savedTracks = {};     // Piste salvate (LocalStorage)
       let currentTrackName = ""; // Nome della pista corrente (se salvata)
+let isNewRecord = false; // serve a capire se stiamo aprendo il popup in automatico per un nuovo tempo
+
       window.lastFinalTime = 0; // Tempo finale dell'ultimo run completato
 
       let gates = [];
@@ -904,6 +933,9 @@
       let isGeneratingChallenge = false;
       let challengePoints = 0;
       let leaderboard = [];
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
 
       /* Gestione dei "titoli" sbloccati in base al livello */
       const baseSpeed = 3.5; // Velocità iniziale di default
@@ -911,7 +943,7 @@
       const speedDecrement = 0.05; 
       let currentLevel = 1; 
       let currentChallengeSaveName = ""; 
-      let currentPlayerName = localStorage.getItem("currentPlayerName") || "Anonymous";
+      let currentPlayerName = localStorage.getItem("currentPlayerName") || "NoName";
 
       /* Gruppi di titoli e logica calcolo (funzioni getTitleForLevel, getTitleImageForLevel) */
       const challengeTitles = [
@@ -1604,6 +1636,13 @@ positionStartRing();
                 setTimeout(() => {
                   showChallengeEndOverlay("Challenge Over!");
                   isChallengeMode = false;
+challengeAttempts = 0;
+setMainLabel("⏰0'00\"000'''");
+toggleButtonState(false);
+resetRun();
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
                 }, 1500);
               }
             }
@@ -1684,6 +1723,9 @@ positionStartRing();
           toggleButtonState(false);
           resetRun();
           overlay.classList.add("hidden");
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
         });
 
         if (challengePoints > 0 && currentChallengeSaveName) {
@@ -1823,6 +1865,9 @@ positionStartRing();
             setMainLabel("⏰0'00\"000'''");
             toggleButtonState(false);
             resetRun();
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
             document.getElementById("challengeEndOverlay").classList.add("hidden");
           });
         } else {
@@ -1843,6 +1888,10 @@ positionStartRing();
             setMainLabel("⏰0'00\"000'''");
             toggleButtonState(false);
             overlay.classList.add("hidden");
+resetRun();
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
           });
         }
         overlay.classList.remove("hidden");
@@ -2076,21 +2125,147 @@ positionStartRing();
       }
 
       /* Aggiorna la Top 5 con un nuovo tempo */
-      function updateBestTimes(time, replayData, playerName = "Anonymous") {
-        bestTimes = bestTimes.filter(entry => entry.time !== time);
+function updateBestTimes(time, replayData, name) {
+  // 1) Aggiungi nuovo tempo
+  let result = { name, time, replay: replayData };
+  bestTimes.push(result);
 
-        let result = { name: playerName, time, replay: replayData };
-        bestTimes.push(result);
-        bestTimes.sort((a, b) => a.time - b.time);
-        if (bestTimes.length > 5) bestTimes.length = 5;
+  // 2) Ordina e taglia a 5
+  bestTimes.sort((a, b) => a.time - b.time);
+  if (bestTimes.length > 5) bestTimes.length = 5;
 
-        if (bestTimes.length > 0 && bestTimes[0].time === time) {
-          infoLine.classList.add("record");
-          setTimeout(() => {
-            infoLine.classList.remove("record");
-          }, 2000);
-        }
+  // 3) Salva su localStorage e aggiorna <ol>
+  localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
+  updateLeaderboard();
+
+  // 4) Verifica se è nei primi 5
+  const inTopFive = bestTimes.some(entry => Math.abs(entry.time - time) < 0.0001);
+
+  if (inTopFive) {
+    isNewRecord = true;
+  
+infoLine.classList.add("record");
+  setTimeout(() => {
+    infoLine.classList.remove("record");
+  }, 1500);
+
+    // Mostra il popup dopo 1 secondo
+    setTimeout(() => {
+      showTop5Popup();
+
+      // *** Salvataggio automatico se la pista è già salvata ***
+      if (currentTrackName !== "" && savedTracks[currentTrackName]) {
+        savedTracks[currentTrackName].bestTimes = [...bestTimes];
+        storeSavedTracks();
       }
+    }, 1000);
+
+  } else {
+    isNewRecord = false;
+  }
+}
+
+function showTop5Popup() {
+  // Aggiorna la lista <ol> in tempo reale
+  updateLeaderboard();
+
+  // Prendi i riferimenti ai div e agli input
+  let overlay = document.getElementById("chronoOverlay");
+  let namingContainer = document.getElementById("top5NamingContainer");
+  let autoTimeValue = document.getElementById("autoTimeValue");
+  let autoNameInput = document.getElementById("autoNameInput");
+
+  // Se “nuovo record” => mostra la sezione input
+  if (isNewRecord) {
+    namingContainer.style.display = "block";
+    // mostra il tempo
+    autoTimeValue.textContent = formatTime(window.lastFinalTime);
+    // prepara l’input con il nome corrente (se vuoi)
+    autoNameInput.value = currentPlayerName || "";
+  } else {
+    // Se NON è un nuovo record => nascondi la sezione “Save your result”
+    namingContainer.style.display = "none";
+  }
+
+  // Mostra l’overlay
+  overlay.classList.remove("hidden");
+}
+
+document.getElementById("autoNameConfirmBtn").addEventListener("click", function() {
+  let newName = document.getElementById("autoNameInput").value.trim();
+  if (!newName) {
+    alert("Please enter a valid name.");
+    return;
+  }
+
+  // 1) Aggiorniamo il nome in bestTimes
+  bestTimes.forEach(entry => {
+    if (Math.abs(entry.time - window.lastFinalTime) < 0.0001) {
+      entry.name = newName;
+    }
+  });
+  
+  // 2) Aggiorniamo la variabile globale del giocatore
+  currentPlayerName = newName;
+
+  // 3) Salviamo subito in LocalStorage la top5
+  localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
+
+  // 4) Se la pista è caricata, aggiorniamo anche la top5 della pista
+  if (currentTrackName !== "" && savedTracks[currentTrackName]) {
+    savedTracks[currentTrackName].bestTimes = [...bestTimes];
+    storeSavedTracks(); // Salva su localStorage l’oggetto savedTracks
+  }
+
+  // 5) Ricostruisci la classifica visuale
+  updateLeaderboard();
+
+  // 6) Chiudi il popup
+  document.getElementById("chronoOverlay").classList.add("hidden");
+  isNewRecord = false;
+});
+
+
+
+
+function saveNameHandler() {
+  let newName = document.getElementById("nameInput").value.trim();
+  if (newName === "") {
+    alert("Please enter a valid name.");
+    return;
+  }
+  
+  // Cerca il record con il tempo appena ottenuto (usando una soglia per il confronto)
+  let recordFound = false;
+  bestTimes.forEach(entry => {
+    if (Math.abs(entry.time - window.lastFinalTime) < 0.001) {
+      entry.name = newName;
+      recordFound = true;
+    }
+  });
+  
+  // Se per qualche ragione non troviamo il record, aggiorna comunque il nome globale
+  if (!recordFound) {
+    currentPlayerName = newName;
+  } else {
+    // Aggiorna anche il nome globale per le prossime sessioni
+    currentPlayerName = newName;
+  }
+  
+  // Salva l'array aggiornato nel localStorage
+  localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
+  
+  // Aggiorna la leaderboard (la funzione rileggerà i dati dal localStorage)
+  updateLeaderboard();
+  
+  // Chiudi il popup e resetta il flag
+  document.getElementById("chronoOverlay").classList.add("hidden");
+  isNewRecord = false;
+}
+
+
+
+
 
       /* Attiva/Disattiva Challenge Mode */
 function toggleChallengeMode() {
@@ -2103,6 +2278,9 @@ function toggleChallengeMode() {
         setMainLabel("⏰0'00\"000'''");
         toggleButtonState(false);
         resetRun(); // resetRun() richiama positionStartRing() internamente
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
       },
       function () {
         console.log("Quit Challenge Mode canceled");
@@ -2290,25 +2468,36 @@ function replayTrajectory(customPoints) {
         }
       });
 
-      quitButton.addEventListener("click", () => {
-        isChallengeMode = false;
-        challengeAttempts = 0;
-        setMainLabel("⏰0'00\"000'''");
-        toggleButtonState(false);
+quitButton.addEventListener("click", () => {
+  // 1) Esco dalla challenge, se serve
+  isChallengeMode = false;
+  challengeAttempts = 0;
+  setMainLabel("⏰0'00\"000'''");
+  toggleButtonState(false);
+resetRun();
+bestTimes = [];
+localStorage.removeItem("bestTimes");
+updateLeaderboard();
 
-        currentTrack = createTrack();
-        bestTimes = [];
-        currentTrackName = "";
-        lastCompleteRun = null;
+  // 2) Ecco il reset TOP5
+  bestTimes = [];
+  localStorage.removeItem("bestTimes");
+  updateLeaderboard();
 
-        clearCanvas();
-        drawTrack(currentTrack);
-      });
+  // 3) Creo la nuova pista e la disegno
+  currentTrack = createTrack();
+  currentTrackName = "";
+  lastCompleteRun = null;
 
-      chronoButton.addEventListener("click", () => {
-        updateLeaderboard();
-        chronoOverlay.classList.remove("hidden");
-      });
+  clearCanvas();
+  drawTrack(currentTrack);
+});
+
+
+ document.getElementById("chronoButton").addEventListener("click", () => {
+  isNewRecord = false;
+  showTop5Popup();
+});
 
       closeChronoOverlay.addEventListener("click", () => {
         chronoOverlay.classList.add("hidden");
@@ -2399,24 +2588,30 @@ function resetRun() {
 
 
       /* Aggiorna la lista Top 5 */
-      function updateLeaderboard() {
-        let lb = document.getElementById("leaderboardList");
-        lb.innerHTML = "";
-        bestTimes.forEach((entry, i) => {
-          let li = document.createElement("li");
-          if (i === 0) {
-            li.innerHTML = `${entry.name} - ${formatTime(entry.time)} <img src="replay.png" alt="Replay" style="width:20px; height:20px; cursor:pointer; transform: translateY(3px);" title="Click to watch the best replay">`;
-            li.style.fontWeight = "bold";
-            li.addEventListener("click", () => {
-              chronoOverlay.classList.add("hidden");
-              replayTrajectory(entry.replay);
-            });
-          } else {
-            li.textContent = `${entry.name} - ${formatTime(entry.time)}`;
-          }
-          lb.appendChild(li);
-        });
-      }
+function updateLeaderboard() {
+  // Ricarica bestTimes dal localStorage, se presenti
+  let stored = localStorage.getItem("bestTimes");
+  if (stored) {
+    bestTimes = JSON.parse(stored);
+  }
+  
+  let lb = document.getElementById("leaderboardList");
+  lb.innerHTML = "";
+  bestTimes.forEach((entry, i) => {
+    let li = document.createElement("li");
+    if (i === 0) {
+      li.innerHTML = `${entry.name} - ${formatTime(entry.time)} <img src="replay.png" alt="Replay" style="width:20px; height:20px; cursor:pointer; transform: translateY(3px);" title="Click to watch the best replay">`;
+      li.style.fontWeight = "bold";
+      li.addEventListener("click", () => {
+        chronoOverlay.classList.add("hidden");
+        replayTrajectory(entry.replay);
+      });
+    } else {
+      li.textContent = `${entry.name} - ${formatTime(entry.time)}`;
+    }
+    lb.appendChild(li);
+  });
+}
 
       /* Gestione LocalStorage piste salvate */
       const LS_KEY = "skiSolo_savedTracks";
@@ -2494,15 +2689,33 @@ function resetRun() {
           let span = document.createElement("span");
           span.textContent = name;
           span.classList.add("saved-item-text");
-          span.addEventListener("click", () => {
-            let saved = savedTracks[name];
-            currentTrack = saved.track;
-            bestTimes = saved.bestTimes || [];
-            currentTrackName = name;
-            resizeCanvas();
-            resetRun();
-            viewOverlay.classList.add("hidden");
-          });
+     span.addEventListener("click", () => {
+  // 1) Recupero i dati salvati
+  let saved = savedTracks[name];
+
+  // 2) Imposto la pista
+  currentTrack = saved.track;
+
+  // 3) Imposto la top5 = quella salvata (se esiste)
+  bestTimes = saved.bestTimes || [];
+
+  // 4) Aggiorno subito localStorage per riflettere questa top5
+  localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
+
+  // 5) Se vuoi, aggiorna la leaderboard
+  updateLeaderboard();
+
+  // 6) Memorizzo il nome della pista
+  currentTrackName = name;
+
+  // 7) Ridimensiona e reset
+  resizeCanvas();
+  resetRun();
+  
+  // 8) Chiudo il popup “ViewOverlay”
+  viewOverlay.classList.add("hidden");
+});
+
 
           let delBtn = document.createElement("button");
           delBtn.textContent = "Delete";
@@ -2571,15 +2784,15 @@ function resetRun() {
         startGame();
       });
 
-      function startGame() {
-        loadSavedTracks();
-        currentTrack = createTrack();
-        bestTimes = [];
-        currentTrackName = "";
-        resizeCanvas();
-        resetRun();
-        drawTrack(currentTrack);
-      }
+ function startGame() {
+  localStorage.removeItem("bestTimes"); // elimina i record precedenti
+  bestTimes = []; // resetta l'array
+  currentTrack = createTrack();
+  currentTrackName = "";
+  resizeCanvas();
+  resetRun();
+  drawTrack(currentTrack);
+}
 
       renderTutorial();
 
