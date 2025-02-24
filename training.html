@@ -303,22 +303,30 @@
       }
 
       /* Input identico a .player-name-input */
-      #trackNameInput,
-      #resultNameInput {
-        background: #ffffff;
-        border: 1px solid #bdc9fb;
-        border-radius: 16px;
-        padding: 10px;
-        width: 80%;
-        margin-bottom: 8px;
-        box-shadow:
-          inset 3px 3px 4px rgba(0, 0, 0, 0.2),
-          inset -3px -3px 4px rgba(255, 255, 255, 0.7);
-        outline: none;
-        font-size: 1em;
-        transition: all 0.2s ease-in-out;
-      }
+#trackNameInput,
+#resultNameInput,
+#autoNameInput {
+  margin-top: 12px; /* Aumenta il valore se vuoi più spazio */
+  background: #ffffff;
+  border: 1px solid #bdc9fb;
+  border-radius: 16px;
+  padding: 10px;
+  width: 80%;
+  margin-bottom: 8px;
+  box-shadow:
+    inset 3px 3px 4px rgba(0, 0, 0, 0.2),
+    inset -3px -3px 4px rgba(255, 255, 255, 0.7);
+  outline: none;
+  font-size: 1em;
+  transition: all 0.2s ease-in-out;
+}
+#savedTracksPopup label {
+  margin-bottom: 0px; /* Riduce lo spazio tra la scritta e il campo edit */
+}
 
+#trackNameInput {
+  margin-top: 2px; /* Diminuisce lo spazio sopra il campo */
+}
       /* Effetto focus identico */
       #trackNameInput:focus,
       #resultNameInput:focus {
@@ -418,6 +426,7 @@
         height: 22px;
         vertical-align: middle;
         margin-left: 8px;
+margin-top: -3px;
       }
 
       .slides-nav .nav-button {
@@ -627,31 +636,32 @@
 
       <!-- Raggruppamento dei bottoni in basso -->
       <div class="bottom-buttons">
-        <!-- Gruppo Sinistro: da sinistra verso il centro -->
-        <div class="left-bottom-group">
-          <button id="replayButton" title="Replay">
-            <img src="replay.png" alt="Replay" style="width:19px; height:19px;" />
-          </button>
-          <button id="saveResultBtn" title="Save Result">
-            <img src="cup.png" alt="Save Result" style="width:19px; height:19px;" />
-          </button>
-          <button id="viewBtn" title="Save Track">
-            <img src="save.png" alt="Save Track" style="width:19px; height:19px;" />
-          </button>
-        </div>
+ <!-- Gruppo Sinistro: da sinistra verso il centro -->
+<div class="left-bottom-group">
+  <button id="replayButton" title="Replay">
+    <img src="replay.png" alt="Replay" style="width:19px; height:19px;" />
+  </button>
+  <button id="sameTrack" title="Toggle Snow">
+    <img src="snowflake.png" alt="Toggle Snow" style="width:19px; height:19px;" />
+  </button>
+  <button id="viewBtn" title="Save Track">
+    <img src="save.png" alt="Save Track" style="width:19px; height:19px;" />
+  </button>
+</div>
 
-        <!-- Gruppo Destro: dal centro verso destra -->
-        <div class="right-bottom-group">
-          <button id="challengeButton" title="Challenge Mode">
-            <img src="medal.png" alt="Challenge" style="width:19px; height:19px;" />
-          </button>
-          <button id="sameTrack" title="Toggle Snow">
-            <img src="snowflake.png" alt="Toggle Snow" style="width:19px; height:19px;" />
-          </button>
-          <button id="quit" title="New Run">
-            <img src="new.png" alt="New Run" style="width:19px; height:19px;" />
-          </button>
-        </div>
+<!-- Gruppo Destro: dal centro verso destra -->
+<div class="right-bottom-group">
+  <button id="challengeButton" title="Challenge Mode">
+    <img src="medal.png" alt="Challenge" style="width:19px; height:19px;" />
+  </button>
+  <button id="saveResultBtn" title="World Cup">
+    <img src="cup.png" alt="Save Result" style="width:19px; height:19px;" />
+  </button>
+  <button id="quit" title="New Run">
+    <img src="new.png" alt="New Run" style="width:19px; height:19px;" />
+  </button>
+</div>
+
       </div>
     </div>
 
@@ -684,10 +694,14 @@
     <!-- Sezione di naming stile “Save Your Result”, nascosta se non serve -->
     <div 
   id="top5NamingContainer" 
-  style="display: none; margin-top: 5px; border-top:1px solid #999; padding-top:5px;"
+  style="display: none; margin-top: 5px; padding-top:5px;"
 >
-  <h2 style="margin: 0; padding: 0;">Name this time</h2>
-  <p style="margin: 0; padding: 0;">Your time: <span id="autoTimeValue"></span></p>
+  <h2 style="margin: 0; padding: 0; font-size: 1em;">You reached</h2>
+  <p style="margin: 0; padding: 0;">
+    <span id="autoTimeValue" style="font-size: 1em; color: blue; font-weight: bold;"></span>
+  </p>
+  <!-- Nuova riga per il messaggio dinamico -->
+  <p id="nameReminder" style="margin: 0; padding: 0;"></p>
   <input 
     type="text" 
     id="autoNameInput"
@@ -702,6 +716,7 @@
     Save Result
   </button>
 </div>
+
     
   </div>
 </div>
@@ -717,16 +732,6 @@
         <h3>Save current track</h3>
         <input type="text" id="trackNameInput" placeholder="Enter track name" maxlength="15" />
         <button id="saveTrackBtn">Save Track</button>
-      </div>
-    </div>
-
-    <!-- OVERLAY Save Result: per salvare il tempo realizzato -->
-    <div id="saveResultOverlay" class="overlay hidden">
-      <div class="overlay-content">
-        <button id="closeSaveResultOverlay">X</button>
-        <h2>Save Your Result</h2>
-        <input type="text" id="resultNameInput" placeholder="Enter your name" maxlength="6" />
-        <button id="saveResultConfirmBtn">Save Result</button>
       </div>
     </div>
 
@@ -749,11 +754,11 @@
 
         <h2>Welcome to the Challenge Mode!</h2>
         <p class="overlay-text">
-          <strong>Beat the best time, level up, and achieve the highest score!</strong>
+          <strong>Beat the target time, level up, and achieve the highest score!</strong>
         </p>
         <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
-          ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!
+          ❄ You have <b>3 attempts</b> to beat the target time; the more you lower it, the more points you earn!
         </p>
         <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
@@ -891,8 +896,6 @@
       let closeChronoOverlay = document.getElementById("closeChronoOverlay");
       let viewOverlay = document.getElementById("viewOverlay");
       let closeViewOverlay = document.getElementById("closeViewOverlay");
-      let saveResultOverlay = document.getElementById("saveResultOverlay");
-      let closeSaveResultOverlay = document.getElementById("closeSaveResultOverlay");
       let tutorialOverlay = document.getElementById("tutorialOverlay");
       let tutorialContent = document.getElementById("tutorialContent");
       let tutorialDots = document.getElementById("tutorialDots");
@@ -940,7 +943,7 @@ updateLeaderboard();
       /* Gestione dei "titoli" sbloccati in base al livello */
       const baseSpeed = 3.5; // Velocità iniziale di default
       let speed = baseSpeed;
-      const speedDecrement = 0.05; 
+      const speedDecrement = 0.03; 
       let currentLevel = 1; 
       let currentChallengeSaveName = ""; 
       let currentPlayerName = localStorage.getItem("currentPlayerName") || "NoName";
@@ -1041,44 +1044,69 @@ updateLeaderboard();
 
       /* Slides Tutorial */
       let tutorialSlides = [
-        {
-          title: "Welcome to Ski-Zag!",
-          content: `<p class="overlay-text">
-        <b><i>Start at the hut and ski to the finish!</i></b><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        ❄ Draw your path with your finger, pass through the gates, avoid the trees, cross the finish line and achieve <b>the best time!</b><br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        ❄ <b>Red gates</b> must be passed on the <b>right</b>, and <b>blue gates</b> on the <b>left</b>.<br>
-        </p>`
-        },
-        {
-          title: `Challenge Mode<img src="medal.png" class="medal-title-icon" alt="Medal">`,
-          content: `<p class="overlay-text">
-        <i><b>Beat the best time, level up, and achieve the highest score!</b></i><br>
-<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!<br><span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-        ❄ <strong>Beat the level:</strong><br>
-        <strong>1st try</strong> → points x3<br>
-        <strong>2nd</strong> → points x2<br> 
-        <strong>3rd</strong> → points x1
-        </p>`
-        },
-        {
-          title: "Buttons",
-          content: `<div class="overlay-text controls-slide">
-          <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="cup.png" class="tutorial-icon" alt="Save Result"> Save your result<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="save.png" class="tutorial-icon" alt="View / Save Track"> Save/load track<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="medal.png" class="tutorial-icon" alt="Medal">Challenge Mode In/Out<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Snow On/Off<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="new.png" class="tutorial-icon" alt="New Track"> New Track<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="stopwatch.png" class="tutorial-icon" alt="Top 5">Top 5 <i>(view best times)</i><hr style="border:none; border-top:1px solid red; margin:8px 0;">
-          <img src="home.png" class="tutorial-icon" alt="homeBtn">Quit/Home
-        </div>`
-        },
-        {
-          title: "Good Luck!",
-          content: `<p class="overlay-text">Have fun with Ski-Zag!<br><b>Enjoy the slope!</b></p>`
-        }
-      ];
+  {
+    title: `Welcome to Ski-Zag!<br><i style="font-size: 0.6em;">Arcade Mode (1-∞ players)</i>`,
+    content: `<p class="overlay-text">
+      <b><i>Start at the hut and ski to the finish!</i></b>
+      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+      ❄ Draw your path with your finger, pass through the gates, avoid the trees, cross the finish line and achieve <b>the best time!</b>
+      <br>
+      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+      ❄ <b>Red gates</b> must be passed on the <b>right</b>, and <b>blue gates</b> on the <b>left</b>.
+    </p>`
+  },
+  {
+    title: `Challenge<img src="medal.png" class="medal-title-icon" alt="Medal"><br><i style="font-size: 0.6em;">Solo Mode</i>`,
+    content: `<p class="overlay-text">
+      <i><b>Beat the best time, level up, and achieve the highest score!</b></i><br>
+      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+      ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!<br>
+      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+      ❄ <strong>Beat the level:</strong><br>
+      <strong>1st try</strong> → points x3<br>
+      <strong>2nd</strong> → points x2<br> 
+      <strong>3rd</strong> → points x1
+    </p>`
+  },
+ 
+{
+  title: `World Cup<img src="cup.png" class="medal-title-icon" alt="Cup"><br><i style="font-size: 0.6em;">Pass-and-Play Mode</i>`,
+  content: `
+    <p class="overlay-text">❄ Between <b>2 and 6</b> participants compete in <b>3 distinct races</b><br> <i>(Giant, Special, SuperG)</i>.<br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ Each race has <b>2 Manches</b>, and in each manche every participant has <b>3 consecutive attempts</b> <i>(Runs)</i>.<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points:<br><i><b>(9, 7, 5, 3, 1).</b></i></p>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!</p>
+  `
+},
+
+  {
+    title: "Buttons",
+  content: `<div class="overlay-text controls-slide">
+    <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay
+    <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+    <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Toggle Snow
+    <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+    <img src="save.png" class="tutorial-icon" alt="Save Track"> Save Track
+    <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+    <img src="medal.png" class="tutorial-icon" alt="Challenge Mode"> Challenge Mode
+    <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+    <img src="cup.png" class="tutorial-icon" alt="World Cup"> World Cup
+    <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+    <img src="new.png" class="tutorial-icon" alt="New Track"> New Track
+      <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+      <img src="stopwatch.png" class="tutorial-icon" alt="Top 5">Top 5 <i>(view best times)</i>
+      <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+      <img src="home.png" class="tutorial-icon" alt="homeBtn">Quit/Home
+    </div>`
+  },
+  {
+    title: "Good Luck!",
+    content: `<p class="overlay-text">Have fun with Ski-Zag!<br><b>Enjoy the slope!</b></p>`
+  }
+];
+
 
       let currentTutorialIndex = 0;
 
@@ -1873,7 +1901,7 @@ updateLeaderboard();
         } else {
           content.innerHTML = `
             <h2>Start the Challenge!</h2>
-            <p>Try to beat the best time and level up!</p>
+            <p>Try to beat the target time and level up!</p>
             <hr>
             <button id="challengeNewGameBtn" class="play-button">New Game</button>
             <button id="challengeQuitBtn" style="margin:10px;">Quit</button>`;
@@ -2175,19 +2203,17 @@ function showTop5Popup() {
   let autoTimeValue = document.getElementById("autoTimeValue");
   let autoNameInput = document.getElementById("autoNameInput");
 
-  // Se “nuovo record” => mostra la sezione input
   if (isNewRecord) {
     namingContainer.style.display = "block";
-    // mostra il tempo
     autoTimeValue.textContent = formatTime(window.lastFinalTime);
-    // prepara l’input con il nome corrente (se vuoi)
     autoNameInput.value = currentPlayerName || "";
+    // Aggiungi il messaggio dinamico
+document.getElementById("nameReminder").innerHTML =
+    `<i>If you're not <strong>${currentPlayerName}</strong>, name this time</i>`;
   } else {
-    // Se NON è un nuovo record => nascondi la sezione “Save your result”
     namingContainer.style.display = "none";
   }
 
-  // Mostra l’overlay
   overlay.classList.remove("hidden");
 }
 
@@ -2331,11 +2357,11 @@ function startNewChallenge() {
   let numTrees = currentTrack.trees.length;
   let factor = 1.0;
   if (numTrees === 6) {
-    factor = 1.10;
+    factor = 1.15;
   } else if (numTrees === 7) {
-    factor = 1.20;
+    factor = 1.25;
   } else if (numTrees >= 8) {
-    factor = 1.30;
+    factor = 1.35;
   }
   updateWeatherForChallenge();
   let idealLength = calculateIdealPath(currentTrack.gates);
@@ -2344,7 +2370,7 @@ function startNewChallenge() {
   }
   idealLength *= factor;
   challengeBestTime = calculateFinalTime(
-    idealLength * 6.5 * (speed / baseSpeed),
+    idealLength * 6.0 * (speed / baseSpeed),
     idealLength
   );
   if (isNaN(challengeBestTime) || challengeBestTime <= 0) {
@@ -2512,17 +2538,13 @@ updateLeaderboard();
         viewOverlay.classList.add("hidden");
       });
 
-      saveResultBtn.addEventListener("click", () => {
-        if (isChallengeMode) {
-          alert("Save Result is disabled in Challenge Mode.");
-          return;
-        }
-        saveResultOverlay.classList.remove("hidden");
-      });
-
-      closeSaveResultOverlay.addEventListener("click", () => {
-        saveResultOverlay.classList.add("hidden");
-      });
+saveResultBtn.addEventListener("click", function() {
+  if (isChallengeMode) {
+    alert("Save Result is disabled in Challenge Mode.");
+    return;
+  }
+  window.location.href = "players.html";
+});
 
       /* Intro Challenge -> Start Challenge */
       document
@@ -2538,24 +2560,6 @@ updateLeaderboard();
       /* Pulsante X in alto a sinistra dell’intro Challenge */
       document.getElementById("closeChallengeIntroButton").addEventListener("click", function() {
         document.getElementById("challengeIntroOverlay").classList.add("hidden");
-      });
-
-      /* Pulsante "Save Result" nel popup */
-      document.getElementById("saveResultConfirmBtn").addEventListener("click", () => {
-        let name = document.getElementById("resultNameInput").value.trim();
-        if (name === "") {
-          alert("Enter your name!");
-          return;
-        }
-        if (typeof window.lastFinalTime !== "number" || window.lastFinalTime === 0) {
-          alert("No valid time recorded!");
-          return;
-        }
-        currentPlayerName = name;
-        localStorage.setItem("currentPlayerName", name);
-        updateBestTimes(window.lastFinalTime, lastCompleteRun, name);
-        saveResultOverlay.classList.add("hidden");
-        updateLeaderboard();
       });
 
       /* Funzione per ripristinare lo stato pre-run */
@@ -2799,7 +2803,7 @@ function updateLeaderboard() {
       /* Pulsante Home per tornare all'index */
       document.getElementById("homeBtn").addEventListener("click", function () {
         showConfirmPopup(
-          "Return to home to play the World Cup?",
+          "Do you want to return to home?",
           function () {
             location.href = "index.html";
           },
