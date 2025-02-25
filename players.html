@@ -2051,16 +2051,15 @@ function updatePointsLeaderboardWithScores(scores) {
   let i = 0;
   function step() {
     if (i >= customPoints.length - 1) {
-      setTimeout(() => {
-        clearCanvas();
-        if (currentTrack) drawTrack(currentTrack);
-        // Ripristina lo sfondo originale
-        container.style.background = originalBackground;
-        // Ripristina il label originale
-        setMainLabel(savedMainLabel);
-        // Ora, uscendo dal replay, riposiziona l'anello (lo vedrai nel gioco)
-        positionStartRing();
-      }, 500);
+     setTimeout(() => {
+  clearCanvas();
+  drawTrack(currentTrack);
+  container.style.background = originalBackground;
+  // Invece di ripristinare savedMainLabel, ripristina il messaggio di turno:
+  callParticipant();
+  // Riposiziona l'anello
+  positionStartRing();
+}, 500);
       return;
     }
     ctx.beginPath();
