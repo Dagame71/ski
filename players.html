@@ -779,12 +779,12 @@ let lastRunHighlight = null;
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
         startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
-        finishRect = {
-          x: canvas.width / 2 - 20,
-          y: canvas.height - 50,
-          width: 40,
-          height: 10
-        };
+finishRect = {
+  x: canvas.width / 2 - 30, // 60/2 = 30 per centrare
+  y: canvas.height - 50,
+  width: 60,   // Nuova larghezza
+  height: 10   // Altezza invariata
+};
       }
 
       /* ==============================================
@@ -994,17 +994,18 @@ let lastRunHighlight = null;
           iconHeight
         );
       }
-      function drawFinishArea() {
-        const { x, y, width, height } = finishRect;
-        const sq = width / 8;
-        const rowCount = Math.floor(height / (width / 8));
-        for (let row = 0; row < rowCount; row++) {
-          for (let col = 0; col < 8; col++) {
-            ctx.fillStyle = (row + col) % 2 === 0 ? "black" : "#F0F0F0";
-            ctx.fillRect(x + col * sq, y + row * sq, sq, sq);
-          }
-        }
-      }
+function drawFinishArea() {
+  const { x, y, width, height } = finishRect;
+  const squareSize = 5; // Dimensione fissa dei quadrati
+  const colCount = Math.floor(width / squareSize); // Con 60px, colCount sarà 12
+  const rowCount = Math.floor(height / squareSize);  // Con 10px, rowCount sarà 2
+  for (let row = 0; row < rowCount; row++) {
+    for (let col = 0; col < colCount; col++) {
+      ctx.fillStyle = (row + col) % 2 === 0 ? "black" : "#F0F0F0";
+      ctx.fillRect(x + col * squareSize, y + row * squareSize, squareSize, squareSize);
+    }
+  }
+}
       function drawGates(gArr) {
         gArr.forEach((g) => {
           // Se in modalità editor, disegna anche un alone pulsante (opzionale)
