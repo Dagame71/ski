@@ -924,7 +924,6 @@ let isNewRecord = false; // serve a capire se stiamo aprendo il popup in automat
       let intersectedGates = new Set();
       let didFinishOrFail = false; 
       let expectedGate = 1;
-
       let startPoint = { x: 150, y: 30 }; // Punto di partenza
       let finishRect = { x: 130, y: 490, width: 40, height: 10 }; // Area di arrivo
       let globalWind = Math.random() * 1 - 0.5; // Vento casuale
@@ -2347,28 +2346,39 @@ function startNewChallenge() {
   if (isGeneratingChallenge) return;
   isGeneratingChallenge = true;
 
+  // Aggiorna la velocità per il nuovo livello (decremento costante)
   adjustSpeedForNextLevel();
+
+  // Crea la nuova pista e la disegna
   currentTrack = createTrack();
   drawTrack(currentTrack);
-  
-  // Posiziona e mostra l'anello all'inizio del nuovo livello Challenge
+
+  // Posiziona e mostra l'anello all'inizio della run
   positionStartRing();
 
+  // Calcola il bonus livello per il moltiplicatore degli alberi
   let numTrees = currentTrack.trees.length;
+  let levelBonus = (currentLevel - 1) * 0.05;  // Bonus aumenta di 0.05 ad ogni livello
   let factor = 1.0;
   if (numTrees === 6) {
-    factor = 1.15;
+    factor = 1.05 + levelBonus;
   } else if (numTrees === 7) {
-    factor = 1.25;
+    factor = 1.10 + levelBonus;
   } else if (numTrees >= 8) {
-    factor = 1.35;
+    factor = 1.15 + levelBonus;
   }
+
+  // Aggiorna lo stato meteo
   updateWeatherForChallenge();
+
+  // Calcola la lunghezza ideale della pista in base ai gates
   let idealLength = calculateIdealPath(currentTrack.gates);
   if (isNaN(idealLength) || idealLength <= 0) {
     idealLength = 300;
   }
   idealLength *= factor;
+
+  // Calcola il tempo base target con i parametri attuali
   challengeBestTime = calculateFinalTime(
     idealLength * 6.0 * (speed / baseSpeed),
     idealLength
@@ -2376,11 +2386,51 @@ function startNewChallenge() {
   if (isNaN(challengeBestTime) || challengeBestTime <= 0) {
     challengeBestTime = 66.542;
   }
+
+  // Applica l'aggiustamento in base alle fasce di tempo (il tempo viene arrotondato al centesimo superiore)
+  challengeBestTime = applyTimeAdjustment(challengeBestTime);
+
+  // Imposta il numero di tentativi per la Challenge
   challengeAttempts = 3;
+
+  // Visualizza il tempo target aggiornato nella infoline
   setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+
   setTimeout(() => {
     isGeneratingChallenge = false;
   }, 500);
+}
+function applyTimeAdjustment(time) {
+  let adjustedTime = time;
+
+  if (time < 62.5) {
+    adjustedTime = time * 1.03;
+  } else if (time >= 62.51 && time <= 63.00) {
+    adjustedTime = time * 1.02;
+  } else if (time >= 63.01 && time <= 64.00) {
+    adjustedTime = time * 1.015;
+  } else if (time >= 64.01 && time <= 68.90) {
+    adjustedTime = time * 1.00; // Nessuna variazione
+  } else if (time >= 69.00 && time <= 70.00) {
+    adjustedTime = time * 0.99;
+  } else if (time >= 70.10 && time <= 71.00) {
+    adjustedTime = time * 0.985;
+  } else if (time >= 71.01 && time <= 72.00) {
+    adjustedTime = time * 0.95;
+  } else if (time >= 72.01 && time <= 73.00) {
+    adjustedTime = time * 0.935;
+  } else if (time >= 73.01 && time <= 74.00) {
+    adjustedTime = time * 0.93;
+  } else if (time >= 74.01 && time <= 75.00) {
+    adjustedTime = time * 0.92;
+  } else if (time >= 75.01 && time <= 76.00) {
+    adjustedTime = time * 0.91;
+  } else if (time > 76.00) {
+    adjustedTime = time * 0.90;
+  }
+  
+  // Arrotonda al centesimo superiore
+  return Math.ceil(adjustedTime * 100) / 100;
 }
 
 
