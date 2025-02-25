@@ -1118,12 +1118,12 @@ updateLeaderboard();
         snowCanvas.height = container.clientHeight;
 
         startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
-        finishRect = {
-          x: canvas.width / 2 - 20,
-          y: canvas.height - 50,
-          width: 40,
-          height: 10
-        };
+    finishRect = {
+  x: canvas.width / 2 - 30, // 60/2 = 30 per centrare
+  y: canvas.height - 50,
+  width: 60,   // Nuova larghezza
+  height: 10   // Altezza invariata
+};
 
         drawTrack(currentTrack);
       }
@@ -1147,17 +1147,18 @@ updateLeaderboard();
       }
 
       /* Disegna l'area di arrivo (bandiera a scacchi) */
-      function drawFinishArea() {
-        const { x, y, width, height } = finishRect;
-        const sq = width / 8;
-        let rowCount = Math.floor(height / (width / 8));
-        for (let row = 0; row < rowCount; row++) {
-          for (let col = 0; col < 8; col++) {
-            ctx.fillStyle = (row + col) % 2 === 0 ? "black" : "#F0F0F0";
-            ctx.fillRect(x + col * sq, y + row * sq, sq, sq);
-          }
-        }
-      }
+  function drawFinishArea() {
+  const { x, y, width, height } = finishRect;
+  const squareSize = 5; // Dimensione fissa dei quadrati
+  const colCount = Math.floor(width / squareSize); // Con 60px, colCount sarà 12
+  const rowCount = Math.floor(height / squareSize);  // Con 10px, rowCount sarà 2
+  for (let row = 0; row < rowCount; row++) {
+    for (let col = 0; col < colCount; col++) {
+      ctx.fillStyle = (row + col) % 2 === 0 ? "black" : "#F0F0F0";
+      ctx.fillRect(x + col * squareSize, y + row * squareSize, squareSize, squareSize);
+    }
+  }
+}
 
       /* Caricamento icone per i gate (rosso e blu) */
       const gateIcons = {
@@ -2358,7 +2359,7 @@ function startNewChallenge() {
 
   // Calcola il bonus livello per il moltiplicatore degli alberi
   let numTrees = currentTrack.trees.length;
-  let levelBonus = (currentLevel - 1) * 0.05;  // Bonus aumenta di 0.05 ad ogni livello
+  let levelBonus = (currentLevel - 1) * 0.02;  // Bonus aumenta di 0.05 ad ogni livello
   let factor = 1.0;
   if (numTrees === 6) {
     factor = 1.05 + levelBonus;
@@ -2380,7 +2381,7 @@ function startNewChallenge() {
 
   // Calcola il tempo base target con i parametri attuali
   challengeBestTime = calculateFinalTime(
-    idealLength * 6.0 * (speed / baseSpeed),
+    idealLength * 5.8 * (speed / baseSpeed),
     idealLength
   );
   if (isNaN(challengeBestTime) || challengeBestTime <= 0) {
