@@ -533,7 +533,19 @@ margin-top: -3px;
         align-items: center;
         z-index: 10; 
       }
-
+.challenge-counters {
+  position: absolute;
+  width: 60px;
+  height: 30px;
+  z-index: 10; /* stesso layer dei pulsanti */
+  background: transparent;
+  font: 10px Arial, sans-serif;
+  padding: 2px;
+  border-radius: 4px;
+}
+.hidden {
+  display: none;
+}
       /* Sovrascrive la regola duplicata, distribuendo lo spazio tra i gruppi */
       .bottom-buttons {
         position: absolute;
@@ -623,7 +635,7 @@ margin-top: -3px;
     <div class="container" id="gameContainer">
       <canvas id="canvas"></canvas>
 <div id="start-ring"></div>
-
+  <div id="challengeCounters" class="challenge-counters hidden"></div>
       <!-- Contenitore per i bottoni in alto -->
       <div class="top-buttons">
         <button id="homeBtn" title="Home">
@@ -838,7 +850,25 @@ margin-top: -3px;
       let ctx = canvas.getContext("2d");
       let snowCanvas = document.getElementById("snowCanvas");
       let snowCtx = snowCanvas.getContext("2d");
-
+function showSystemMessage(message, callback) {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  
+  const content = document.createElement("div");
+  content.className = "overlay-content";
+  content.innerHTML = `
+    <p style="margin-bottom: 20px; font-size: 16px;">${message}</p>
+    <button class="play-button" id="systemMessageBtn">OK</button>
+  `;
+  
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+  
+  document.getElementById("systemMessageBtn").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+    if (callback) callback();
+  });
+}
       // Singolo elemento per mostrare il tempo e i messaggi
       const infoLine = document.getElementById("infoLine");
 
@@ -927,7 +957,8 @@ let isNewRecord = false; // serve a capire se stiamo aprendo il popup in automat
       let startPoint = { x: 150, y: 30 }; // Punto di partenza
       let finishRect = { x: 130, y: 490, width: 40, height: 10 }; // Area di arrivo
       let globalWind = Math.random() * 1 - 0.5; // Vento casuale
-
+let treeCounter = 10;  // Conta gli alberi colpiti
+let gateCounter = 10;  // Conta i gate saltati
       /* Variabili per Challenge Mode */
       let isChallengeMode = false;
       let challengeBestTime = 0;
@@ -1106,8 +1137,7 @@ updateLeaderboard();
   }
 ];
 
-
-      let currentTutorialIndex = 0;
+     let currentTutorialIndex = 0;
 
       /* Funzione per gestire il ridimensionamento dinamico del canvas */
       const container = document.getElementById("gameContainer");
@@ -1124,8 +1154,17 @@ updateLeaderboard();
   width: 60,   // Nuova larghezza
   height: 10   // Altezza invariata
 };
+// Posiziona il div dei contatori sotto il traguardo
+let countersDiv = document.getElementById("challengeCounters");
+if (countersDiv) {
+  countersDiv.style.left = "50%";
+  countersDiv.style.top = (finishRect.y + finishRect.height + 5) + "px"; // 5px sotto il traguardo
+  countersDiv.style.transform = "translateX(-50%)";
+}
+
 
         drawTrack(currentTrack);
+updateCountersDisplay(); 
       }
 
       /* Pulisce il canvas di gioco */
@@ -1196,18 +1235,19 @@ updateLeaderboard();
           let y = (80 / 520) * canvas.height +
                   i * ((canvas.height - (120 / 520) * canvas.height) / count);
           let color = isRed ? "red" : "blue";
-          arr.push({
-            x: x,
-            y: y,
-            color: color,
-            number: i + 1, // Numerazione del gate
-            line: {
-              x1: x,
-              y1: y,
-              x2: x + dir * ((200 / 300) * canvas.width),
-              y2: y
-            }
-          });
+      arr.push({
+  x: x,
+  y: y,
+  color: color,
+  number: i + 1, // Numerazione del gate
+  missed: false, // Aggiunto: segnala se il gate è già stato contato come mancato
+  line: {
+    x1: x,
+    y1: y,
+    x2: x + dir * ((200 / 300) * canvas.width),
+    y2: y
+  }
+});
           isRed = !isRed;
         }
         return arr;
@@ -1288,6 +1328,39 @@ function positionStartRing() {
   ring.style.top = startPoint.y + "px";
   ring.style.display = "block";  // Rende visibile l’anello
 }
+function updateCountersDisplay() {
+  if (!isChallengeMode) {
+    document.getElementById("challengeCounters").classList.add("hidden");
+    return;
+  }
+  const counterDiv = document.getElementById("challengeCounters");
+  counterDiv.classList.remove("hidden");
+  counterDiv.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: center; gap: 3px;">
+      <div style="display: flex; align-items: center;">
+        <img src="tree.svg" alt="Tree" style="height: 18px; margin-right: 1px;">
+        <span style="font-size: 16px; font-weight: bold;">${treeCounter}</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <img src="red_gate.svg" alt="Gate" style="height: 18px; margin-right: 1px;">
+        <span style="font-size: 16px; font-weight: bold;">${gateCounter}</span>
+      </div>
+    </div>
+  `;
+  
+  // Riapplica la posizione corretta subito dopo l'aggiornamento
+  let finishRect = {
+    x: canvas.width / 2 - 30, // come definito in resizeCanvas
+    y: canvas.height - 50,
+    width: 60,
+    height: 10
+  };
+  counterDiv.style.left = "50%";
+  counterDiv.style.top = (finishRect.y + finishRect.height + 10) + "px";
+  counterDiv.style.transform = "translateX(-50%)";
+}
+
+
       /* Gestione Neve */
       let snowflakes = [];
 
@@ -1529,35 +1602,60 @@ canvas.addEventListener("touchstart", function() {
               let iy = p1.y + ((p2.y - p1.y) * j) / steps;
               for (const tree of trees) {
                 let dist = Math.hypot(ix - tree.x, iy - (tree.y - (10 / 520) * canvas.height));
-                if (dist < (10 / 520) * canvas.height) {
-                  didFinishOrFail = true;
-                  failRun("You hit a tree!");
-                  return;
-                }
-              }
+if (dist < (10 / 520) * canvas.height) {
+  // Decrementa solo se treeCounter è maggiore di 0
+  if (treeCounter > 0) {
+    treeCounter--;
+  }
+  updateCountersDisplay();  // Aggiorna il display
+  if (treeCounter <= 0) {
+    treeCounter = 0;  // Assicura che resti zero
+    if (currentTrackName !== "") {
+      delete savedTracks[currentTrackName];
+      storeSavedTracks();
+    }
+  }
+  didFinishOrFail = true;
+  failRun("You hit a tree!");
+  return;
+}              }
             }
           }
 
           // Nuova logica per i gates
-          for (const gate of gates) {
-            if (
-              linesIntersect(
-                p1.x, p1.y, p2.x, p2.y,
-                gate.line.x1, gate.line.y1, gate.line.x2, gate.line.y2
-              )
-            ) {
-              if (gate.number < expectedGate) {
-                continue;
-              }
-              if (gate.number === expectedGate) {
-                expectedGate++;
-              } else {
-                didFinishOrFail = true;
-                failRun("You missed a gate!");
-                return;
-              }
-            }
-          }
+// Logica vecchia per i gates: confronto diretto tra gate.number e expectedGate
+for (const gate of gates) {
+  if (
+    linesIntersect(
+      p1.x, p1.y, p2.x, p2.y,
+      gate.line.x1, gate.line.y1, gate.line.x2, gate.line.y2
+    )
+  ) {
+    if (gate.number < expectedGate) {
+      continue;
+    }
+if (gate.number === expectedGate) {
+  expectedGate++;
+} else {
+  if (gateCounter > 0) {
+    gateCounter--;
+  }
+  updateCountersDisplay();
+  if (gateCounter <= 0) {
+    gateCounter = 0; // Forza il valore a zero
+    if (currentTrackName !== "") {
+      delete savedTracks[currentTrackName];
+      storeSavedTracks();
+    }
+  }
+  didFinishOrFail = true;
+  failRun("You missed a gate!");
+  return;
+}
+  }
+}
+
+
 
           // Se il segmento scende oltre la y del traguardo senza passare effettivamente nell'area di finish
           if (
@@ -1571,15 +1669,20 @@ canvas.addEventListener("touchstart", function() {
           }
 
           // Finish
-          if (isSegmentInFinishArea(p1, p2, finishRect)) {
-            didFinishOrFail = true;
-            if (expectedGate === gates.length + 1) {
-              finishRun();
-            } else {
-              failRun("You missed a gate!");
-            }
-            return;
-          }
+    if (isSegmentInFinishArea(p1, p2, finishRect)) {
+  didFinishOrFail = true;
+  if (expectedGate === gates.length + 1) {
+    finishRun();
+  } else {
+    // Se il run non è corretto, decrementa il contatore dei gate saltati (se > 0)
+    if (gateCounter > 0) {
+      gateCounter--;
+    }
+    updateCountersDisplay();
+    failRun("You missed a gate!");
+  }
+  return;
+}
         }
       }
 
@@ -1698,9 +1801,15 @@ updateLeaderboard();
       }
 
       /* Mostra la schermata di fine Challenge */
-      function showChallengeEndOverlay(failReason = "") {
-        const overlay = document.getElementById("challengeEndOverlay");
-        const content = document.getElementById("challengeEndContent");
+     function showChallengeEndOverlay(failReason = "") {
+  const overlay = document.getElementById("challengeEndOverlay");
+  const content = document.getElementById("challengeEndContent");
+
+  if ((treeCounter === 0 || gateCounter === 0) && currentChallengeSaveName) {
+    deleteChallengeGame(currentChallengeSaveName);
+    currentChallengeSaveName = "";
+    showSystemMessage("Challenge failed! See your final score!");
+  }
 
         let titleText = currentTitleUnlocked ? currentTitleUnlocked : "(no title unlocked)";
         let reasonText = failReason ? `<p style="color:red;">${failReason}</p>` : "";
@@ -1713,20 +1822,19 @@ updateLeaderboard();
           <p>Title unlocked:<br> <strong>${titleText}</strong></p>
           <hr>`;
 
-        if (challengePoints > 0) {
-          if (currentChallengeSaveName) {
-            html += `<p>Your game has been saved as:<br><strong>${currentChallengeSaveName}</strong></p>`;
-          } else {
-            html += `<div style="margin:10px 0;">
-               <label style="display:block; margin-bottom:10px;">Save your game:</label>
-               <input type="text" id="challengeSaveName" placeholder="Enter a name" maxlength="6" />
-               <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
-             </div>`;
-          }
-          html += `<div id="challengeSavedGamesList" style="margin:10px 0;"></div>
-           <hr>`;
-        }
-
+  if (challengePoints > 0 && !(treeCounter === 0 || gateCounter === 0)) {
+    if (currentChallengeSaveName) {
+      html += `<p>Your game has been saved as:<br><strong>${currentChallengeSaveName}</strong></p>`;
+    } else {
+      html += `<div style="margin:10px 0;">
+         <label style="display:block; margin-bottom:10px;">Save your game:</label>
+         <input type="text" id="challengeSaveName" placeholder="Enter a name" maxlength="6" />
+         <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
+       </div>`;
+    }
+    html += `<div id="challengeSavedGamesList" style="margin:10px 0;"></div>
+     <hr>`;
+  }
         html += `
           <div class="centered-button">
             <button id="challengeNewGameBtn" class="play-button">New Game</button>
@@ -1756,34 +1864,38 @@ localStorage.removeItem("bestTimes");
 updateLeaderboard();
         });
 
-        if (challengePoints > 0 && currentChallengeSaveName) {
-          saveChallengeGame(currentChallengeSaveName, {
-            level: currentLevel,
-            points: challengePoints,
-            title: currentTitleUnlocked,
-            attemptsLeft: challengeAttempts,
-            speed: speed
-          });
-          alert("Game saved automatically as: " + currentChallengeSaveName);
-        } else if (challengePoints > 0) {
-          document.getElementById("challengeSaveBtn").addEventListener("click", () => {
-            let name = (document.getElementById("challengeSaveName").value || "").trim();
-            if (!name) {
-              alert("Please enter a valid name for your saved game.");
-              return;
-            }
-            saveChallengeGame(name, {
-              level: currentLevel,
-              points: challengePoints,
-              title: currentTitleUnlocked,
-              attemptsLeft: challengeAttempts,
-              speed: speed
-            });
-            currentChallengeSaveName = name;
-            renderSavedGamesList();
-            document.getElementById("challengeSaveName").value = "";
-          });
-        }
+if (challengePoints > 0 && currentChallengeSaveName) {
+  saveChallengeGame(currentChallengeSaveName, {
+    level: currentLevel,
+    points: challengePoints,
+    title: currentTitleUnlocked,
+    attemptsLeft: challengeAttempts,
+    speed: speed,
+    treeCounter: treeCounter,
+    gateCounter: gateCounter
+  });
+  alert("Game saved automatically as: " + currentChallengeSaveName);
+} else if (challengePoints > 0) {
+  document.getElementById("challengeSaveBtn").addEventListener("click", () => {
+    let name = (document.getElementById("challengeSaveName").value || "").trim();
+    if (!name) {
+      showSystemMessage("Please enter a valid name for your saved game.");
+      return;
+    }
+    saveChallengeGame(name, {
+      level: currentLevel,
+      points: challengePoints,
+      title: currentTitleUnlocked,
+      attemptsLeft: challengeAttempts,
+      speed: speed,
+      treeCounter: treeCounter,
+      gateCounter: gateCounter
+    });
+    currentChallengeSaveName = name;
+    renderSavedGamesList();
+    document.getElementById("challengeSaveName").value = "";
+  });
+}
 
         renderSavedGamesList();
       }
@@ -1834,24 +1946,38 @@ updateLeaderboard();
       }
 
       /* Funzione chiamata quando si clicca su un salvataggio Challenge nella lista */
-      function onLoadSavedGame(name) {
-        if (loadChallengeGame(name)) {
-          currentChallengeSaveName = name;
-          alert("Loaded saved game: " + name);
-          document.getElementById("challengeEndOverlay").classList.add("hidden");
-          startNewChallenge();
-        } else {
-          alert("Error: saved game not found.");
-        }
+function onLoadSavedGame(name) {
+  if (loadChallengeGame(name)) {
+    currentChallengeSaveName = name;
+    // Usa il popup personalizzato per confermare il caricamento
+    showConfirmPopup("Load saved game: " + name + "?", 
+      function() {
+        // Callback per il caso in cui l'utente confermi
+        document.getElementById("challengeEndOverlay").classList.add("hidden");
+        resetRun(false);
+        startNewChallenge();
+      },
+      function() {
+        // Callback opzionale per annullare (la "X" o chiusura)
+        // Qui potresti lasciare il popup chiuso e non fare nulla
+        console.log("Loading challenge canceled.");
       }
+    );
+  } else {
+    showSystemMessage("Error: saved game not found.");
+  }
+}
 
       /* Funzione chiamata quando si clicca "Delete" su un salvataggio Challenge */
    function onDeleteSavedGame(name) {
-  if (confirm(`Are you sure you want to delete '${name}'?`)) {
+showConfirmPopup(
+  `Are you sure you want to delete the track "${name}"?`,
+  function() {
     deleteChallengeGame(name);
     // Ricarica subito il contenuto del popup in modo che l’elemento sparisca
     checkSavedChallengeGames();
   }
+);
 }
 
       /* Controlla la presenza di salvataggi Challenge e mostra l'overlay */
@@ -2091,11 +2217,14 @@ updateLeaderboard();
       }
 
       /* Reset parametri Challenge */
-      function resetChallenge() {
-        currentLevel = 1;
-        speed = 3.5;
-        challengePoints = 0;
-      }
+function resetChallenge() {
+  currentLevel = 1;
+  speed = 3.5;
+  challengePoints = 0;
+  treeCounter = 10;  // Ripristina il contatore degli alberi
+  gateCounter = 10;  // Ripristina il contatore dei gate
+  updateCountersDisplay(); // Aggiorna il display dei counter
+}
 
       function showLeaderboardPopupWithPlayAgain() {
         const overlay = document.createElement("div");
@@ -2220,7 +2349,7 @@ document.getElementById("nameReminder").innerHTML =
 document.getElementById("autoNameConfirmBtn").addEventListener("click", function() {
   let newName = document.getElementById("autoNameInput").value.trim();
   if (!newName) {
-    alert("Please enter a valid name.");
+    showSystemMessage("Please enter a valid name.");
     return;
   }
 
@@ -2257,7 +2386,7 @@ document.getElementById("autoNameConfirmBtn").addEventListener("click", function
 function saveNameHandler() {
   let newName = document.getElementById("nameInput").value.trim();
   if (newName === "") {
-    alert("Please enter a valid name.");
+    showSystemMessage("Please enter a valid name.");
     return;
   }
   
@@ -2359,7 +2488,7 @@ function startNewChallenge() {
 
   // Calcola il bonus livello per il moltiplicatore degli alberi
   let numTrees = currentTrack.trees.length;
-  let levelBonus = (currentLevel - 1) * 0.02;  // Bonus aumenta di 0.05 ad ogni livello
+  let levelBonus = (currentLevel - 1) * 0.01;  // Bonus aumenta di 0.05 ad ogni livello
   let factor = 1.0;
   if (numTrees === 6) {
     factor = 1.05 + levelBonus;
@@ -2591,22 +2720,21 @@ updateLeaderboard();
 
 saveResultBtn.addEventListener("click", function() {
   if (isChallengeMode) {
-    alert("Save Result is disabled in Challenge Mode.");
+    showSystemMessage("Save Result is disabled in Challenge Mode.");
     return;
   }
   window.location.href = "players.html";
 });
 
       /* Intro Challenge -> Start Challenge */
-      document
-        .getElementById("closeChallengeIntroOverlay")
-        .addEventListener("click", () => {
-          document.getElementById("challengeIntroOverlay").classList.add("hidden");
-          isChallengeMode = true;
-          challengeAttempts = 3;
-          toggleButtonState(true);
-          checkSavedChallengeGames();
-        });
+  document.getElementById("closeChallengeIntroOverlay").addEventListener("click", () => {
+  document.getElementById("challengeIntroOverlay").classList.add("hidden");
+  isChallengeMode = true;
+  challengeAttempts = 3;
+  updateCountersDisplay();  // Mostra subito i counter con il valore iniziale (10)
+  toggleButtonState(true);
+  checkSavedChallengeGames();
+});
 
       /* Pulsante X in alto a sinistra dell’intro Challenge */
       document.getElementById("closeChallengeIntroButton").addEventListener("click", function() {
@@ -2614,17 +2742,22 @@ saveResultBtn.addEventListener("click", function() {
       });
 
       /* Funzione per ripristinare lo stato pre-run */
-function resetRun() {
+function resetRun(resetCounters = true) {
   drawing = false;
   didFinishOrFail = false;
   pointsPath = [];
+  // Se resetCounters è true, allora resettare i contatori, altrimenti lasciarli invariati
+  if (resetCounters) {
+    treeCounter = 10;
+    gateCounter = 10;
+  }
   setMainLabel("⏰0'00\"000'''");
   clearCanvas();
   drawTrack(currentTrack);
   globalWind = Math.random() * 1 - 0.5;
   weatherState = chooseWeatherState(weatherState);
   applyWeatherState(weatherState);
-
+  
   if (snowLocked) {
     snowCanvas.classList.add("hidden");
   } else {
@@ -2639,7 +2772,11 @@ function resetRun() {
   
   // Posiziona e mostra l'anello di partenza
   positionStartRing();
+  // Aggiorna la visualizzazione dei contatori
+  updateCountersDisplay();
 }
+
+
 
 
       /* Aggiorna la lista Top 5 */
@@ -2700,17 +2837,20 @@ function updateLeaderboard() {
           storeChallengeSaves(saves);
         }
       }
-      function loadChallengeGame(name) {
-        let saves = getChallengeSaves();
-        if (!saves[name]) return false;
-        let data = saves[name];
-        currentLevel = data.level;
-        challengePoints = data.points;
-        currentTitleUnlocked = data.title;
-        challengeAttempts = data.attemptsLeft;
-        speed = data.speed;
-        return true;
-      }
+function loadChallengeGame(name) {
+  let saves = getChallengeSaves();
+  if (!saves[name]) return false;
+  let data = saves[name];
+  currentLevel = data.level;
+  challengePoints = data.points;
+  currentTitleUnlocked = data.title;
+  challengeAttempts = data.attemptsLeft;
+  speed = data.speed;
+  // Ripristina i contatori, se presenti; altrimenti impostali a 10
+  treeCounter = (data.treeCounter !== undefined) ? data.treeCounter : 10;
+  gateCounter = (data.gateCounter !== undefined) ? data.gateCounter : 10;
+  return true;
+}
 
       /* Caricamento e salvataggio piste personalizzate */
       function loadSavedTracks() {
@@ -2744,8 +2884,8 @@ function updateLeaderboard() {
           let span = document.createElement("span");
           span.textContent = name;
           span.classList.add("saved-item-text");
-     span.addEventListener("click", () => {
-  // 1) Recupero i dati salvati
+span.addEventListener("click", () => {
+  // 1) Recupero dei dati salvati
   let saved = savedTracks[name];
 
   // 2) Imposto la pista
@@ -2762,26 +2902,29 @@ function updateLeaderboard() {
 
   // 6) Memorizzo il nome della pista
   currentTrackName = name;
-
-  // 7) Ridimensiona e reset
-  resizeCanvas();
-  resetRun();
   
-  // 8) Chiudo il popup “ViewOverlay”
+  // 7) Ripristino i contatori:
+  treeCounter = (typeof saved.treeCounter !== "undefined") ? saved.treeCounter : 10;
+  gateCounter = (typeof saved.gateCounter !== "undefined") ? saved.gateCounter : 10;
+
+  // 8) Ridimensiona, resetta (senza resettare i contatori) e chiudi il popup
+  resizeCanvas();
+  resetRun(false);  // NON resetta i contatori
   viewOverlay.classList.add("hidden");
 });
+
 
 
           let delBtn = document.createElement("button");
           delBtn.textContent = "Delete";
           delBtn.className = "deleteBtn";
-          delBtn.addEventListener("click", () => {
-            if (confirm(`Are you sure you want to delete the track "${name}"?`)) {
-              delete savedTracks[name];
-              storeSavedTracks();
-              updateSavedTracksList();
-            }
-          });
+   delBtn.addEventListener("click", () => {
+  showConfirmPopup(`Are you sure you want to delete the track "${name}"?`, () => {
+    delete savedTracks[name];
+    storeSavedTracks();
+    updateSavedTracksList();
+  });
+});
 
           container.appendChild(span);
           container.appendChild(delBtn);
@@ -2789,19 +2932,24 @@ function updateLeaderboard() {
         }
       }
 
-      document.getElementById("saveTrackBtn").addEventListener("click", () => {
-        let trackName = document.getElementById("trackNameInput").value.trim();
-        if (trackName === "") {
-          alert("Enter a track name.");
-          return;
-        }
-        savedTracks[trackName] = { track: currentTrack, bestTimes: [...bestTimes] };
-        currentTrackName = trackName;
-        storeSavedTracks();
-        alert("Track saved!");
-        updateSavedTracksList();
-        viewOverlay.classList.add("hidden");
-      });
+document.getElementById("saveTrackBtn").addEventListener("click", () => {
+  let trackName = document.getElementById("trackNameInput").value.trim();
+  if (trackName === "") {
+    showSystemMessage("Enter a track name.");
+    return;
+  }
+  savedTracks[trackName] = { 
+    track: currentTrack, 
+    bestTimes: [...bestTimes],
+    treeCounter: treeCounter,      // Aggiunto: salva il contatore degli alberi
+    gateCounter: gateCounter       // Aggiunto: salva il contatore dei gate
+  };
+  currentTrackName = trackName;
+  storeSavedTracks();
+  showSystemMessage("Track saved!");
+  updateSavedTracksList();
+  viewOverlay.classList.add("hidden");
+});
 
       /* Tutorial */
       function renderTutorial() {
