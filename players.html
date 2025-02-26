@@ -824,6 +824,50 @@ finishRect = {
       treeImg.onerror = () => {
         console.error("Errore nel caricamento di tree.svg");
       };
+function showSystemMessage(message) {
+  // Crea l'elemento overlay
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  // Usa uno sfondo semitrasparente per l'overlay (opzionale)
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  
+  // Crea il contenitore del messaggio e usa la classe CSS già definita (.overlay-content)
+  const messageBox = document.createElement("div");
+  messageBox.className = "overlay-content";
+  // Rimuovi o commenta la riga seguente per mantenere lo sfondo predefinito (backpopup.png)
+  // messageBox.style.backgroundImage = "none";
+  messageBox.style.padding = "20px";
+  messageBox.style.textAlign = "center";
+  
+  // Inserisci il testo del messaggio
+  const msgPara = document.createElement("p");
+  msgPara.className = "slide-content";
+  msgPara.innerHTML = message;
+  messageBox.appendChild(msgPara);
+  
+  // Crea un contenitore per il pulsante OK
+  const buttonContainer = document.createElement("div");
+  buttonContainer.className = "popup-button-container";
+  buttonContainer.style.marginTop = "15px";
+  
+  // Crea il pulsante OK
+  const okButton = document.createElement("button");
+  okButton.className = "nav-button";
+  okButton.textContent = "OK";
+  
+  // Associa l'evento click per chiudere il popup
+  okButton.addEventListener("click", function() {
+    overlay.classList.add("hidden");
+    setTimeout(() => overlay.remove(), 300);
+  });
+  
+  // Assembla il popup
+  buttonContainer.appendChild(okButton);
+  messageBox.appendChild(buttonContainer);
+  overlay.appendChild(messageBox);
+  document.body.appendChild(overlay);
+}
+
 
       /* ==============================================
          FUNZIONI METEO
@@ -2519,18 +2563,18 @@ If, by the end of the race, your time is among the Top 5, you earn a <b>3 or 5 p
       }
       function checkDraftNames() {
         if (draftParticipants.length < 2) {
-          alert("At least 2 participants!");
+          showSystemMessage("At least 2 participants!");
           return false;
         }
         if (draftParticipants.length > 6) {
-          alert("Max 6 participants!");
+          showSystemMessage("Max 6 participants!");
           return false;
         }
         const duplicates = draftParticipants.some(
           (nm, idx) => draftParticipants.indexOf(nm) !== idx
         );
         if (duplicates) {
-          alert("Names must be unique!");
+          showSystemMessage("Names must be unique!");
           return false;
         }
         return true;
