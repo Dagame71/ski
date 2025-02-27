@@ -535,9 +535,12 @@ margin-top: -3px;
       }
 .challenge-counters {
   position: absolute;
+  left: 50%;
+  top: calc(100% - 40px); /* Modifica "40px" se necessario per adattarlo alla posizione desiderata */
+  transform: translateX(-50%);
   width: 60px;
   height: 30px;
-  z-index: 10; /* stesso layer dei pulsanti */
+  z-index: 10;
   background: transparent;
   font: 10px Arial, sans-serif;
   padding: 2px;
@@ -1141,31 +1144,41 @@ updateLeaderboard();
 
       /* Funzione per gestire il ridimensionamento dinamico del canvas */
       const container = document.getElementById("gameContainer");
-      function resizeCanvas() {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        snowCanvas.width = container.clientWidth;
-        snowCanvas.height = container.clientHeight;
+function resizeCanvas() {
+  const container = document.querySelector(".container");
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  snowCanvas.width = container.clientWidth;
+  snowCanvas.height = container.clientHeight;
 
-        startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
-    finishRect = {
-  x: canvas.width / 2 - 30, // 60/2 = 30 per centrare
-  y: canvas.height - 50,
-  width: 60,   // Nuova larghezza
-  height: 10   // Altezza invariata
-};
-// Posiziona il div dei contatori sotto il traguardo
-let countersDiv = document.getElementById("challengeCounters");
-if (countersDiv) {
-  countersDiv.style.left = "50%";
-  countersDiv.style.top = (finishRect.y + finishRect.height + 5) + "px"; // 5px sotto il traguardo
-  countersDiv.style.transform = "translateX(-50%)";
+  // Aggiorna il punto di partenza e l'area di arrivo
+  startPoint = { x: canvas.width / 2, y: (30 / 520) * canvas.height };
+  finishRect = {
+    x: canvas.width / 2 - 30, // 60/2 = 30 per centrare
+    y: canvas.height - 50,
+    width: 60,   // Nuova larghezza
+    height: 10   // Altezza invariata
+  };
+
+  // Posiziona il contatore Challenge sotto il traguardo
+  let countersDiv = document.getElementById("challengeCounters");
+  if (countersDiv) {
+    countersDiv.style.left = "50%";
+    countersDiv.style.top = (finishRect.y + finishRect.height + 10) + "px"; // 10px sotto il traguardo
+    countersDiv.style.transform = "translateX(-50%)";
+  }
+
+  // Ridisegna la pista e aggiorna il contatore
+  drawTrack(currentTrack);
+  updateCountersDisplay();
 }
 
+// Aggiungi il listener per il resize della finestra:
+window.addEventListener("resize", () => {
+  resizeCanvas();
+  updateCountersDisplay();
+});
 
-        drawTrack(currentTrack);
-updateCountersDisplay(); 
-      }
 
       /* Pulisce il canvas di gioco */
       function clearCanvas() {
@@ -1230,8 +1243,8 @@ updateCountersDisplay();
         for (let i = 0; i < count; i++) {
           let dir = isRed ? 1 : -1;
           let x = isRed 
-            ? Math.random() * (canvas.width / 2 - 35) + canvas.width / 2 
-            : Math.random() * (canvas.width / 2 - 35) + 35;
+            ? Math.random() * (canvas.width / 2 - 40) + canvas.width / 2 
+            : Math.random() * (canvas.width / 2 - 40) + 40;
           let y = (80 / 520) * canvas.height +
                   i * ((canvas.height - (120 / 520) * canvas.height) / count);
           let color = isRed ? "red" : "blue";
@@ -1721,84 +1734,91 @@ if (gate.number === expectedGate) {
       }
 
       /* Funzioni di fine run / fallimento run */
-      function finishRun() {
-        drawing = false;
-        didFinishOrFail = true;
+function finishRun() {
+  drawing = false;
+  didFinishOrFail = true;
 
-        let endTime = performance.now();
-        let elapsedTime = endTime - startTime;
+  let endTime = performance.now();
+  let elapsedTime = endTime - startTime;
 
-        let distPx = calculateDistance(pointsPath);
-        let baseTime = calculateFinalTime(elapsedTime, distPx);
-        let outPenaltyTotal = outPenaltyCount * 0.1;
-        let finalTime = baseTime + outPenaltyTotal;
+  let distPx = calculateDistance(pointsPath);
+  let baseTime = calculateFinalTime(elapsedTime, distPx);
+  // In Challenge mode, il moltiplicatore aumenta di 0.01 per ogni livello (a partire dal livello 1)
+  let penaltyMultiplier = isChallengeMode ? 0.1 + ((currentLevel - 1) * 0.01) : 0.1;
+  let outPenaltyTotal = outPenaltyCount * penaltyMultiplier;
+  let finalTime = baseTime + outPenaltyTotal;
 
-        lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
-        window.lastFinalTime = finalTime;
+  lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
+  window.lastFinalTime = finalTime;
 
-        if (isChallengeMode) {
-          setMainLabel(`Your time: ${formatTime(finalTime)}`);
+  if (isChallengeMode) {
+    setMainLabel(
+      `Your time: ${formatTime(finalTime)}${
+        outPenaltyTotal > 0 ? ` <span style="color:red;">(+${outPenaltyTotal.toFixed(2)})</span>` : ""
+      }`
+    );
+    setTimeout(() => {
+      if (finalTime <= challengeBestTime) {
+        let differenceInCents = Math.max(0, Math.floor((challengeBestTime - finalTime) * 100));
+        let multiplier = challengeAttempts;
+        let pointsEarned = differenceInCents * multiplier;
+
+        challengePoints += pointsEarned;
+        updateLeaderboardChallenge(pointsEarned);
+        adjustSpeedForNextLevel();
+        showPointsPopup(pointsEarned);
+
+        challengeAttempts = 3;
+        lastCompleteRun = null;
+      } else {
+        challengeAttempts--;
+        if (challengeAttempts > 0) {
+          setMainLabel(`Try again! ${4 - challengeAttempts}nd attempt!`);
           setTimeout(() => {
-            if (finalTime <= challengeBestTime) {
-              let differenceInCents = Math.max(0, Math.floor((challengeBestTime - finalTime) * 100));
-              let multiplier = challengeAttempts;
-              let pointsEarned = differenceInCents * multiplier;
-
-              challengePoints += pointsEarned;
-              updateLeaderboardChallenge(pointsEarned);
-              adjustSpeedForNextLevel();
-              showPointsPopup(pointsEarned);
-
-              challengeAttempts = 3;
-              lastCompleteRun = null;
-            } else {
-              challengeAttempts--;
-              if (challengeAttempts > 0) {
-                setMainLabel(`Try again! ${4 - challengeAttempts}nd attempt!`);
-                setTimeout(() => {
-                  clearCanvas();
-                  drawTrack(currentTrack);
-                  updateWeatherForChallenge();
-                  setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
-positionStartRing();
-                }, 1500);
-              } else {
-                setMainLabel("Failed! Retry!");
-                setTimeout(() => {
-                  showChallengeEndOverlay("Challenge Over!");
-                  isChallengeMode = false;
-challengeAttempts = 0;
-setMainLabel("⏰0'00\"000'''");
-toggleButtonState(false);
-resetRun();
-bestTimes = [];
-localStorage.removeItem("bestTimes");
-updateLeaderboard();
-                }, 1500);
-              }
-            }
-          }, 1000);
+            clearCanvas();
+            drawTrack(currentTrack);
+            updateWeatherForChallenge();
+            setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+            positionStartRing();
+          }, 1500);
         } else {
-          // Modalità normale
-          setMainLabel(
-            `⏰${formatTime(finalTime)}${
-              outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : ""
-            }`
-          );
-          updateBestTimes(finalTime, lastCompleteRun, currentPlayerName);
-
-          if (currentTrackName !== "") {
-            savedTracks[currentTrackName].bestTimes = bestTimes;
-            storeSavedTracks();
-          }
-        }
-
-        if (!isChallengeMode) {
+          setMainLabel("Failed! Retry!");
           setTimeout(() => {
+            showChallengeEndOverlay("Challenge Over!");
+            isChallengeMode = false;
+            challengeAttempts = 0;
+            setMainLabel("⏰0'00\"000'''");
+            toggleButtonState(false);
             resetRun();
-          }, 2000);
+            bestTimes = [];
+            localStorage.removeItem("bestTimes");
+            updateLeaderboard();
+          }, 1500);
         }
       }
+    }, 1000);
+  } else {
+    setMainLabel(
+      `⏰${formatTime(finalTime)}${
+        outPenaltyTotal > 0 ? `<span style="color:red;"> (+${outPenaltyTotal.toFixed(2)})</span>` : ""
+      }`
+    );
+    updateBestTimes(finalTime, lastCompleteRun, currentPlayerName);
+
+    if (currentTrackName !== "") {
+      savedTracks[currentTrackName].bestTimes = bestTimes;
+      storeSavedTracks();
+    }
+  }
+
+  if (!isChallengeMode) {
+    setTimeout(() => {
+      resetRun();
+    }, 2000);
+  }
+}
+
+
 
       /* Mostra la schermata di fine Challenge */
      function showChallengeEndOverlay(failReason = "") {
@@ -1808,7 +1828,8 @@ updateLeaderboard();
   if ((treeCounter === 0 || gateCounter === 0) && currentChallengeSaveName) {
     deleteChallengeGame(currentChallengeSaveName);
     currentChallengeSaveName = "";
-    showSystemMessage("Challenge failed! See your final score!");
+    showSystemMessage("<strong style='color: red; font-weight:bold; font-size:20px; margin:0; padding:0; line-height6;'>Challenge failed!</strong><br>See your final score!");
+
   }
 
         let titleText = currentTitleUnlocked ? currentTitleUnlocked : "(no title unlocked)";
@@ -2182,39 +2203,52 @@ updateLeaderboard();
 
       /* Fallimento Run */
       function failRun(msg) {
-        drawing = false;
-        didFinishOrFail = true;
+  drawing = false;
+  didFinishOrFail = true;
 
-        if (pointsPath.length > 1) {
-          lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
-        }
-        window.lastFinalTime = 0; 
+  if (pointsPath.length > 1) {
+    lastCompleteRun = JSON.parse(JSON.stringify(pointsPath));
+  }
+  window.lastFinalTime = 0; 
 
-        setMainLabel(msg);
+  setMainLabel(msg);
 
-        if (isChallengeMode) {
-          challengeAttempts--;
-          if (challengeAttempts > 0) {
-            setTimeout(() => {
-              setMainLabel(`Try again! ${4 - challengeAttempts}nd attempt!`);
-              setTimeout(() => {
-                clearCanvas();
-                drawTrack(currentTrack);
-                updateWeatherForChallenge();
-                setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
-              }, 1500);
-            }, 1500);
-          } else {
-            setTimeout(() => {
-              showChallengeEndOverlay("You failed the Challenge!");
-            }, 1500);
-          }
-        } else {
-          setTimeout(() => {
-            resetRun();
-          }, 1000);
-        }
-      }
+  if (isChallengeMode) {
+    // Decrementa il numero di tentativi
+    challengeAttempts--;
+
+    // *** NUOVA VERIFICA: se uno dei contatori (alberi o gate) è zero,
+    // allora esegue immediatamente la fine della Challenge
+    if (treeCounter === 0 || gateCounter === 0) {
+      setTimeout(() => {
+        showChallengeEndOverlay("Challenge failed!");
+      }, 1500);
+      return;
+    }
+
+    if (challengeAttempts > 0) {
+      setTimeout(() => {
+        setMainLabel(`Try again! ${4 - challengeAttempts}nd attempt!`);
+        setTimeout(() => {
+          clearCanvas();
+          drawTrack(currentTrack);
+          updateWeatherForChallenge();
+          setMainLabel(`Beat this time: ${formatTime(challengeBestTime)}`);
+          positionStartRing();
+        }, 1500);
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        showChallengeEndOverlay("You failed the Challenge!");
+      }, 1500);
+    }
+  } else {
+    setTimeout(() => {
+      resetRun();
+    }, 1000);
+  }
+}
+
 
       /* Reset parametri Challenge */
 function resetChallenge() {
@@ -2870,67 +2904,73 @@ function loadChallengeGame(name) {
       }
 
       /* Aggiorna la lista delle piste salvate nel popup */
-      function updateSavedTracksList() {
-        loadSavedTracks();
-        let listDiv = document.getElementById("savedTracksList");
-        listDiv.innerHTML = "";
-        for (let name in savedTracks) {
-          let container = document.createElement("div");
-          container.style.display = "flex";
-          container.style.alignItems = "center";
-          container.style.justifyContent = "space-between";
-          container.style.margin = "5px 0";
+function updateSavedTracksList() {
+  loadSavedTracks();
+  let listDiv = document.getElementById("savedTracksList");
+  listDiv.innerHTML = "";
 
-          let span = document.createElement("span");
-          span.textContent = name;
-          span.classList.add("saved-item-text");
-span.addEventListener("click", () => {
-  // 1) Recupero dei dati salvati
-  let saved = savedTracks[name];
+  // Se non ci sono piste salvate, mostra il messaggio
+  if (Object.keys(savedTracks).length === 0) {
+    listDiv.innerHTML = "<p>No track saved yet</p>";
+    return;
+  }
 
-  // 2) Imposto la pista
-  currentTrack = saved.track;
+  for (let name in savedTracks) {
+    let container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.justifyContent = "space-between";
+    container.style.margin = "5px 0";
 
-  // 3) Imposto la top5 = quella salvata (se esiste)
-  bestTimes = saved.bestTimes || [];
+    let span = document.createElement("span");
+    span.textContent = name;
+    span.classList.add("saved-item-text");
+    span.addEventListener("click", () => {
+      // 1) Recupero dei dati salvati
+      let saved = savedTracks[name];
 
-  // 4) Aggiorno subito localStorage per riflettere questa top5
-  localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
+      // 2) Imposto la pista
+      currentTrack = saved.track;
 
-  // 5) Se vuoi, aggiorna la leaderboard
-  updateLeaderboard();
+      // 3) Imposto la top5 = quella salvata (se esiste)
+      bestTimes = saved.bestTimes || [];
 
-  // 6) Memorizzo il nome della pista
-  currentTrackName = name;
-  
-  // 7) Ripristino i contatori:
-  treeCounter = (typeof saved.treeCounter !== "undefined") ? saved.treeCounter : 10;
-  gateCounter = (typeof saved.gateCounter !== "undefined") ? saved.gateCounter : 10;
+      // 4) Aggiorno subito localStorage per riflettere questa top5
+      localStorage.setItem("bestTimes", JSON.stringify(bestTimes));
 
-  // 8) Ridimensiona, resetta (senza resettare i contatori) e chiudi il popup
-  resizeCanvas();
-  resetRun(false);  // NON resetta i contatori
-  viewOverlay.classList.add("hidden");
-});
+      // 5) Aggiorno la leaderboard
+      updateLeaderboard();
 
+      // 6) Memorizzo il nome della pista
+      currentTrackName = name;
 
+      // 7) Ripristino i contatori
+      treeCounter = (typeof saved.treeCounter !== "undefined") ? saved.treeCounter : 10;
+      gateCounter = (typeof saved.gateCounter !== "undefined") ? saved.gateCounter : 10;
 
-          let delBtn = document.createElement("button");
-          delBtn.textContent = "Delete";
-          delBtn.className = "deleteBtn";
-   delBtn.addEventListener("click", () => {
-  showConfirmPopup(`Are you sure you want to delete the track "${name}"?`, () => {
-    delete savedTracks[name];
-    storeSavedTracks();
-    updateSavedTracksList();
-  });
-});
+      // 8) Ridimensiona, resetta (senza resettare i contatori) e chiudi il popup
+      resizeCanvas();
+      resetRun(false);  // NON resetta i contatori
+      viewOverlay.classList.add("hidden");
+    });
 
-          container.appendChild(span);
-          container.appendChild(delBtn);
-          listDiv.appendChild(container);
-        }
-      }
+    let delBtn = document.createElement("button");
+    delBtn.textContent = "Delete";
+    delBtn.className = "deleteBtn";
+    delBtn.addEventListener("click", () => {
+      showConfirmPopup(`Are you sure you want to delete the track "${name}"?`, () => {
+        delete savedTracks[name];
+        storeSavedTracks();
+        updateSavedTracksList();
+      });
+    });
+
+    container.appendChild(span);
+    container.appendChild(delBtn);
+    listDiv.appendChild(container);
+  }
+}
+
 
 document.getElementById("saveTrackBtn").addEventListener("click", () => {
   let trackName = document.getElementById("trackNameInput").value.trim();
