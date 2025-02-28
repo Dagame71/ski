@@ -283,6 +283,7 @@
       /* Bottoni per chiudere gli overlay */
       #closeChronoOverlay,
       #closeViewOverlay,
+#closeChallengeSaveOverlay,
       #closeSaveResultOverlay {
         position: absolute;
         top: 10px;
@@ -305,6 +306,7 @@
       /* Input identico a .player-name-input */
 #trackNameInput,
 #resultNameInput,
+#challengeSaveNameInput,
 #autoNameInput {
   margin-top: 12px; /* Aumenta il valore se vuoi più spazio */
   background: #ffffff;
@@ -793,6 +795,38 @@ margin-top: -3px;
         <!-- Contenuto gestito via JS -->
       </div>
     </div>
+<!-- OVERLAY Challenge, STESSO STILE di "viewOverlay" -->
+<div id="challengeSaveOverlay" class="overlay hidden">
+  <div class="overlay-content">
+    <!-- Bottone X in alto a sinistra -->
+    <button id="closeChallengeSaveOverlay">X</button>
+
+    <!-- Titolo grande (stesso font, dimensioni e margini di "Saved Tracks") -->
+    <h2>Saved Challenges</h2>
+
+    <!-- Eventuale DIV per lista delle challenge salvate, se vuoi mostrarle qui -->
+    <div id="savedChallengesList"></div>
+
+    <!-- Separatore orizzontale identico -->
+    <hr />
+
+    <!-- Titolo più piccolo (stesso <h3> di "Save current track") -->
+    <h3>Save current challenge</h3>
+
+    <!-- Campo di input identico a trackNameInput, solo con ID diverso -->
+    <input
+      type="text"
+      id="challengeSaveNameInput"
+      placeholder="Enter challenge name"
+      maxlength="15"
+      style="margin-top:2px;"
+    />
+
+    <!-- Bottone con lo stesso stile di #saveTrackBtn -->
+    <button id="challengeSaveBtn">Save Challenge</button>
+  </div>
+</div>
+
 
     <!-- OVERLAY TUTORIAL -->
     <div id="tutorialOverlay" class="overlay" style="z-index: 10001;">
@@ -856,6 +890,7 @@ margin-top: -3px;
 function showSystemMessage(message, callback) {
   const overlay = document.createElement("div");
   overlay.className = "overlay";
+overlay.style.zIndex = 100001;
   
   const content = document.createElement("div");
   content.className = "overlay-content";
@@ -2139,67 +2174,74 @@ updateLeaderboard();
       }
 
       /* Mostra un popup con i punti guadagnati al termine del livello */
-      function showPointsPopup(points) {
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
+function showPointsPopup(points) {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
 
-        const content = document.createElement("div");
-        content.className = "overlay-content";
+  const content = document.createElement("div");
+  content.className = "overlay-content";
 
-        let newTitle = getTitleForLevel(currentLevel);
-        let isNewTitleUnlocked = false;
-        if (newTitle !== "" && newTitle !== currentTitleUnlocked) {
-          currentTitleUnlocked = newTitle;
-          isNewTitleUnlocked = true;
-        }
+  // Ottieni il nuovo titolo in base al livello corrente
+  let newTitle = getTitleForLevel(currentLevel);
+  let isNewTitleUnlocked = false;
+  if (newTitle !== "" && newTitle !== currentTitleUnlocked) {
+    currentTitleUnlocked = newTitle;
+    isNewTitleUnlocked = true;
+    // Se il titolo sbloccato termina con "Gold", incrementa i contatori
+    if (newTitle.endsWith("Gold")) {
+      treeCounter++;
+      gateCounter++;
+      updateCountersDisplay();
+    }
+  }
 
-        content.innerHTML = `
-          <h2>Level #${currentLevel} Complete!</h2>
-          <p>You earned <strong>${points}</strong> points!</p>
-          <p>Total Points: <strong>${challengePoints}</strong></p>
-          <div id="titleArea" style="margin: 10px 0;"></div>
-          <button class="play-button">Next Level</button>
-        `;
+  content.innerHTML = `
+    <h2>Level #${currentLevel} Complete!</h2>
+    <p>You earned <strong>${points}</strong> points!</p>
+    <p>Total Points: <strong>${challengePoints}</strong></p>
+    <div id="titleArea" style="margin: 10px 0;"></div>
+    <button class="play-button">Next Level</button>
+  `;
 
-        const titleArea = content.querySelector("#titleArea");
-        if (isNewTitleUnlocked) {
-          let unlockMsg = document.createElement("p");
-          unlockMsg.style.color = "blue";
-          unlockMsg.style.fontWeight = "bold";
-          unlockMsg.textContent = "You've unlocked a new title!";
-          titleArea.appendChild(unlockMsg);
+  const titleArea = content.querySelector("#titleArea");
+  if (isNewTitleUnlocked) {
+    let unlockMsg = document.createElement("p");
+    unlockMsg.style.color = "blue";
+    unlockMsg.style.fontWeight = "bold";
+    unlockMsg.textContent = "You've unlocked a new title!";
+    titleArea.appendChild(unlockMsg);
 
-          let imgName = getTitleImageForLevel(currentLevel);
-          if (imgName !== "") {
-            let img = document.createElement("img");
-            img.src = imgName;
-            img.alt = "Current Title";
-            img.style.width = "200px";
-            img.style.height = "auto";
-            img.style.display = "block";
-            img.style.margin = "5px auto";
-            titleArea.appendChild(img);
-          }
-        } else {
-          let currentTitleText = currentTitleUnlocked
-            ? `Your current title:<br><b>${currentTitleUnlocked}</b>`
-            : "No title unlocked yet.";
-          let p = document.createElement("p");
-          p.style.margin = "5px 0";
-          p.innerHTML = currentTitleText;
-          titleArea.appendChild(p);
-        }
+    let imgName = getTitleImageForLevel(currentLevel);
+    if (imgName !== "") {
+      let img = document.createElement("img");
+      img.src = imgName;
+      img.alt = "Current Title";
+      img.style.width = "200px";
+      img.style.height = "auto";
+      img.style.display = "block";
+      img.style.margin = "5px auto";
+      titleArea.appendChild(img);
+    }
+  } else {
+    let currentTitleText = currentTitleUnlocked
+      ? `Your current title:<br><b>${currentTitleUnlocked}</b>`
+      : "No title unlocked yet.";
+    let p = document.createElement("p");
+    p.style.margin = "5px 0";
+    p.innerHTML = currentTitleText;
+    titleArea.appendChild(p);
+  }
 
-        content.querySelector("button").addEventListener("click", () => {
-          document.body.removeChild(overlay);
-          currentLevel++;
-          adjustSpeedForNextLevel();
-          startNewChallenge();
-        });
+  content.querySelector("button").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+    currentLevel++;
+    adjustSpeedForNextLevel();
+    startNewChallenge();
+  });
 
-        overlay.appendChild(content);
-        document.body.appendChild(overlay);
-      }
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
 
       /* Fallimento Run */
       function failRun(msg) {
@@ -2491,7 +2533,7 @@ updateLeaderboard();
           document.getElementById("sameTrack"),
           document.getElementById("quit"),
           document.getElementById("saveResultBtn"),
-          document.getElementById("viewBtn")
+         
         ];
         buttonsToDisable.forEach((button) => {
           if (disable) {
@@ -2743,14 +2785,24 @@ updateLeaderboard();
         chronoOverlay.classList.add("hidden");
       });
 
-      viewBtn.addEventListener("click", () => {
-        updateSavedTracksList();
-        viewOverlay.classList.remove("hidden");
-      });
+  viewBtn.addEventListener("click", () => {
+  if (isChallengeMode) {
+    // Siamo in Challenge -> mostra popup "Save Challenge"
+    document.getElementById("challengeSaveOverlay").classList.remove("hidden");
+  } else {
+    // Modalità normale -> popup di salvataggio/caricamento delle piste
+    updateSavedTracksList();
+    viewOverlay.classList.remove("hidden");
+  }
+});
 
       closeViewOverlay.addEventListener("click", () => {
         viewOverlay.classList.add("hidden");
       });
+// ========== 3) CHIUDI POPUP DI SALVATAGGIO CHALLENGE ==========
+document.getElementById("closeChallengeSaveOverlay").addEventListener("click", () => {
+  document.getElementById("challengeSaveOverlay").classList.add("hidden");
+});
 
 saveResultBtn.addEventListener("click", function() {
   if (isChallengeMode) {
@@ -2861,8 +2913,6 @@ function updateLeaderboard() {
         saves[name] = data;
         storeChallengeSaves(saves);
         renderSavedGamesList();
-        document.getElementById("challengeSaveName").style.display = "none";
-        document.getElementById("challengeSaveBtn").style.display = "none";
       }
       function deleteChallengeGame(name) {
         let saves = getChallengeSaves();
@@ -2989,6 +3039,28 @@ document.getElementById("saveTrackBtn").addEventListener("click", () => {
   showSystemMessage("Track saved!");
   updateSavedTracksList();
   viewOverlay.classList.add("hidden");
+});
+// ========== 4) SALVA LA CHALLENGE DAL PULSANTE “Save” NEL NUOVO OVERLAY ==========
+document.getElementById("challengeSaveBtn").addEventListener("click", () => {
+  let name = document.getElementById("challengeSaveNameInput").value.trim();
+  if (!name) {
+    showSystemMessage("Please enter a valid name for your Challenge!");
+    return;
+  }
+  
+  saveChallengeGame(name, {
+    level: currentLevel,
+    points: challengePoints,
+    title: currentTitleUnlocked,
+    attemptsLeft: challengeAttempts,
+    speed: speed,
+    treeCounter: treeCounter,
+    gateCounter: gateCounter
+  });
+
+  currentChallengeSaveName = name;
+
+  document.getElementById("challengeSaveOverlay").classList.add("hidden");
 });
 
       /* Tutorial */
