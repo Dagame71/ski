@@ -779,10 +779,7 @@ margin-top: -3px;
         </p>
         <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
-          ❄ <strong>Beat the level:</strong><br>
-          <strong>1st try</strong> → points x3<br>
-          <strong>2nd</strong> → points x2<br>
-          <strong>3rd</strong> → points x1
+          ❄ If you beat the target time on your <b>1st</b> attempt, you multiply your points by <b>3</b>; on the <b>2nd</b> attempt, you multiply them by <b>2</b>; on the </b>3rd</b> attempt, points are <b>not multiplied</b> at all!
         </p>
 <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
@@ -790,7 +787,7 @@ margin-top: -3px;
         </p>
 <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
-          ❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b>
+          ❄ If you hit the side barriers, you might receive a <b>progressively increasing penalty</b> in hundredths of a second!
         </p>
 <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
@@ -1472,14 +1469,7 @@ function updateCountersDisplay() {
         canvas.addEventListener("touchend", handleTouchEnd);
         canvas._eventsAttached = true;
       }
-// Quando inizia il disegno, nascondi l'anello
-canvas.addEventListener("mousedown", function() {
-  document.getElementById("start-ring").style.display = "none";
-});
 
-canvas.addEventListener("touchstart", function() {
-  document.getElementById("start-ring").style.display = "none";
-});
       /* Restituisce le coordinate del mouse/touch corrette in base al canvas */
       function getMouseCoords(e) {
         let rect = canvas.getBoundingClientRect();
@@ -1523,6 +1513,8 @@ canvas.addEventListener("touchstart", function() {
           }, 2000);
           return;
         }
+// Se arrivi qui, significa che è "vicino" al punto di partenza
+document.getElementById("start-ring").style.display = "none";
 
         // Al momento del run, il prossimo gate atteso è il 1
         expectedGate = 1;
@@ -1584,6 +1576,8 @@ canvas.addEventListener("touchstart", function() {
           }, 2000);
           return;
         }
+// Se arrivi qui, significa che è "vicino" al punto di partenza
+document.getElementById("start-ring").style.display = "none";
 
         expectedGate = 1;
         falseStartCount = 0;
