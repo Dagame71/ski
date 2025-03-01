@@ -775,7 +775,7 @@ margin-top: -3px;
         </p>
         <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
-          ❄ You have <b>3 attempts</b> to beat the target time; the more you lower it, the more points you earn!
+          ❄ You have <b>3 attempts</b> to beat the target <b>time</b>; the more you lower it, the more points you earn!
         </p>
         <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
@@ -784,6 +784,19 @@ margin-top: -3px;
           <strong>2nd</strong> → points x2<br>
           <strong>3rd</strong> → points x1
         </p>
+<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+        <p class="overlay-text">
+          ❄ You can hit a maximum of <b>10 trees</b> and miss up to <b>10 gates</b>!<br>For every <b>Gold Title</b> you earn, you gain a <b>bonus tree and a bonus gate</b>.
+        </p>
+<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+        <p class="overlay-text">
+          ❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b>
+        </p>
+<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+        <p class="overlay-text">
+          ❄ Win the <b>5 Gold Titles</b> at stake and rise to become the <b>Glacial Emperor</b>!
+        </p>
+
         <!-- Il pulsante "Play!" rimane invariato -->
         <button id="closeChallengeIntroOverlay" class="play-button">Play!</button>
       </div>
@@ -1004,6 +1017,7 @@ let gateCounter = 10;  // Conta i gate saltati
       let isGeneratingChallenge = false;
       let challengePoints = 0;
       let leaderboard = [];
+let challengeEndTimer = null;
 bestTimes = [];
 localStorage.removeItem("bestTimes");
 updateLeaderboard();
@@ -1818,7 +1832,7 @@ function finishRun() {
           }, 1500);
         } else {
           setMainLabel("Failed! Retry!");
-          setTimeout(() => {
+          challengeEndTimer = setTimeout(() => {
             showChallengeEndOverlay("Challenge Over!");
             isChallengeMode = false;
             challengeAttempts = 0;
@@ -1930,7 +1944,7 @@ if (challengePoints > 0 && currentChallengeSaveName) {
     treeCounter: treeCounter,
     gateCounter: gateCounter
   });
-  alert("Game saved automatically as: " + currentChallengeSaveName);
+
 } else if (challengePoints > 0) {
   document.getElementById("challengeSaveBtn").addEventListener("click", () => {
     let name = (document.getElementById("challengeSaveName").value || "").trim();
@@ -2005,6 +2019,11 @@ if (challengePoints > 0 && currentChallengeSaveName) {
 function onLoadSavedGame(name) {
   if (loadChallengeGame(name)) {
     currentChallengeSaveName = name;
+// Se c'è un timer di fine Challenge attivo, lo annulliamo
+if (challengeEndTimer) {
+clearTimeout(challengeEndTimer);
+ challengeEndTimer = null;
+ }
     // Usa il popup personalizzato per confermare il caricamento
     showConfirmPopup("Load saved game: " + name + "?", 
       function() {
@@ -2280,8 +2299,8 @@ function showPointsPopup(points) {
         }, 1500);
       }, 1500);
     } else {
-      setTimeout(() => {
-        showChallengeEndOverlay("You failed the Challenge!");
+      challengeEndTimer = setTimeout(() => {
+        showChallengeEndOverlay("<strong>You failed 3 times!</strong>");
       }, 1500);
     }
   } else {
