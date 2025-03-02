@@ -815,7 +815,7 @@ margin-top: -3px;
     <h2>Saved Challenges</h2>
 
     <!-- Eventuale DIV per lista delle challenge salvate, se vuoi mostrarle qui -->
-    <div id="savedChallengesList"></div>
+    <div id="challengeSavedGamesList"></div>
 
     <!-- Separatore orizzontale identico -->
     <hr />
@@ -1886,19 +1886,19 @@ function finishRun() {
           <p>Title unlocked:<br> <strong>${titleText}</strong></p>
           <hr>`;
 
-  if (challengePoints > 0 && !(treeCounter === 0 || gateCounter === 0)) {
-    if (currentChallengeSaveName) {
-      html += `<p>Your game has been saved as:<br><strong>${currentChallengeSaveName}</strong></p>`;
-    } else {
-      html += `<div style="margin:10px 0;">
-         <label style="display:block; margin-bottom:10px;">Save your game:</label>
-         <input type="text" id="challengeSaveName" placeholder="Enter a name" maxlength="6" />
-         <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
-       </div>`;
-    }
-    html += `<div id="challengeSavedGamesList" style="margin:10px 0;"></div>
-     <hr>`;
+if (challengePoints > 0 && !(treeCounter === 0 || gateCounter === 0)) {
+  if (currentChallengeSaveName) {
+    html += `<p>Your game has been saved as:<br><strong>${currentChallengeSaveName}</strong></p>`;
+  } else {
+    html += `<div id="challengeSaveBlock" style="margin:10px 0;">
+       <label style="display:block; margin-bottom:10px;">Save your game:</label>
+       <input type="text" id="challengeSaveName" placeholder="Enter a name" maxlength="6" />
+       <button id="challengeSaveBtn" style="margin-left:5px;">Save</button>
+     </div>`;
   }
+  html += `<div id="challengeSavedGamesList" style="margin:10px 0;"></div>
+   <hr>`;
+}
         html += `
           <div class="centered-button">
             <button id="challengeNewGameBtn" class="play-button">New Game</button>
@@ -1940,95 +1940,95 @@ if (challengePoints > 0 && currentChallengeSaveName) {
   });
 
 } else if (challengePoints > 0) {
-  document.getElementById("challengeSaveBtn").addEventListener("click", () => {
-    let name = (document.getElementById("challengeSaveName").value || "").trim();
-    if (!name) {
-      showSystemMessage("Please enter a valid name for your saved game.");
-      return;
-    }
-    saveChallengeGame(name, {
-      level: currentLevel,
-      points: challengePoints,
-      title: currentTitleUnlocked,
-      attemptsLeft: challengeAttempts,
-      speed: speed,
-      treeCounter: treeCounter,
-      gateCounter: gateCounter
-    });
-    currentChallengeSaveName = name;
-    renderSavedGamesList();
-    document.getElementById("challengeSaveName").value = "";
+document.getElementById("challengeSaveBtn").addEventListener("click", () => {
+  let name = (document.getElementById("challengeSaveName").value || "").trim();
+  if (!name) {
+    showSystemMessage("Please enter a valid name for your saved game.");
+    return;
+  }
+  saveChallengeGame(name, {
+    level: currentLevel,
+    points: challengePoints,
+    title: currentTitleUnlocked,
+    attemptsLeft: challengeAttempts,
+    speed: speed,
+    treeCounter: treeCounter,
+    gateCounter: gateCounter
   });
+  currentChallengeSaveName = name;
+  renderSavedGamesList();
+  // Nascondi solo il blocco di salvataggio
+  document.getElementById("challengeSaveBlock").style.display = "none";
+});
+
 }
 
         renderSavedGamesList();
       }
 
       /* Funzione che disegna la lista dei salvataggi Challenge */
-      function renderSavedGamesList() {
-        const listDiv = document.getElementById("challengeSavedGamesList");
-        if (!listDiv) return;
-        listDiv.innerHTML = "";
-        let saves = getChallengeSaves();
-        let keys = Object.keys(saves);
+function renderSavedGamesList() {
+  const listDiv = document.getElementById("challengeSavedGamesList");
+  if (!listDiv) return;
+  listDiv.innerHTML = ""; // Pulisce il contenuto precedente
+  
+  let saves = getChallengeSaves(); // Legge l'oggetto dei salvataggi aggiornato da localStorage
+  let keys = Object.keys(saves);
+  
+  if (keys.length === 0) {
+    listDiv.innerHTML = "<p>No saved games.</p>";
+    return;
+  }
+  
+  keys.forEach((name) => {
+    let data = saves[name];
+    let container = document.createElement("div");
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.justifyContent = "space-between";
+    container.style.margin = "5px 0";
+    
+    let span = document.createElement("span");
+    span.classList.add("saved-item-text");
+    span.textContent = `${name} (Lv ${data.level}, ${data.points} pts)`;
+    span.addEventListener("click", () => {
+      onLoadSavedGame(name);
+    });
+    
+    let delBtn = document.createElement("button");
+    delBtn.className = "deleteBtn";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener("click", () => {
+      onDeleteSavedGame(name);
+    });
+    
+    container.appendChild(span);
+    container.appendChild(delBtn);
+    listDiv.appendChild(container);
+  });
+}
 
-        if (keys.length === 0) {
-          listDiv.innerHTML = "<p>No saved games.</p>";
-          return;
-        }
-
-        let label = document.createElement("p");
-        label.innerHTML = "<strong>Saved games:</strong>";
-        listDiv.appendChild(label);
-
-        keys.forEach((name) => {
-          let data = saves[name];
-          let container = document.createElement("div");
-          container.style.display = "flex";
-          container.style.alignItems = "center";
-          container.style.justifyContent = "space-between";
-          container.style.margin = "5px 0";
-
-          let span = document.createElement("span");
-          span.classList.add("saved-item-text");
-          span.textContent = `${name} (Lv ${data.level}, ${data.points} pts)`;
-          span.addEventListener("click", () => {
-            onLoadSavedGame(name);
-          });
-
-          let delBtn = document.createElement("button");
-          delBtn.className = "deleteBtn";
-          delBtn.textContent = "Delete";
-          delBtn.addEventListener("click", () => {
-            onDeleteSavedGame(name);
-          });
-
-          container.appendChild(span);
-          container.appendChild(delBtn);
-          listDiv.appendChild(container);
-        });
-      }
 
       /* Funzione chiamata quando si clicca su un salvataggio Challenge nella lista */
 function onLoadSavedGame(name) {
   if (loadChallengeGame(name)) {
     currentChallengeSaveName = name;
-// Se c'è un timer di fine Challenge attivo, lo annulliamo
-if (challengeEndTimer) {
-clearTimeout(challengeEndTimer);
- challengeEndTimer = null;
- }
-    // Usa il popup personalizzato per confermare il caricamento
+    if (challengeEndTimer) {
+      clearTimeout(challengeEndTimer);
+      challengeEndTimer = null;
+    }
     showConfirmPopup("Load saved game: " + name + "?", 
       function() {
-        // Callback per il caso in cui l'utente confermi
+        // Forza la modalità Challenge
+        isChallengeMode = true;
+        // Nascondi gli overlay relativi alla fine e al salvataggio della Challenge
         document.getElementById("challengeEndOverlay").classList.add("hidden");
+        document.getElementById("challengeSaveOverlay").classList.add("hidden");
+        // Resetta il run (senza resettare i contatori) e avvia una nuova Challenge
         resetRun(false);
         startNewChallenge();
       },
       function() {
-        // Callback opzionale per annullare (la "X" o chiusura)
-        // Qui potresti lasciare il popup chiuso e non fare nulla
         console.log("Loading challenge canceled.");
       }
     );
@@ -2037,12 +2037,15 @@ clearTimeout(challengeEndTimer);
   }
 }
 
+
+
       /* Funzione chiamata quando si clicca "Delete" su un salvataggio Challenge */
    function onDeleteSavedGame(name) {
 showConfirmPopup(
   `Are you sure you want to delete the track "${name}"?`,
   function() {
     deleteChallengeGame(name);
+renderSavedGamesList();
     // Ricarica subito il contenuto del popup in modo che l’elemento sparisca
     checkSavedChallengeGames();
   }
@@ -2312,6 +2315,7 @@ function resetChallenge() {
   challengePoints = 0;
   treeCounter = 10;  // Ripristina il contatore degli alberi
   gateCounter = 10;  // Ripristina il contatore dei gate
+  currentChallengeSaveName = "";  // <-- RESETTA IL NOME DEL SALVATAGGIO
   updateCountersDisplay(); // Aggiorna il display dei counter
 }
 
@@ -2800,10 +2804,11 @@ updateLeaderboard();
 
   viewBtn.addEventListener("click", () => {
   if (isChallengeMode) {
-    // Siamo in Challenge -> mostra popup "Save Challenge"
+    // In Challenge Mode, aggiorna la lista dei salvataggi prima di mostrare l'overlay
+    renderSavedGamesList();
     document.getElementById("challengeSaveOverlay").classList.remove("hidden");
   } else {
-    // Modalità normale -> popup di salvataggio/caricamento delle piste
+    // Modalità normale: popup di salvataggio/caricamento delle piste
     updateSavedTracksList();
     viewOverlay.classList.remove("hidden");
   }
