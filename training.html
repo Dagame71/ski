@@ -130,11 +130,11 @@
         border: 0px solid #aaa; /* Bordo scuro per simulare effetto premuto */
         color: transparent; /* Colore del testo trasparente */
         cursor: not-allowed; /* Cambia il cursore */
-        opacity: 0.4; /* Rende il pulsante meno evidente */
+        opacity: 0.0; /* Rende il pulsante meno evidente */
       }
 
       .button-disabled:hover {
-        opacity: 0.7;
+        opacity: 0.0;
       }
 
       .play-button {
@@ -752,23 +752,16 @@ margin-top: -3px;
       </div>
     </div>
 
-    <!-- OVERLAY Challenge Intro -->
-    <div id="challengeIntroOverlay" class="overlay hidden">
-      <div class="overlay-content">
-        <!-- Pulsante di chiusura aggiunto in alto a sinistra, identico agli altri -->
-        <button id="closeChallengeIntroButton" style="
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          background-color: #8fa2f7;
-          font-size: 14px;
-          padding: 5px 10px;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        ">X</button>
-
+  <!-- OVERLAY Challenge Intro -->
+<div id="challengeIntroOverlay" class="overlay hidden">
+  <div class="overlay-content">
+    <!-- Pulsante di chiusura in alto a sinistra -->
+    <button id="closeChallengeIntroButton" style="position: absolute; top: 10px; left: 10px; background-color: #8fa2f7; font-size: 14px; padding: 5px 10px; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+    
+    <!-- Contenitore delle slide per la Challenge Intro -->
+    <div id="challengeSlidesContainer">
+      <!-- Slide 1 (contenuto originale) -->
+      <div class="challenge-slide" id="challengeSlide1">
         <h2>Welcome to the Challenge Mode!</h2>
         <p class="overlay-text">
           <strong>Beat the target time, level up, and achieve the highest score!</strong>
@@ -779,25 +772,77 @@ margin-top: -3px;
         </p>
         <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
-          ❄ If you beat the target time on your <b>1st</b> attempt, you multiply your points by <b>3</b>; on the <b>2nd</b> attempt, you multiply them by <b>2</b>; on the </b>3rd</b> attempt, points are <b>not multiplied</b> at all!
+          ❄ If you beat the target time on your <b>1st</b> attempt, you multiply your points by <b>3</b>; on the <b>2nd</b> attempt, you multiply them by <b>2</b>; on the <b>3rd</b> attempt, points are <b>not multiplied</b> at all!
         </p>
-<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ You can hit a maximum of <b>10 trees</b> and miss up to <b>10 gates</b>!<br>For every <b>Gold Title</b> you earn, you gain a <b>bonus tree and a bonus gate</b>.
-        </p>
-<hr style="border:none; border-top:1px solid red; margin:8px 0;">
+        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
         <p class="overlay-text">
           ❄ If you hit the side barriers, you might receive a <b>progressively increasing penalty</b> in hundredths of a second!
         </p>
-<hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ Win the <b>5 Gold Titles</b> at stake and rise to become the <b>Glacial Emperor</b>!
-        </p>
+      </div>
 
-        <!-- Il pulsante "Play!" rimane invariato -->
-        <button id="closeChallengeIntroOverlay" class="play-button">Play!</button>
+      <!-- Slide 2 -->
+      <div class="challenge-slide" id="challengeSlide2" style="display: none;">
+        <h2>Trees and Gates</h2>
+        <p class="overlay-text">
+          ❄ You can hit a maximum of <b>5 trees</b> and miss up to <b>5 gates</b>!<br>
+          For every <b>Gold Title</b> you earn, you gain a <b>Tree bonus and a Gate bonus</b>.
+        </p>
+        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+        <p class="overlay-text">
+          ❄ If you have at least <b>5000 points</b>, you can <b>purchase</b> either a <b>Tree bonus</b> or a <b>Gate bonus</b> once per level by clicking the <b>Buy</b> button.
+        </p>
+        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+        <p class="overlay-text">
+          ❄ More than <b>25 run interruptions</b> will cause your Challenge to fail!
+        </p>
+        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+       <p class="overlay-text">
+  ❄ Win the <b>5 Gold Titles</b> at stake and rise to become the...</b>!
+</p>
+<img src="glacial_emperor.png" alt="Glacial Emperor" style="display:block; margin:10px auto; max-width:100%;">
+        </p>
       </div>
     </div>
+
+
+    <!-- Navigazione tra le slide: frecce e pulsante Play! allineati -->
+    <div class="slides-nav" style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+      <!-- Pulsante freccia sinistra -->
+      <button class="nav-button" id="challengePrev" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">←</button>
+
+      <!-- Pulsante Play con lo stesso stile -->
+      <button id="closeChallengeIntroOverlay" class="nav-button" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">
+        Play!
+      </button>
+
+      <!-- Pulsante freccia destra -->
+      <button class="nav-button" id="challengeNext" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">→</button>
+    </div>
+  </div>
+</div>
+
+<!-- Script per la gestione della navigazione tra slide -->
+<script>
+  let currentChallengeSlide = 1;
+  const totalChallengeSlides = 2;
+
+  document.getElementById("challengePrev").addEventListener("click", function() {
+    if (currentChallengeSlide > 1) {
+      document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "none";
+      currentChallengeSlide--;
+      document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "block";
+    }
+  });
+
+  document.getElementById("challengeNext").addEventListener("click", function() {
+    if (currentChallengeSlide < totalChallengeSlides) {
+      document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "none";
+      currentChallengeSlide++;
+      document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "block";
+    }
+  });
+</script>
+
 
     <!-- OVERLAY FINALE CHALLENGE: per fallimento o fine partita -->
     <div id="challengeEndOverlay" class="overlay hidden">
@@ -935,15 +980,29 @@ margin-top: -3px;
       let ctx = canvas.getContext("2d");
       let snowCanvas = document.getElementById("snowCanvas");
       let snowCtx = snowCanvas.getContext("2d");
-function showSystemMessage(message, callback) {
+function showSystemMessage(message, extraMessage, callback) {
+  // Se il secondo parametro è una funzione, allora è il callback.
+  if (typeof extraMessage === "function") {
+    callback = extraMessage;
+    extraMessage = "";
+  }
+  
   const overlay = document.createElement("div");
   overlay.className = "overlay";
-overlay.style.zIndex = 100001;
+  overlay.style.zIndex = 100001;
+  
+  // Costruisci il messaggio:
+  // Il messaggio principale (es. "Remaining interrupted runs:") sarà in nero
+  // L'extraMessage (es. "Current points: ..." o il numero di run) in rosso, in grassetto e più grande
+  let fullMessage = `<p style="margin-bottom: 20px; font-size: 16px; color: black;">${message}</p>`;
+  if (extraMessage) {
+    fullMessage += `<p style="font-size: 16px; font-weight: bold; color: red;">${extraMessage}</p>`;
+  }
   
   const content = document.createElement("div");
   content.className = "overlay-content";
   content.innerHTML = `
-    <p style="margin-bottom: 20px; font-size: 16px;">${message}</p>
+    ${fullMessage}
     <button class="play-button" id="systemMessageBtn">OK</button>
   `;
   
@@ -955,6 +1014,9 @@ overlay.style.zIndex = 100001;
     if (callback) callback();
   });
 }
+
+
+
       // Singolo elemento per mostrare il tempo e i messaggi
       const infoLine = document.getElementById("infoLine");
 
@@ -1051,6 +1113,7 @@ let gateCounter = 5;  // Conta i gate saltati
       let challengeAttempts = 0;
 // Nuova variabile che indica se l'utente ha già comprato in questo livello
 let hasBoughtThisLevel = false;
+let selectedPurchase = null; // Può essere "tree" oppure "gate" oppure null se nessuna scelta è stata fatta
       let isGeneratingChallenge = false;
       let challengePoints = 0;
       let leaderboard = [];
@@ -1222,9 +1285,13 @@ updateLeaderboard();
     </div>`
   },
   {
-    title: "Good Luck!",
-    content: `<p class="overlay-text">Have fun with Ski-Zag!<br><b>Enjoy the slope!</b></p>`
-  }
+  title: "Good Luck!",
+  content: `<p class="overlay-text">
+             Have fun with Ski-Zag!<br>
+             <img src="enjoy.png" alt="Enjoy" style="display:block; margin:10px auto; max-width:100%;">
+             <b>Enjoy the slope!</b>
+            </p>`
+}
 ];
 
      let currentTutorialIndex = 0;
@@ -2663,21 +2730,20 @@ function saveNameHandler() {
       /* Attiva/Disattiva Challenge Mode */
 function toggleChallengeMode() {
   if (isChallengeMode) {
-    // Se siamo già in Challenge Mode, chiede conferma per uscire
     showConfirmPopup(
       "Are you sure you want to quit Challenge Mode?",
       function () {
-        // Callback di conferma: uscita dalla Challenge Mode
+        // Callback per uscire dalla Challenge Mode
         isChallengeMode = false;
         challengeAttempts = 0;
         setMainLabel("⏰0'00\"000'''");
         toggleButtonState(false);
-        resetRun(); // resetRun() richiama positionStartRing() internamente
+        resetRun();
         bestTimes = [];
         localStorage.removeItem("bestTimes");
         updateLeaderboard();
 
-        // Ripristina l'icona e il title originali per il bottone "quit"
+        // Ripristina l'icona e il title originali per il pulsante "quit"
         document.querySelector("#quit img").src = "new.png";
         document.getElementById("quit").title = "New Run";
       },
@@ -2686,8 +2752,12 @@ function toggleChallengeMode() {
       }
     );
   } else {
-    // Se non siamo in Challenge Mode, entriamo in Challenge Mode
-    // Aggiorna l'icona e il title del bottone "quit" per indicare la modalità di acquisto
+    // Reset della intro slide: imposta sempre la slide 1
+    currentChallengeSlide = 1;
+    document.getElementById("challengeSlide1").style.display = "block";
+    document.getElementById("challengeSlide2").style.display = "none";
+
+    // Imposta l'icona e il titolo per il pulsante "quit" in modalità Challenge
     document.querySelector("#quit img").src = "buy.png";
     document.getElementById("quit").title = "Buy (Challenge)";
     
@@ -2697,6 +2767,7 @@ function toggleChallengeMode() {
     window.lastFinalTime = 0;
   }
 }
+
 
 document.getElementById("challengeButton").addEventListener("click", toggleChallengeMode);
 
@@ -2932,10 +3003,14 @@ quitButton.addEventListener("click", () => {
       showSystemMessage("You've already bought an item at this level!");
       return;
     }
-    if (challengePoints < 1000) {
-      showSystemMessage("You don't have enough points to buy (need 1000)!");
-      return;
-    }
+if (challengePoints < 5000) {
+  showSystemMessage(
+    "<span style='color:black;'>You must have at least 5000 points to buy an item!</span>",
+    "<span style='display:block; font-size:18px; font-weight:bold; margin-top:15px;'>Current points: " + challengePoints + "</span>"
+  );
+  return;
+}
+
     // Apri l’overlay di acquisto e aggiorna il testo dei punti disponibili
     document.getElementById("buyOverlay").classList.remove("hidden");
     document.getElementById("buyAvailablePoints").textContent =
@@ -2970,49 +3045,71 @@ document.getElementById("closeBuyOverlay").addEventListener("click", () => {
 });
 
 document.getElementById("buyOkBtn").addEventListener("click", () => {
-  // Semplicemente chiude l'overlay quando l'utente preme OK
+  // Controlla se è stata effettuata una selezione
+  if (selectedPurchase === null) {
+    showSystemMessage("Please select an item before confirming!");
+    return;
+  }
+  
+  // Esegue l'acquisto in base alla scelta
+  if (selectedPurchase === "tree") {
+    challengePoints -= 1000; // Deduce 1000 punti per l'albero
+    treeCounter++;           // Incrementa il contatore degli alberi
+  } else if (selectedPurchase === "gate") {
+    challengePoints -= 1000; // Deduce 1000 punti per il gate
+    gateCounter++;           // Incrementa il contatore dei gate
+  }
+  
+  hasBoughtThisLevel = true; // Segna che l'acquisto è stato effettuato
+  
+  // Aggiorna il display dei punti e dei contatori
+  updateCountersDisplay();
+  document.getElementById("buyAvailablePoints").textContent =
+    "You have " + challengePoints + " points available.";
+  
+  // Ripristina la selezione e l'aspetto visivo
+  selectedPurchase = null;
+  document.querySelector("#buyTreeArea img").style.opacity = "1";
+  document.querySelector("#buyGateArea img").style.opacity = "1";
+  
+  // Chiude il popup di acquisto
   document.getElementById("buyOverlay").classList.add("hidden");
 });
+
 document.getElementById("buyTreeArea").addEventListener("click", () => {
-  // Controlla se è già stato effettuato un acquisto in questa sessione
   if (hasBoughtThisLevel) {
     showSystemMessage("You've already bought an item in this session!");
     return;
   }
-  if (challengePoints < 1000) {
-    showSystemMessage("Not enough points!");
+  if (challengePoints < 5000) {
+    showSystemMessage(
+      "<span style='color:black;'>You must have at least 5000 points to buy an item!</span>",
+      "<span style='display:block; font-size:18px; font-weight:bold; margin-top:15px;'>Current points: " + challengePoints + "</span>"
+    );
     return;
   }
-  // Diminuisci di 1000 i punti e incrementa il contatore degli alberi
-  challengePoints -= 1000;
-  treeCounter++;
-  hasBoughtThisLevel = true;  // Segna che è stato effettuato un acquisto in questo livello
-  updateCountersDisplay();
-  document.getElementById("buyAvailablePoints").textContent =
-    "You have " + challengePoints + " points available.";
-  // (Opzionale) Puoi chiudere l'overlay subito dopo il click
-  // document.getElementById("buyOverlay").classList.add("hidden");
+  // Imposta la selezione su "tree" e applica l'effetto visivo
+  selectedPurchase = "tree";
+  document.querySelector("#buyTreeArea img").style.opacity = "0.5";  // Albero selezionato
+  document.querySelector("#buyGateArea img").style.opacity = "1";      // Gate deselezionato
 });
 
 document.getElementById("buyGateArea").addEventListener("click", () => {
-  // Controlla se è già stato effettuato un acquisto in questa sessione
   if (hasBoughtThisLevel) {
     showSystemMessage("You've already bought an item in this session!");
     return;
   }
-  if (challengePoints < 1000) {
-    showSystemMessage("Not enough points!");
+  if (challengePoints < 5000) {
+    showSystemMessage(
+      "<span style='color:black;'>You must have at least 5000 points to buy an item!</span>",
+      "<span style='display:block; font-size:18px; font-weight:bold; margin-top:15px;'>Current points: " + challengePoints + "</span>"
+    );
     return;
   }
-  // Diminuisci di 1000 i punti e incrementa il contatore dei gate
-  challengePoints -= 1000;
-  gateCounter++;
-  hasBoughtThisLevel = true;  // Segna che è stato effettuato un acquisto in questo livello
-  updateCountersDisplay();
-  document.getElementById("buyAvailablePoints").textContent =
-    "You have " + challengePoints + " points available.";
-  // (Opzionale) Puoi chiudere l'overlay subito dopo il click
-  // document.getElementById("buyOverlay").classList.add("hidden");
+  // Imposta la selezione su "gate" e applica l'effetto visivo
+  selectedPurchase = "gate";
+  document.querySelector("#buyGateArea img").style.opacity = "0.5";  // Gate selezionato
+  document.querySelector("#buyTreeArea img").style.opacity = "1";      // Albero deselezionato
 });
 
 
@@ -3065,10 +3162,16 @@ saveResultBtn.addEventListener("click", function() {
 });
 
       /* Pulsante X in alto a sinistra dell’intro Challenge */
-      document.getElementById("closeChallengeIntroButton").addEventListener("click", function() {
-        document.getElementById("challengeIntroOverlay").classList.add("hidden");
-      });
-
+document.getElementById("closeChallengeIntroButton").addEventListener("click", function() {
+  // Nascondi l'overlay della Challenge Intro
+  document.getElementById("challengeIntroOverlay").classList.add("hidden");
+  // Uscita dalla Challenge Mode: impostiamo la variabile di controllo
+  isChallengeMode = false;
+  challengeAttempts = 0;
+  // Aggiorna l'icona e il titolo del pulsante "quit" per tornare in Arcade Mode
+  document.querySelector("#quit img").src = "new.png";
+  document.getElementById("quit").title = "New Run";
+});
       /* Funzione per ripristinare lo stato pre-run */
 function resetRun(resetCounters = true) {
   drawing = false;
