@@ -899,7 +899,7 @@ margin-top: -3px;
     <!-- Visualizza i punti attualmente disponibili -->
     <p id="buyAvailablePoints" style="font-weight:bold; margin: 10px 0;"></p>
 
-    <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: center; gap: 40px; margin-bottom: 20px;">
       <!-- Icona per l'acquisto di un Tree -->
       <div id="buyTreeArea" style="cursor: pointer;">
         <img src="tree.svg" alt="Tree" style="width:auto; height:50px;">
@@ -1141,89 +1141,102 @@ updateLeaderboard();
       ];
       let currentTitleUnlocked = "";
 
-      function getTitleForLevel(level) {
-        if (level < 3) {
-          return "";
-        }
+function getTitleForLevel(level) {
+  // Mostra titoli solo dal livello 5 in poi
+  if (level < 5) {
+    return "";
+  }
 
-        const baseTitles = [
-          "Snowflake Apprentice",
-          "Frosty Daredevil",
-          "Blizzard Tamer",
-          "Polar Maestro",
-          "Avalanche Overlord"
-        ];
+  const baseTitles = [
+    "Snowflake Apprentice",
+    "Frosty Daredevil",
+    "Blizzard Tamer",
+    "Polar Maestro",
+    "Avalanche Overlord"
+  ];
 
-        const subTitles = ["Bronze", "Silver", "Gold"];
-        let adjusted = level - 2;
-        let baseIndex = Math.floor((adjusted - 1) / 9);
+  const subTitles = ["Bronze", "Silver", "Gold"];
 
-        if (baseIndex >= baseTitles.length) {
-          return baseTitles[baseTitles.length - 1] + " Gold";
-        }
+  // Per far sì che al livello 5 adjusted sia 1:
+  let adjusted = level - 4;
 
-        if (baseIndex < 0) {
-          return "";
-        }
+  // Ogni titolo base dura 15 livelli (3 varianti x 5 livelli)
+  let baseIndex = Math.floor((adjusted - 1) / 15);
 
-        let baseTitle = baseTitles[baseIndex];
-        let subIndex = Math.floor(((adjusted - 1) % 9) / 3);
+  // Se il livello supera i titoli disponibili, assegna sempre l'ultimo titolo in versione Gold
+  if (baseIndex >= baseTitles.length) {
+    return baseTitles[baseTitles.length - 1] + " Gold";
+  }
+  if (baseIndex < 0) {
+    return "";
+  }
 
-        if (subIndex >= subTitles.length) {
-          subIndex = subTitles.length - 1;
-        }
+  let baseTitle = baseTitles[baseIndex];
 
-        let subTitle = subTitles[subIndex];
-        return baseTitle + " " + subTitle;
-      }
+  // Calcola il sottotitolo: ogni variante dura 5 livelli
+  let subIndex = Math.floor(((adjusted - 1) % 15) / 5);
+  if (subIndex >= subTitles.length) {
+    subIndex = subTitles.length - 1;
+  }
+  let subTitle = subTitles[subIndex];
+
+  return baseTitle + " " + subTitle;
+}
+
 
       function getTitleImageForLevel(level) {
-        if (level < 3) {
-          return "";
-        }
+  // Restituisce una stringa vuota se il livello è inferiore a 5
+  if (level < 5) {
+    return "";
+  }
 
-        const titleImages = [
-          [
-            "snowflake_apprentice_bronze.png",
-            "snowflake_apprentice_silver.png",
-            "snowflake_apprentice_gold.png"
-          ],
-          [
-            "frosty_daredevil_bronze.png",
-            "frosty_daredevil_silver.png",
-            "frosty_daredevil_gold.png"
-          ],
-          [
-            "blizzard_tamer_bronze.png",
-            "blizzard_tamer_silver.png",
-            "blizzard_tamer_gold.png"
-          ],
-          [
-            "polar_maestro_bronze.png",
-            "polar_maestro_silver.png",
-            "polar_maestro_gold.png"
-          ],
-          [
-            "avalanche_overlord_bronze.png",
-            "avalanche_overlord_silver.png",
-            "avalanche_overlord_gold.png"
-          ]
-        ];
+  const titleImages = [
+    [
+      "snowflake_apprentice_bronze.png",
+      "snowflake_apprentice_silver.png",
+      "snowflake_apprentice_gold.png"
+    ],
+    [
+      "frosty_daredevil_bronze.png",
+      "frosty_daredevil_silver.png",
+      "frosty_daredevil_gold.png"
+    ],
+    [
+      "blizzard_tamer_bronze.png",
+      "blizzard_tamer_silver.png",
+      "blizzard_tamer_gold.png"
+    ],
+    [
+      "polar_maestro_bronze.png",
+      "polar_maestro_silver.png",
+      "polar_maestro_gold.png"
+    ],
+    [
+      "avalanche_overlord_bronze.png",
+      "avalanche_overlord_silver.png",
+      "avalanche_overlord_gold.png"
+    ]
+  ];
 
-        let adjusted = level - 2;
-        let baseIndex = Math.floor((adjusted - 1) / 9);
+  let adjusted = level - 4;
+  let baseIndex = Math.floor((adjusted - 1) / 15);
 
-        if (baseIndex >= titleImages.length) {
-          return titleImages[titleImages.length - 1][2];
-        }
+  if (baseIndex >= titleImages.length) {
+    // Se il livello supera i titoli disponibili, restituisci l'immagine Gold dell'ultimo titolo
+    return titleImages[titleImages.length - 1][2];
+  }
+  if (baseIndex < 0) {
+    return "";
+  }
 
-        if (baseIndex < 0) {
-          return "";
-        }
+  let subIndex = Math.floor(((adjusted - 1) % 15) / 5);
+  if (subIndex >= 3) {
+    subIndex = 2;
+  }
 
-        let subIndex = Math.floor(((adjusted - 1) % 9) / 3);
-        return titleImages[baseIndex][subIndex];
-      }
+  return titleImages[baseIndex][subIndex];
+}
+
 
       /* Slides Tutorial */
       let tutorialSlides = [
@@ -1971,6 +1984,8 @@ function finishRun() {
 
       /* Mostra la schermata di fine Challenge */
      function showChallengeEndOverlay(failReason = "") {
+  // Forza la modalità Challenge fino a quando l’overlay è attivo
+  isChallengeMode = true;
   const overlay = document.getElementById("challengeEndOverlay");
   const content = document.getElementById("challengeEndContent");
 
@@ -2791,7 +2806,6 @@ function toggleButtonState(disable) {
   });
 }
 
-
       /* Avvia una nuova Challenge */
 
 function startNewChallenge() {
@@ -2810,7 +2824,7 @@ function startNewChallenge() {
 
   // Calcola il bonus livello per il moltiplicatore degli alberi
   let numTrees = currentTrack.trees.length;
-  let levelBonus = (currentLevel - 1) * 0.01;  // Bonus aumenta di 0.05 ad ogni livello
+  let levelBonus = (currentLevel - 1) * 0.005;  // Bonus aumenta di 0.001 ad ogni livello
   let factor = 1.0;
   if (numTrees === 6) {
     factor = 1.05 + levelBonus;
@@ -3015,6 +3029,9 @@ if (challengePoints < 5000) {
     document.getElementById("buyOverlay").classList.remove("hidden");
     document.getElementById("buyAvailablePoints").textContent =
       "You have " + challengePoints + " points available.";
+// Reset dell'opacità delle icone (tutte al 100%)
+document.querySelector("#buyTreeArea img").style.opacity = "1";
+document.querySelector("#buyGateArea img").style.opacity = "1";
   } else {
     // In Arcade Mode: comportamento originale (reset run e nuova pista)
     isChallengeMode = false;
@@ -3124,8 +3141,10 @@ document.getElementById("buyGateArea").addEventListener("click", () => {
 
 viewBtn.addEventListener("click", () => {
   if (isChallengeMode) {
+    // Forza la modalità Challenge finché l'overlay è attivo
+    isChallengeMode = true;
+    
     renderSavedGamesList();
-    // Imposta il valore dell'input:
     document.getElementById("challengeSaveNameInput").value = currentChallengeSaveName || "";
     document.getElementById("challengeSaveOverlay").classList.remove("hidden");
   } else {
