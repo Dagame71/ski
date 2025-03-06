@@ -2401,52 +2401,53 @@ function endRace() {
       ============================================== */
       slidesIntro = [
         {
-          title: "World Cup Mode",
-          content: `
-            <p class="overlay-text">Enter the players!</p>
-            <div id="playersInputContainer"></div>
-            <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
-            <button id="removePlayerBtn">Remove Player</button>
-          `
-        },
+  title: `<img src="worldcup_mode.png" alt="World Cup Mode" style="max-width:100%; height:auto;">`,
+  content: `
+    <p class="overlay-text">Enter the players!</p>
+    <div id="playersInputContainer"></div>
+    <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
+    <button id="removePlayerBtn">Remove Player</button>
+  `
+},
+{
+  title: `<img src="format_.png" alt="Race Format" style="max-width:100%; height:auto;">`,
+  content: `
+    <p class="overlay-text">❄ Between <b>2 and 6</b> participants compete in <b>3 distinct races</b><br> <i>(Giant, Special, SuperG)</i>.<br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ Each race has <b>2 Manches</b>, and in each manche every participant has <b>3 consecutive attempts</b> <i>(Runs)</i>.<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points:<br><i><b>(9, 7, 5, 3, 1).</b></i></p>
+  `
+},
+{
+  title: `<img src="editing_.png" alt="Editing the Track" style="max-width:100%; height:auto;">`,
+  content: `
+    <p class="overlay-text">Before each race, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ <b>Press and hold</b> anywhere on the track for <b>one second</b> to create a <b>new tree</b>, then move it freely.<br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ <b>Double-tap</b> the infoline to <b>confirm</b> the track and <b>start the race!</b><br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text"><i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i></p>
+  `
+},
+{
+  title: `<img src="penalties_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto;">`,
+  content: `
+    <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br>
+    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
+    <p class="overlay-text">
+      <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
+      By clicking the <b>Bravery</b> button, you choose to take a risk!
+      If, by the end of the race, your time is among the Top 5, you earn a <b>3 or 5 point bonus</b>.<br>
+      <b>But if you fail to make the Top 5</b>, your opponents receive those 3 or 5 points instead!
+    </p>
+  `
+},
         {
-          title: "Race Format",
-          content: `
-            <p class="overlay-text">❄ Between <b>2 and 6</b> participants compete in <b>3 distinct races</b><br> <i>(Giant, Special, SuperG)</i>.<br>
-            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text">❄ Each race has <b>2 Manches</b>, and in each manche every participant has <b>3 consecutive attempts</b> <i>(Runs)</i>.<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points:<br><i><b>(9, 7, 5, 3, 1).</b></i></p>
-          `
-        },
-        {
-          title: "Editing the Track",
-          content: `
-            <p class="overlay-text">Before each race, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
-            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text">❄ <b>Press and hold</b> anywhere on the track for <b>one second</b> to create a <b>new tree</b>, then move it freely.<br>
-            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text">❄ <b>Double-tap</b> the infoline to <b>confirm</b> the track and <b>start the race!</b><br>
-            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text"><i><b>Remember:</b> no matter how you design the track, red gates must be passed on the right, and blue gates on the left.</i></p>
-          `
-        },
-        {
-          title: "Brave Mode<br>& Penalties",
-          content: `
-            <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
-            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text">❄ If you hit the side barriers, you might receive a <b>0.10-second penalty!</b><br>
-            <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-            <p class="overlay-text">
-              <img src="view.png" class="tutorial-icon" alt="view" style="margin-bottom:-6px;">
-              By clicking the <b>Brave Mode</b> button, you choose to take a risk!
-If, by the end of the race, your time is among the Top 5, you earn a <b>3 or 5 point bonus</b>.<br>
-<b>But if you fail to make the Top 5</b>, your opponents receive those 3 or 5 points instead!</p>
-          `
-        },
-        {
-          title: "Final Victory",
-          content: `
+          title: `<img src="victory_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto;">`,
+  content: `
             <p class="overlay-text">At the end of the 3rd race, whoever has the most points becomes the Ski-Zag...!
 </p>
 <img src="skizag_champion.png" alt="Champion" style="display:block; margin:10px auto; max-width:100%;">
