@@ -263,9 +263,9 @@
         background-size: cover;
         background-color: #fff;
         border-radius: 12px;
-        padding: 20px;
+        padding: 2%;
         width: 80%; /* Larghezza responsive */
-        max-width: 280px;
+        max-width: 300px;
         box-sizing: border-box;
         position: relative;
         text-align: center;
@@ -758,51 +758,50 @@ margin-top: -3px;
     <!-- Pulsante di chiusura in alto a sinistra -->
     <button id="closeChallengeIntroButton" style="position: absolute; top: 10px; left: 10px; background-color: #8fa2f7; font-size: 14px; padding: 5px 10px; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
     
-    <!-- Contenitore delle slide per la Challenge Intro -->
-    <div id="challengeSlidesContainer">
-      <!-- Slide 1 (contenuto originale) -->
-      <div class="challenge-slide" id="challengeSlide1">
-        <h2>Welcome to the Challenge Mode!</h2>
-        <p class="overlay-text">
-          <strong>Beat the target time, level up, and achieve the highest score!</strong>
-        </p>
-        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ You have <b>3 attempts</b> to beat the target <b>time</b>; the more you lower it, the more points you earn!
-        </p>
-        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ If you beat the target time on your <b>1st</b> attempt, you multiply your points by <b>3</b>; on the <b>2nd</b> attempt, you multiply them by <b>2</b>; on the <b>3rd</b> attempt, points are <b>not multiplied</b> at all!
-        </p>
-        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ If you hit the side barriers, you might receive a <b>progressively increasing penalty</b> in hundredths of a second!
-        </p>
-      </div>
+    <!-- Slide 1 -->
+<div class="challenge-slide" id="challengeSlide1">
+  <!-- Sostituisco il titolo testuale con l'immagine challenge_mode.png -->
+  <img src="challenge_mode.png" alt="Challenge Mode" style="max-width:100%; height:auto; margin-top:0px;">
+    <strong>Beat the target time, level up, and achieve the highest score!</strong>
+  </p>
+  <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+  <p class="overlay-text">
+    ❄ You have <b>3 attempts</b> to beat the target <b>time</b>; the more you lower it, the more points you earn!
+  </p>
+  <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+  <p class="overlay-text">
+    ❄ If you beat the target time on your <b>1st</b> attempt, you multiply your points by <b>3</b>; on the <b>2nd</b> attempt, you multiply them by <b>2</b>; on the <b>3rd</b> attempt, points are <b>not multiplied</b> at all!
+  </p>
+  <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+  <p class="overlay-text">
+    ❄ If you hit the side barriers, you might receive a <b>progressively increasing penalty</b> in hundredths of a second!
+  </p>
+</div>
 
-      <!-- Slide 2 -->
-      <div class="challenge-slide" id="challengeSlide2" style="display: none;">
-        <h2>Trees and Gates</h2>
-        <p class="overlay-text">
-          ❄ You can hit a maximum of <b>5 trees</b> and miss up to <b>5 gates</b>!<br>
-          For every <b>Gold Title</b> you earn, you gain a <b>Tree bonus and a Gate bonus</b>.
-        </p>
-        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ If you have at least <b>5000 points</b>, you can <b>purchase</b> either a <b>Tree bonus</b> or a <b>Gate bonus</b> once per level by clicking the <b>Buy</b> button.
-        </p>
-        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-        <p class="overlay-text">
-          ❄ More than <b>25 run interruptions</b> will cause your Challenge to fail!
-        </p>
-        <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-       <p class="overlay-text">
-  ❄ Win the <b>5 Gold Titles</b> at stake and rise to become the...</b>!
-</p>
-<img src="glacial_emperor.png" alt="Glacial Emperor" style="display:block; margin:10px auto; max-width:100%;">
-        </p>
-      </div>
-    </div>
+<!-- Slide 2 -->
+<div class="challenge-slide" id="challengeSlide2" style="display: none;">
+  <!-- Sostituisco il titolo "Trees and Gates" con l'immagine trees_gates.png -->
+  <img src="trees_gates.png" alt="Trees and gates" style="max-width:100%; height:auto; margin-top:0px;">
+
+  <p class="overlay-text">
+    ❄ You can hit a maximum of <b>5 trees</b> and miss up to <b>5 gates</b>!<br>
+    For every <b>Gold Title</b> you earn, you gain a <b>Tree bonus and a Gate bonus</b>.
+  </p>
+  <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+  <p class="overlay-text">
+    ❄ If you have at least <b>5000 points</b>, you can <b>purchase</b> either a <b>Tree bonus</b> or a <b>Gate bonus</b> once per level by clicking the <b>Buy</b> button.
+  </p>
+  <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+  <p class="overlay-text">
+    ❄ More than <b>25 run interruptions</b> will cause your Challenge to fail!
+  </p>
+  <hr style="border:none; border-top:1px solid red; margin:8px 0;">
+  <p class="overlay-text">
+    ❄ Win the <b>5 Gold Titles</b> at stake and rise to become the...</b>!
+  </p>
+  <img src="glacial_emperor.png" alt="Glacial Emperor" style="display:block; margin:10px auto; max-width:100%;">
+</div>
+
 
 
     <!-- Navigazione tra le slide: frecce e pulsante Play! allineati -->
@@ -1240,45 +1239,23 @@ function getTitleForLevel(level) {
 
       /* Slides Tutorial */
       let tutorialSlides = [
-  {
-    title: `Welcome to Ski-Zag!<br><i style="font-size: 0.6em;">Arcade Mode (1-∞ players)</i>`,
-    content: `<p class="overlay-text">
-      <b><i>Start at the hut and ski to the finish!</i></b>
-      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-      ❄ Draw your path with your finger, pass through the gates, avoid the trees, cross the finish line and achieve <b>the best time!</b>
+{
+  title: `<img src="arcade_mode.png" alt="Arcade Mode" style="max-width:100%; height:auto; display:block; ">`,
+content: `<p class="overlay-text">
+   <b><i>
+    <span style="position: relative; top: -10px;">Start at the hut and ski to the finish!</span>
+  </i></b>
+      <span style="display:block; border-top:1px solid red; margin-top:-3px; margin-bottom:8px;"></span>
+      ❄ <b>Draw your path with your finger</b>, pass through the gates, avoid the trees and side barriers, cross the finish line and achieve <b>the best time!</b>
+      <br><br>
+  <img src="how_to.png" alt="How to" style="max-width:100%; height:auto; display:block;">
       <br>
       <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
       ❄ <b>Red gates</b> must be passed on the <b>right</b>, and <b>blue gates</b> on the <b>left</b>.
     </p>`
-  },
-  {
-    title: `Challenge<img src="medal.png" class="medal-title-icon" alt="Medal"><br><i style="font-size: 0.6em;">Solo Mode</i>`,
-    content: `<p class="overlay-text">
-      <i><b>Beat the best time, level up, and achieve the highest score!</b></i><br>
-      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-      ❄ You have <b>3 attempts</b> to beat the best time; the more you lower it, the more points you earn!<br>
-      <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-      ❄ <strong>Beat the level:</strong><br>
-      <strong>1st try</strong> → points x3<br>
-      <strong>2nd</strong> → points x2<br> 
-      <strong>3rd</strong> → points x1
-    </p>`
-  },
- 
-{
-  title: `World Cup<img src="cup.png" class="medal-title-icon" alt="Cup"><br><i style="font-size: 0.6em;">Pass-and-Play Mode</i>`,
-  content: `
-    <p class="overlay-text">❄ Between <b>2 and 6</b> participants compete in <b>3 distinct races</b><br> <i>(Giant, Special, SuperG)</i>.<br>
-    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-    <p class="overlay-text">❄ Each race has <b>2 Manches</b>, and in each manche every participant has <b>3 consecutive attempts</b> <i>(Runs)</i>.<span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-    <p class="overlay-text">❄ At the end of each race, the <b>top 5 best times</b> are awarded points:<br><i><b>(9, 7, 5, 3, 1).</b></i></p>
-    <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
-    <p class="overlay-text">At the end of the 3rd race, whoever has the most points wins the championship!</p>
-  `
 },
-
   {
-    title: "Buttons",
+     title: `<img src="buttons_.png" alt="Buttons" style="max-width:100%; height:auto; display:block;">`,
   content: `<div class="overlay-text controls-slide">
     <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay
     <hr style="border:none; border-top:1px solid red; margin:8px 0;">
@@ -1298,12 +1275,12 @@ function getTitleForLevel(level) {
     </div>`
   },
   {
-  title: "Good Luck!",
+
   content: `<p class="overlay-text">
-             Have fun with Ski-Zag!<br>
-             <img src="enjoy.png" alt="Enjoy" style="display:block; margin:10px auto; max-width:100%;">
-             <b>Enjoy the slope!</b>
-            </p>`
+            <span style="font-size: 1.2em; font-weight: bold;">Have fun with Ski-Zag!</span><br>
+            <img src="enjoy.png" alt="Enjoy" style="display:block; margin:10px auto; max-width:100%;">
+             <span style="font-size: 1.2em; font-weight: bold;">Enjoy the slope!</span><br>
+          </p>`
 }
 ];
 
@@ -3430,7 +3407,9 @@ document.getElementById("challengeSaveBtn").addEventListener("click", () => {
       /* Tutorial */
       function renderTutorial() {
         let slide = tutorialSlides[currentTutorialIndex];
-        tutorialContent.innerHTML = `<h2>${slide.title}</h2><p>${slide.content}</p>`;
+        tutorialContent.innerHTML = 
+  (slide.title && slide.title.trim() !== "" ? `<h2>${slide.title}</h2>` : "") +
+  `<p>${slide.content}</p>`;
         tutorialDots.innerHTML = "";
         tutorialSlides.forEach((s, i) => {
           let d = document.createElement("div");
