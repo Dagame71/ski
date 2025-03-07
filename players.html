@@ -632,9 +632,12 @@
     <div id="slidesOverlay" class="overlay hidden">
       <div id="slidesContent" class="overlay-content intro-overlay">
         <button id="closeIntroOverlay" class="close-button">X</button>
-        <!-- Il contenuto introduttivo verrà inserito dinamicamente -->
-      </div>
-    </div>
+ <div class="slides-nav" style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
+  <button class="nav-button" id="challengePrev" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">←</button>
+  <button id="closeChallengeIntroOverlay" class="nav-button" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Play!</button>
+  <button class="nav-button" id="challengeNext" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">→</button>
+</div>
+
     
     <!-- Overlay per annunci e classifiche (championship) -->
     <div id="champOverlay" class="overlay hidden">

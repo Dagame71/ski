@@ -302,7 +302,48 @@
       #closeSaveResultOverlay:hover {
         background-color: #bdc9fb;
       }
+/* Stile comune per i bottoni di navigazione (puoi mantenerlo o aggiungerlo in più) */
+.nav-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.nav-button:hover {
+  background-color: #bdc9fb;
+}
 
+/* Posizionamento assoluto dei bottoni all'interno di .overlay-content */
+#challengePrev {
+  position: absolute;
+  bottom: 20px;  /* distanza dal fondo dell'overlay-content */
+  left: 20px;    /* distanza dal bordo sinistro */
+}
+
+#closeChallengeIntroOverlay {
+  position: absolute;
+  bottom: 20px;  /* stessa distanza dal fondo */
+  left: 50%;     /* centrato orizzontalmente */
+  transform: translateX(-50%);
+}
+
+#challengeNext {
+  position: absolute;
+  bottom: 20px;  /* distanza dal fondo */
+  right: 20px;   /* distanza dal bordo destro */
+}
+/* Solo per l'overlay della Challenge Intro */
+#challengeIntroOverlay .overlay-content {
+    min-height: 400px;
+    padding-bottom: 60px; /* Aggiungi questa riga */
+}
+#challengeIntroOverlay .nav-button {
+    bottom: 20px !important;
+}
       /* Input identico a .player-name-input */
 #trackNameInput,
 #resultNameInput,
@@ -754,7 +795,8 @@ margin-top: -3px;
 
   <!-- OVERLAY Challenge Intro -->
 <div id="challengeIntroOverlay" class="overlay hidden">
-  <div class="overlay-content">
+  <div class="overlay-content" style="position: relative;">
+
     <!-- Pulsante di chiusura in alto a sinistra -->
     <button id="closeChallengeIntroButton" style="position: absolute; top: 10px; left: 10px; background-color: #8fa2f7; font-size: 14px; padding: 5px 10px; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
     
@@ -802,21 +844,13 @@ margin-top: -3px;
   <img src="glacial_emperor.png" alt="Glacial Emperor" style="display:block; margin:10px auto; max-width:100%;">
 </div>
 
-
-
     <!-- Navigazione tra le slide: frecce e pulsante Play! allineati -->
-    <div class="slides-nav" style="margin-top:15px; display:flex; justify-content:space-between; align-items:center;">
-      <!-- Pulsante freccia sinistra -->
-      <button class="nav-button" id="challengePrev" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">←</button>
+<div class="slides-nav" style="margin-top:15px;">
+  <button class="nav-button" id="challengePrev">←</button>
+  <button class="nav-button" id="closeChallengeIntroOverlay">Play!</button>
+  <button class="nav-button" id="challengeNext">→</button>
+</div>
 
-      <!-- Pulsante Play con lo stesso stile -->
-      <button id="closeChallengeIntroOverlay" class="nav-button" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">
-        Play!
-      </button>
-
-      <!-- Pulsante freccia destra -->
-      <button class="nav-button" id="challengeNext" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">→</button>
-    </div>
   </div>
 </div>
 
@@ -1259,11 +1293,11 @@ content: `<p class="overlay-text">
   content: `<div class="overlay-text controls-slide">
     <img src="replay.png" class="tutorial-icon" alt="Replay"> Replay
     <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-    <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Toggle Snow
+    <img src="snowflake.png" class="tutorial-icon" alt="Toggle Snow"> Snow Off/On
     <hr style="border:none; border-top:1px solid red; margin:8px 0;">
     <img src="save.png" class="tutorial-icon" alt="Save Track"> Save Track
     <hr style="border:none; border-top:1px solid red; margin:8px 0;">
-    <img src="medal.png" class="tutorial-icon" alt="Challenge Mode"> Challenge Mode
+    <img src="medal.png" class="tutorial-icon" alt="Challenge Mode"> Challenge In/Out
     <hr style="border:none; border-top:1px solid red; margin:8px 0;">
     <img src="cup.png" class="tutorial-icon" alt="World Cup"> World Cup
     <hr style="border:none; border-top:1px solid red; margin:8px 0;">
