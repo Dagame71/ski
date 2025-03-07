@@ -1924,17 +1924,17 @@ function finishRun() {
           }, 1500);
         } else {
           setMainLabel("Failed! Retry!");
-          challengeEndTimer = setTimeout(() => {
-            showChallengeEndOverlay("Challenge Over!");
-            isChallengeMode = false;
-            challengeAttempts = 0;
-            setMainLabel("⏰0'00\"000'''");
-            toggleButtonState(false);
-            resetRun();
-            bestTimes = [];
-            localStorage.removeItem("bestTimes");
-            updateLeaderboard();
-          }, 1500);
+       challengeEndTimer = setTimeout(() => {
+  showChallengeEndOverlay("<strong>You failed 3 times!</strong>");
+  isChallengeMode = true;
+  challengeAttempts = 0;
+  setMainLabel("⏰0'00\"000'''");
+  // Rimuoviamo toggleButtonState(false) per mantenere i bottoni disabilitati
+  resetRun();
+  bestTimes = [];
+  localStorage.removeItem("bestTimes");
+  updateLeaderboard();
+}, 1500);
         }
       }
     }, 1000);
