@@ -824,18 +824,15 @@ finishRect = {
       treeImg.onerror = () => {
         console.error("Errore nel caricamento di tree.svg");
       };
-function showSystemMessage(message) {
+function showSystemMessage(message, callback) {
   // Crea l'elemento overlay
   const overlay = document.createElement("div");
   overlay.className = "overlay";
-  // Usa uno sfondo semitrasparente per l'overlay (opzionale)
   overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
   
-  // Crea il contenitore del messaggio e usa la classe CSS già definita (.overlay-content)
+  // Crea il contenitore del messaggio usando la classe .overlay-content
   const messageBox = document.createElement("div");
   messageBox.className = "overlay-content";
-  // Rimuovi o commenta la riga seguente per mantenere lo sfondo predefinito (backpopup.png)
-  // messageBox.style.backgroundImage = "none";
   messageBox.style.padding = "20px";
   messageBox.style.textAlign = "center";
   
@@ -855,18 +852,23 @@ function showSystemMessage(message) {
   okButton.className = "nav-button";
   okButton.textContent = "OK";
   
-  // Associa l'evento click per chiudere il popup
+  // Quando si clicca OK, chiudi il popup e, se esiste il callback, chiamalo
   okButton.addEventListener("click", function() {
     overlay.classList.add("hidden");
-    setTimeout(() => overlay.remove(), 300);
+    setTimeout(() => {
+      overlay.remove();
+      if (typeof callback === "function") {
+        callback();
+      }
+    }, 100);
   });
   
-  // Assembla il popup
   buttonContainer.appendChild(okButton);
   messageBox.appendChild(buttonContainer);
   overlay.appendChild(messageBox);
   document.body.appendChild(overlay);
 }
+
 
 
       /* ==============================================
@@ -2564,24 +2566,28 @@ function endRace() {
           if (val) draftParticipants.push(val);
         });
       }
-      function checkDraftNames() {
-        if (draftParticipants.length < 2) {
-          showSystemMessage("At least 2 participants!");
-          return false;
-        }
-        if (draftParticipants.length > 6) {
-          showSystemMessage("Max 6 participants!");
-          return false;
-        }
-        const duplicates = draftParticipants.some(
-          (nm, idx) => draftParticipants.indexOf(nm) !== idx
-        );
-        if (duplicates) {
-          showSystemMessage("Names must be unique!");
-          return false;
-        }
-        return true;
-      }
+function checkDraftNames() {
+  if (draftParticipants.length < 2) {
+    showSystemMessage("At least 2 participants!", function() {
+      // Reimposta la slide all'inizio (indice 0) e rendi visibile la prima slide
+      currentTutorialIndex = 0;
+      renderSlide();
+    });
+    return false;
+  }
+  if (draftParticipants.length > 6) {
+    showSystemMessage("Max 6 participants!");
+    return false;
+  }
+  const duplicates = draftParticipants.some(
+    (nm, idx) => draftParticipants.indexOf(nm) !== idx
+  );
+  if (duplicates) {
+    showSystemMessage("Names must be unique!");
+    return false;
+  }
+  return true;
+}
       function acceptDraftParticipants() {
         participants = [...draftParticipants];
       }
