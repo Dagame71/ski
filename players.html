@@ -518,24 +518,6 @@
         aspect-ratio: 1 / 1;
         padding: 4px 6px;
       }
-/* Per l'overlay introduttivo della World Cup (slide intro) */
-#slidesOverlay .overlay-content {
-  position: relative;          /* Necessario per ancorare gli elementi assoluti al suo interno */
-  min-height: 400px;           /* Imposta una altezza minima (regola questo valore se necessario) */
-  padding-bottom: 60px;        /* Spazio extra in basso per i bottoni */
-}
-
-#slidesOverlay .slides-nav {
-  position: absolute;
-  bottom: 20px;                /* Distanza fissa dal bordo inferiore */
-  left: 0;
-  right: 0;
-  margin: 0;
-  padding: 0 20px;             /* (Opzionale) per dare margine orizzontale */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 
       /* -------------------------------
          Media Queries per layout responsive
@@ -650,12 +632,9 @@
     <div id="slidesOverlay" class="overlay hidden">
       <div id="slidesContent" class="overlay-content intro-overlay">
         <button id="closeIntroOverlay" class="close-button">X</button>
- <div class="slides-nav">
-  <button class="nav-button" id="challengePrev" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">←</button>
-  <button id="closeChallengeIntroOverlay" class="nav-button" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Play!</button>
-  <button class="nav-button" id="challengeNext" style="background-color: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 16px; cursor: pointer;">→</button>
-</div>
-
+        <!-- Il contenuto introduttivo verrà inserito dinamicamente -->
+      </div>
+    </div>
     
     <!-- Overlay per annunci e classifiche (championship) -->
     <div id="champOverlay" class="overlay hidden">
@@ -845,15 +824,18 @@ finishRect = {
       treeImg.onerror = () => {
         console.error("Errore nel caricamento di tree.svg");
       };
-function showSystemMessage(message, callback) {
+function showSystemMessage(message) {
   // Crea l'elemento overlay
   const overlay = document.createElement("div");
   overlay.className = "overlay";
+  // Usa uno sfondo semitrasparente per l'overlay (opzionale)
   overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
   
-  // Crea il contenitore del messaggio usando la classe .overlay-content
+  // Crea il contenitore del messaggio e usa la classe CSS già definita (.overlay-content)
   const messageBox = document.createElement("div");
   messageBox.className = "overlay-content";
+  // Rimuovi o commenta la riga seguente per mantenere lo sfondo predefinito (backpopup.png)
+  // messageBox.style.backgroundImage = "none";
   messageBox.style.padding = "20px";
   messageBox.style.textAlign = "center";
   
@@ -873,23 +855,18 @@ function showSystemMessage(message, callback) {
   okButton.className = "nav-button";
   okButton.textContent = "OK";
   
-  // Quando si clicca OK, chiudi il popup e, se esiste il callback, chiamalo
+  // Associa l'evento click per chiudere il popup
   okButton.addEventListener("click", function() {
     overlay.classList.add("hidden");
-    setTimeout(() => {
-      overlay.remove();
-      if (typeof callback === "function") {
-        callback();
-      }
-    }, 100);
+    setTimeout(() => overlay.remove(), 300);
   });
   
+  // Assembla il popup
   buttonContainer.appendChild(okButton);
   messageBox.appendChild(buttonContainer);
   overlay.appendChild(messageBox);
   document.body.appendChild(overlay);
 }
-
 
 
       /* ==============================================
@@ -2424,7 +2401,7 @@ function endRace() {
       ============================================== */
       slidesIntro = [
         {
-  title: `<img src="worldcup_mode.png" alt="World Cup Mode" style="max-width:100%; height:auto; margin-top:0px;">`,
+  title: `<img src="worldcup_mode.png" alt="World Cup Mode" style="max-width:100%; height:auto; margin-top:25px;">`,
   content: `
     <p class="overlay-text">Enter the players!</p>
     <div id="playersInputContainer"></div>
@@ -2433,7 +2410,7 @@ function endRace() {
   `
 },
 {
-  title: `<img src="format_.png" alt="Race Format" style="max-width:100%; height:auto; margin-top:0px;">`,
+  title: `<img src="format_.png" alt="Race Format" style="max-width:100%; height:auto; margin-top:25px;">`,
   content: `
     <p class="overlay-text">❄ Between <b>2 and 6</b> participants compete in <b>3 distinct races</b><br> <i>(Giant, Special, SuperG)</i>.<br>
     <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2442,7 +2419,7 @@ function endRace() {
   `
 },
 {
-  title: `<img src="editing_.png" alt="Editing the Track" style="max-width:100%; height:auto; margin-top:0px;">`,
+  title: `<img src="editing_.png" alt="Editing the Track" style="max-width:100%; height:auto; margin-top:25px;">`,
   content: `
     <p class="overlay-text">Before each race, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
     <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2454,7 +2431,7 @@ function endRace() {
   `
 },
 {
-  title: `<img src="penalties_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:0px;">`,
+  title: `<img src="penalties_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:25px;">`,
   content: `
     <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
     <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2469,7 +2446,7 @@ function endRace() {
   `
 },
         {
-          title: `<img src="victory_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:0px;">`,
+          title: `<img src="victory_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:25px;">`,
   content: `
             <p class="overlay-text">At the end of the 3rd race, whoever has the most points becomes the Ski-Zag...!
 </p>
@@ -2587,29 +2564,24 @@ function endRace() {
           if (val) draftParticipants.push(val);
         });
       }
-function checkDraftNames() {
-  if (draftParticipants.length < 2) {
-    showSystemMessage("At least 2 participants!", function() {
-      // Reimposta la slide all'inizio (indice 0) e rendi visibile la prima slide
-      currentTutorialIndex = 0;
-      renderSlide();
-    });
-    return false;
-  }
-  if (draftParticipants.length > 6) {
-    showSystemMessage("Max 6 participants!");
-    return false;
-  }
-  const duplicates = draftParticipants.some(
-    (nm, idx) => draftParticipants.indexOf(nm) !== idx
-  );
-  if (duplicates) {
-    showSystemMessage("Names must be unique!");
-    return false;
-  }
-  return true;
-}
-
+      function checkDraftNames() {
+        if (draftParticipants.length < 2) {
+          showSystemMessage("At least 2 participants!");
+          return false;
+        }
+        if (draftParticipants.length > 6) {
+          showSystemMessage("Max 6 participants!");
+          return false;
+        }
+        const duplicates = draftParticipants.some(
+          (nm, idx) => draftParticipants.indexOf(nm) !== idx
+        );
+        if (duplicates) {
+          showSystemMessage("Names must be unique!");
+          return false;
+        }
+        return true;
+      }
       function acceptDraftParticipants() {
         participants = [...draftParticipants];
       }
