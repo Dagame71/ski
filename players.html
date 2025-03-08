@@ -249,6 +249,7 @@
         max-width: 300px;
         box-sizing: border-box;
         position: relative;
+padding-bottom: 45px;
         text-align: center;
         color: #333;
         box-shadow: inset 4px 4px 2px rgba(175, 219, 245, 0.8),
@@ -348,20 +349,25 @@
         margin-bottom: 10px;
         font-size: 1.5em;
       }
-      .slides-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 15px;
+.slides-nav {
+  position: absolute;   /* posizionamento assoluto all’interno dell’overlay-content */
+  bottom: 20px;         /* fissa 20px dal fondo */
+  left: 0;
+  right: 0;
+  display: flex;        /* mantieni flex per disporre i pulsanti in orizzontale */
+  justify-content: space-between; /* uno a sinistra, uno al centro, uno a destra */
+  align-items: center;
+  padding: 0 20px;      /* se vuoi un po’ di padding orizzontale */
+  box-sizing: border-box;
       }
       .slides-nav .nav-button {
-        background: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5em 1em;
-        font-size: 1em;
-        cursor: pointer;
+     background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
       }
       .slides-nav .nav-button:disabled {
         background: #bdc9fb;
@@ -371,7 +377,8 @@
         display: flex;
         justify-content: center;
         gap: 8px;
-        margin: 10px 0;
+       margin-top: 10px; 
+margin-bottom: 30px;
       }
       .dot {
         width: 10px;
@@ -2403,16 +2410,16 @@ function endRace() {
       ============================================== */
       slidesIntro = [
         {
-  title: `<img src="worldcup_mode.png" alt="World Cup Mode" style="max-width:100%; height:auto; margin-top:25px;">`,
+  title: `<img src="worldcup_mode.png" alt="World Cup Mode" style="max-width:100%; height:auto; margin-top:0px;">`,
   content: `
-    <p class="overlay-text">Enter the players!</p>
+    <p class="overlay-text"><b>Enter the players!</b></p>
     <div id="playersInputContainer"></div>
     <button id="addPlayerBtn" style="margin-right:8px;">Add Player</button>
     <button id="removePlayerBtn">Remove Player</button>
   `
 },
 {
-  title: `<img src="format_.png" alt="Race Format" style="max-width:100%; height:auto; margin-top:25px;">`,
+  title: `<img src="format_.png" alt="Race Format" style="max-width:100%; height:auto; margin-top:0px;">`,
   content: `
     <p class="overlay-text">❄ Between <b>2 and 6</b> participants compete in <b>3 distinct races</b><br> <i>(Giant, Special, SuperG)</i>.<br>
     <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2421,7 +2428,7 @@ function endRace() {
   `
 },
 {
-  title: `<img src="editing_.png" alt="Editing the Track" style="max-width:100%; height:auto; margin-top:25px;">`,
+  title: `<img src="editing_.png" alt="Editing the Track" style="max-width:100%; height:auto; margin-top:0px;">`,
   content: `
     <p class="overlay-text">Before each race, you can <b>edit the track</b> by simply dragging the gates and trees with your finger, as long as you respect the constraints set by the editor.<br>
     <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2433,7 +2440,7 @@ function endRace() {
   `
 },
 {
-  title: `<img src="penalties_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:25px;">`,
+  title: `<img src="penalties_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:0px;">`,
   content: `
     <p class="overlay-text">❄ If you hit a tree, you receive a <b>0.02-second penalty</b> on your next run, and the penalty doubles for each additional tree you hit!<br>
     <span style="display:block; border-top:1px solid red; margin:8px 0;"></span>
@@ -2448,7 +2455,7 @@ function endRace() {
   `
 },
         {
-          title: `<img src="victory_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:25px;">`,
+          title: `<img src="victory_.png" alt="Brave Mode & Penalties" style="max-width:100%; height:auto; margin-top:0px;">`,
   content: `
             <p class="overlay-text">At the end of the 3rd race, whoever has the most points becomes the Ski-Zag...!
 </p>

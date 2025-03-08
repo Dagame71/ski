@@ -481,7 +481,10 @@ margin-top: -3px;
         font-size: 16px;
         cursor: pointer;
       }
-
+.slides-nav .nav-button:disabled {
+  background: #bdc9fb;  /* stesso azzurro più chiaro */
+  cursor: not-allowed;
+}
       @media (hover: hover) {
         .slides-nav .nav-button:hover {
           background: #bdc9fb; /* Azzurro più chiaro in hover */
@@ -847,7 +850,7 @@ margin-top: -3px;
     <!-- Navigazione tra le slide: frecce e pulsante Play! allineati -->
 <div class="slides-nav" style="margin-top:15px;">
   <button class="nav-button" id="challengePrev">←</button>
-  <button class="nav-button" id="closeChallengeIntroOverlay">Play!</button>
+  <button class="nav-button" id="closeChallengeIntroOverlay">Start!</button>
   <button class="nav-button" id="challengeNext">→</button>
 </div>
 
@@ -859,19 +862,61 @@ margin-top: -3px;
   let currentChallengeSlide = 1;
   const totalChallengeSlides = 2;
 
+  // Rendi il pulsante "←" disabilitato fin dall'inizio, se siamo già sulla 1a slide
+  document.getElementById("challengePrev").disabled = (currentChallengeSlide <= 1);
+
+  // Rendi il pulsante "→" disabilitato (solo se totalChallengeSlides === 1)
+  document.getElementById("challengeNext").disabled = (currentChallengeSlide >= totalChallengeSlides);
+
   document.getElementById("challengePrev").addEventListener("click", function() {
     if (currentChallengeSlide > 1) {
+      // Nascondi la slide corrente
       document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "none";
+      // Decrementa l’indice
       currentChallengeSlide--;
+      // Mostra la nuova slide
       document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "block";
+    }
+
+    // Se siamo tornati alla prima slide, disabilita il pulsante "←"
+    if (currentChallengeSlide <= 1) {
+      this.disabled = true;
+    } else {
+      this.disabled = false;
+    }
+
+    // Se siamo ora sulla slide 1, abilita "→"; se invece siamo all’ultima, disabilitalo
+    const nextBtn = document.getElementById("challengeNext");
+    if (currentChallengeSlide >= totalChallengeSlides) {
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.disabled = false;
     }
   });
 
   document.getElementById("challengeNext").addEventListener("click", function() {
     if (currentChallengeSlide < totalChallengeSlides) {
+      // Nascondi la slide corrente
       document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "none";
+      // Incrementa l’indice
       currentChallengeSlide++;
+      // Mostra la nuova slide
       document.getElementById("challengeSlide" + currentChallengeSlide).style.display = "block";
+    }
+
+    // Se siamo arrivati all’ultima slide, disabilita il pulsante "→"
+    if (currentChallengeSlide >= totalChallengeSlides) {
+      this.disabled = true;
+    } else {
+      this.disabled = false;
+    }
+
+    // Se non siamo più sulla prima slide, abilita il pulsante "←"
+    const prevBtn = document.getElementById("challengePrev");
+    if (currentChallengeSlide <= 1) {
+      prevBtn.disabled = true;
+    } else {
+      prevBtn.disabled = false;
     }
   });
 </script>
@@ -3439,25 +3484,38 @@ document.getElementById("challengeSaveBtn").addEventListener("click", () => {
 });
 
       /* Tutorial */
-      function renderTutorial() {
-        let slide = tutorialSlides[currentTutorialIndex];
-        tutorialContent.innerHTML = 
-  (slide.title && slide.title.trim() !== "" ? `<h2>${slide.title}</h2>` : "") +
-  `<p>${slide.content}</p>`;
-        tutorialDots.innerHTML = "";
-        tutorialSlides.forEach((s, i) => {
-          let d = document.createElement("div");
-          d.className = "dot" + (i === currentTutorialIndex ? " active" : "");
-          d.addEventListener("click", () => {
-            currentTutorialIndex = i;
-            renderTutorial();
-          });
-          tutorialDots.appendChild(d);
-        });
-        tutorialStart.style.display = "inline-block";
-        tutorialPrev.style.display = "inline-block";
-        tutorialNext.style.display = "inline-block";
-      }
+function renderTutorial() {
+  let slide = tutorialSlides[currentTutorialIndex];
+
+  // Costruisce il contenuto della slide (titolo e contenuto)
+  tutorialContent.innerHTML =
+    (slide.title && slide.title.trim() !== ""
+      ? `<h2>${slide.title}</h2>`
+      : "") +
+    `<p>${slide.content}</p>`;
+
+  // Ricostruisce i dots
+  tutorialDots.innerHTML = "";
+  tutorialSlides.forEach((s, i) => {
+    let d = document.createElement("div");
+    d.className = "dot" + (i === currentTutorialIndex ? " active" : "");
+    d.addEventListener("click", () => {
+      currentTutorialIndex = i;
+      renderTutorial();
+    });
+    tutorialDots.appendChild(d);
+  });
+
+  // Mostra sempre i tre pulsanti (← Start! →)
+  tutorialStart.style.display = "inline-block";
+  tutorialPrev.style.display = "inline-block";
+  tutorialNext.style.display = "inline-block";
+
+  // Disabilita i pulsanti se siamo all’inizio (←) o alla fine (→)
+  tutorialPrev.disabled = (currentTutorialIndex === 0);
+  tutorialNext.disabled = (currentTutorialIndex === tutorialSlides.length - 1);
+}
+
 
       tutorialPrev.addEventListener("click", () => {
         if (currentTutorialIndex > 0) {
